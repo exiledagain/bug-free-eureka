@@ -1,0 +1,190 @@
+Name	Rune Name	complete	server	itype1	itype2	itype3	itype4	itype5	itype6	etype1	etype2	etype3	*runes	Rune1	Rune2	Rune3	Rune4	Rune5	Rune6	T1Code1	T1Param1	T1Min1	T1Max1	T1Code2	T1Param2	T1Min2	T1Max2	T1Code3	T1Param3	T1Min3	T1Max3	T1Code4	T1Param4	T1Min4	T1Max4	T1Code5	T1Param5	T1Min5	T1Max5	T1Code6	T1Param6	T1Min6	T1Max6	T1Code7	T1Param7	T1Min7	T1Max7	eol
+RunewordX	Ancient's Pledge	1		shld										r08	r09	r07																																0
+RunewordX	Black	1		club	hamm	mace	h2h							r10	r16	r04																																0
+RunewordX	Fury	1		mele									JahGulEth	r31	r25	r05																																0
+RunewordX	Holy Thunder	1		scep										r05	r08	r09	r07																															0
+RunewordX	Honor	1		mele										r11	r01	r06	r03	r12																														0
+RunewordX	King's Grace	1		swor	scep	h2h								r11	r08	r10																																0
+RunewordX	Leaf	1		staf										r03	r08																																	0
+RunewordX	Lionheart	1		tors									HelLumFal	r15	r17	r19																																0
+RunewordX	Lore	1		helm									OrtSol	r09	r12																																	0
+RunewordX	Malice	1		mele									IthElEth	r06	r01	r05																																0
+RunewordX	Melody	1		miss										r13	r18	r04																																0
+RunewordX	Memory	1		staf										r17	r16	r12	r05																															0
+RunewordX	Nadir	1		helm									NefTir	r04	r03																																	0
+RunewordX	Radiance	1		helm									NefSolIth	r04	r12	r06																																0
+RunewordX	Rhyme	1		shld									ShaelEth	r13	r05																																	0
+RunewordX	Silence	1		weap										r14	r02	r15	r24	r03	r26																													0
+RunewordX	Smoke	1		tors									NefLum	r04	r17																																	0
+RunewordX	Stealth	1		tors										r07	r05																																	0
+RunewordX	Steel	1		swor	axe	mace	h2h						TirEl	r03	r01																																	0
+RunewordX	Strength	1		mele									AmnTir	r11	r03																																	0
+RunewordX	Venom	1		weap									TalDolMal	r07	r14	r23																																0
+RunewordX	Wealth	1		tors										r20	r18	r03																																0
+RunewordX	White	1		wand									DolIo	r14	r16																																	0
+RunewordX	Zephyr	1		miss									OrthEth	r09	r05																																	0
+RunewordX	Bound by Duty	1		tors									DolUmBerIst	r14	r22	r30	r24																															0
+RunewordX	Bramble	1		tors									RalOhmSurEth	r08	r27	r29	r05																															0
+RunewordX	Breath of the Dying	1		weap									VexHelElEldZodEth	r26	r15	r01	r02	r33	r05																													0
+RunewordX	Call to Arms	1		weap									AmnRalMalIstOhm	r11	r08	r23	r24	r27																														0
+RunewordX	Crescent Moon	1		axe	swor	h2h							ShaelUmTir	r13	r22	r03																																0
+RunewordX	Delirium	1		helm									LemIstIo	r20	r24	r16																																0
+RunewordX	Doomsayer	1		axe	pole	hamm	spea	swor	scep				HelOhmUmLoCham	r15	r27	r22	r28	r32																														0
+RunewordX	Enigma	1		tors									JahIthBer	r31	r06	r30																																0
+RunewordX	Stone	1		tors									ShaelUmPulLum	r13	r22	r21	r17																															0
+RunewordX	Eternity	1		mele									AmnBerIstSolSur	r11	r30	r24	r12	r29																														0
+RunewordX	Exile's Path	1		shld									VexOhmIstDol	r26	r27	r24	r14																															0
+RunewordX	Famine	1		axe	hamm	swor							FalOhmOrtJah	r19	r27	r09	r31																															0
+RunewordX	Hand of Justice	1		weap									SurChamAmnLo	r29	r32	r11	r28																															0
+RunewordX	Heart of the Oak	1		staf	mace								KoVexPulThul	r18	r26	r21	r10																															0
+RunewordX	Kingslayer	1		swor	axe								MalUmGulFal	r23	r22	r25	r19																															0
+RunewordX	Passion	1		weap									DolOrtEldLem	r14	r09	r02	r20																															0
+RunewordX	Gloom	1		tors									FalUmPul	r19	r22	r21																																0
+RunewordX	Sanctuary	1		shld									KoKoMal	r18	r18	r23																																0
+RunewordX	Chaos	1		h2h									FalOhmUm	r19	r27	r22																																0
+RunewordX	The Beast	1		axe	scep	hamm	staf						BerTirUmMalLum	r30	r03	r22	r23	r17																														0
+RunewordX	Serendipity																																															0
+RunewordX	Shadow																																															0
+RunewordX	Shadow of Doubt																																															0
+RunewordX	Siren's Song																																															0
+RunewordX	Sorrow																																															0
+RunewordX	Spirit	1		swor	shld								TalThulOrtAmn	r07	r10	r09	r11																															0
+RunewordX	Splendor	1		shld										r05	r17																																	0
+RunewordX	Starlight																																															0
+RunewordX	Still Water																																															0
+RunewordX	Duress	1		tors									ShaelUmThul	r13	r22	r10																																0
+RunewordX	Storm																																															0
+RunewordX	Tempest																																															0
+RunewordX	Temptation																																															0
+RunewordX	Terror																																															0
+RunewordX	Nightfall																																															0
+RunewordX	Oath	1		swor	axe	mace							ShaelPulMalLum	r13	r21	r23	r17																															0
+RunewordX	Obedience	1		pole	spea	hamm							HelKoThulEthFal	r15	r18	r10	r05	r19																														0
+RunewordX	Oblivion																																															0
+RunewordX	Obsession	1		staf									ZodIstLemLumIoNef	r33	r24	r20	r17	r16	r04																													0
+RunewordX	Harmony	1		miss									TirIthSolKo	r03	r06	r12	r18																															0
+RunewordX	Hatred																																															0
+RunewordX	Flickering Flame	1		helm									NefPulVex	r04	r21	r26																																0
+RunewordX	Fortitude	1		tors									ElSolDolLo	r01	r12	r14	r28																															0
+RunewordX	Fortune's Favor																																															0
+RunewordX	Nature's Kingdom																																															0
+RunewordX	Glory																																															0
+RunewordX	Faith	1		miss									OhmJahLemEld	r27	r31	r20	r02																															0
+RunewordX	Amity																																															0
+RunewordX	Armageddon																																															0
+RunewordX	Authority																																															0
+RunewordX	Beauty																																															0
+RunewordX	Blood			helm																																												0
+RunewordX	Bone	1		tors									SolUmUm	r12	r22	r22																																0
+RunewordX	Brand	1		miss									JahLoMalGul	r31	r28	r23	r25																															0
+RunewordX	Broken Promise																																															0
+RunewordX	Chance																																															0
+RunewordX	Sting																																															0
+RunewordX	Darkness																																															0
+RunewordX	Daylight																																															0
+RunewordX	Death	1		swor	axe								HelElVexOrtGul	r15	r01	r26	r09	r25																														0
+RunewordX	Deception																																															0
+RunewordX	Desire																																															0
+RunewordX	Despair																																															0
+RunewordX	Destiny's Daughter																																															0
+RunewordX	Destruction	1		pole	swor	spea							VexLoBerJahKo	r26	r28	r30	r31	r18																														0
+RunewordX	Dragon	1		tors	shld								SurLoSol	r29	r28	r12																																0
+RunewordX	Dread																																															0
+RunewordX	Dream	1		helm	shld								IoJahPul	r16	r31	r21																																0
+RunewordX	Dweomer																																															0
+RunewordX	Edge	1		miss									TirTalAmn	r03	r07	r11																																0
+RunewordX	Enlightenment	1		tors									PulRalSol	r21	r08	r12																																0
+RunewordX	Envy																																															0
+RunewordX	Heaven's Will																																															0
+RunewordX	Holy Tears																																															0
+RunewordX	Humility																																															0
+RunewordX	Hunger																																															0
+RunewordX	Ice	1		miss									AmnShaelJahLo	r11	r13	r31	r28																															0
+RunewordX	Infinity	1		pole	spea								BerMalBerIst	r30	r23	r30	r24																															0
+RunewordX	Innocence	1		tors									GulLemZodHel	r25	r20	r33	r15																															0
+RunewordX	Insight	1		pole	staf	spea	scep						RalTirTalSol	r08	r03	r07	r12																															0
+RunewordX	Jealousy																																															0
+RunewordX	Judgment																																															0
+RunewordX	Knight's Vigil																																															0
+RunewordX	Last Wish	1		swor	hamm	axe	staf						JahMalJahSurJahBer	r31	r23	r31	r29	r31	r30																													0
+RunewordX	Law																																															0
+RunewordX	Lawbringer	1		swor	hamm	scep	h2h						AmnLemKo	r11	r20	r18																																0
+RunewordX	Lightning																																															0
+RunewordX	Loyalty																																															0
+RunewordX	Lust																																															0
+RunewordX	Madness																																															0
+RunewordX	Mist	1		miss									ChamShaelGulThulIth	r32	r13	r25	r10	r06																														0
+RunewordX	Morning Dew																																															0
+RunewordX	Mystery																																															0
+RunewordX	Myth	1		tors									HelAmnNef	r15	r11	r04																																0
+RunewordX	Patience																																															0
+RunewordX	Pattern	1		h2h										r07	r09	r03																																0
+RunewordX	Peace	1		tors									ShaelThulAmn	r13	r10	r11																																0
+RunewordX	Penitence																																															0
+RunewordX	Peril																																															0
+RunewordX	Pestilence																																															0
+RunewordX	Phoenix	1		shld									VexVexLoJah	r26	r26	r28	r31																															0
+RunewordX	Piety																																															0
+RunewordX	Pillar of Faith																																															0
+RunewordX	Plague	1		weap									ChamFalUm	r32	r19	r22																																0
+RunewordX	Praise																																															0
+RunewordX	Prayer																																															0
+RunewordX	Pride	1		pole	spea	staf							ChamSurIoLo	r32	r29	r16	r28																															0
+RunewordX	Principle	1		tors									RalGulEld	r08	r25	r02																																0
+RunewordX	Prowess in Battle																																															0
+RunewordX	Prudence	1		tors										r23	r03																																	0
+RunewordX	Punishment																																															0
+RunewordX	Purity																																															0
+RunewordX	Question																																															0
+RunewordX	Rain	1		tors									OrtMalIth	r09	r23	r06																																0
+RunewordX	Reason																																															0
+RunewordX	Red																																															0
+RunewordX	Rift	1		pole	scep	spea	swor						HelKoLemGul	r15	r18	r20	r25																															0
+RunewordX	The Lovers																																															0
+RunewordX	Thirst																																															0
+RunewordX	Thirst for Knowledge																																															0
+RunewordX	Thought																																															0
+RunewordX	Thunder																																															0
+RunewordX	Time																																															0
+RunewordX	Tradition																																															0
+RunewordX	Treachery	1		tors									ShaelThulLem	r13	r10	r20																																0
+RunewordX	Trust																																															0
+RunewordX	Truth																																															0
+RunewordX	Unbending Will	1		swor									FalIoIthEldElHel	r19	r16	r06	r02	r01	r15																													0
+RunewordX	Valor																																															0
+RunewordX	Vengeance			weap										r06	r11	r01																																0
+RunewordX	Victory																																															0
+RunewordX	Voice			helm										r03	r06																																	0
+RunewordX	Void																																															0
+RunewordX	War																																															0
+RunewordX	Water																																															0
+RunewordX	Whisper																																															0
+RunewordX	Widowmaker	1		swor	axe								EthTirLoMalRal	r05	r03	r28	r23	r08																														0
+RunewordX	Wind	1		mele						staf			SurEl	r29	r01																																	0
+RunewordX	Wings of Hope																																															0
+RunewordX	Winter	1		swor	mace	miss							LemKoElEld	r20	r18	r01	r02																															0
+RunewordX	Wisdom	1		helm									PulIthEld	r21	r06	r02																																0
+RunewordX	Woe			weap	miss																																											0
+RunewordX	Wonder			wand										r04	r12	r24																																0
+RunewordX	Wrath	1		miss									PulLumBerMal	r21	r17	r30	r23																															0
+RunewordX	Youth																																															0
+RunewordX	Doomsayer	1		staf									HelOhmUmLoCham	r15	r27	r22	r28	r32																														0
+RunewordX	Infinity	1		staf									BerMalBerIst	r30	r23	r30	r24																															0
+RunewordX	Spirit	1		staf									TalThulOrtAmn	r07	r10	r09	r11																															0
+RunewordX	Phoenix	1		weap						staf			VexVexLoJah	r26	r26	r28	r31																															0
+RunewordX	Crescent Moon	1		pole	spea								ShaelUmTir	r13	r22	r03																																0
+RunewordX	Ferocity	1		helm									ZodChamShael	r33	r32	r13																																0
+RunewordX	Dominion	1		wand									ChamOhm	r32	r27																																	0
+RunewordX	Zenith	1		miss	spea	pole	staf						JahZodOrtThulRal	r31	r33	r09	r10	r08																														0
+RunewordX	Rampage	1		staf	spea	pole							ShaelElIthEth	r13	r01	r06	r05																															
+RunewordX	Neophyte	1		scep	club	sorc	h2h	h2h2					ThulTir	r10	r03																																	
+RunewordX	Neophyte	1		staf									ThulTir	r10	r03																																	
+RunewordX	Wind	1		staf									SurEl	r29	r01																																	0
+RunewordX	Phoenix	1		staf									VexVexLoJah	r26	r26	r28	r31																															0
+RunewordX	Shattered Wall	1		pala									ZodJahRalCham	r33	r31	r08	r32																															0
+RunewordX	Asylum	1		hamm	pole	spea	miss	2hsw					GulChamTirJahDolUm	r25	r32	r15	r31	r14	r22																													0
+RunewordX	Asylum	1		staf									GulChamHelJahDolUm	r25	r32	r15	r31	r14	r22																													0
+RunewordX	Revenge			sc9									LoHelZodAmn	r28	r15	r33	r11																															0
+RunewordX	Fortitude	1		weap									ElSolDolLo	r01	r12	r14	r28																															0
+RunewordX	Destruction	1		staf									VexLoBerJahKo	r26	r28	r30	r31	r18																														0
+RunewordX	Hustle	1		tors									ShaelKoEld	r13	r18	r02																																0
