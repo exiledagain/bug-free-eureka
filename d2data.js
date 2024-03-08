@@ -324,11 +324,14 @@ class AffixView {
 
   constructor (list) {
     this.list = list.data.sort(AffixView.sort)
+    let nIndex = list.data.keyIndex('Name')
+    this.list.keys.splice(nIndex + 1, 0, 'p')
     let pIndex = list.data.keyIndex('frequency')
-    this.list.keys[pIndex] = 'p'
     const sum = this.list.values.reduce((sum, el) => sum + Number(el[pIndex]), 0)
+    console.log(sum)
     this.list.values.forEach(el => {
-      el[pIndex] = `${(el[pIndex] / sum * 100).toFixed(2)}%`
+      el.splice(nIndex + 1, 0, `${(el[pIndex] / sum * 100).toFixed(2)}%`)
+      el[pIndex + 1] = `${el[pIndex + 1]}/${sum}`
     })
   }
 
