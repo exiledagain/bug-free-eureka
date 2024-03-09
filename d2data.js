@@ -339,3 +339,14 @@ class AffixView {
     new DataView(this.list).populate(container)
   }
 }
+
+class AffixMath {
+  static distribution (prefix, suffix) {
+    const res = []
+    let n = prefix + suffix
+    for (let i = 1; i <= 3; ++i) {
+      console.log(i, n - i)
+    }
+    return res
+  }
+}
