@@ -85,7 +85,7 @@
           let distribution
           if (prefix + suffix === 0) {
             const defaults = {
-              'Rare': 6,
+              'Rare': metaValues.type === 'jewl' || metaValues.type === 'jew' ? 4 : 6,
               'Crafted': 4,
               'Magic': 2
             }
