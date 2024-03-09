@@ -1,10 +1,11 @@
 class IgBuilder {
-  static Generate (ig, n, fixes, requirement, forcedSeed) {
+  static Generate (ig, n, fixes, requirement, extras = [], forcedSeed) {
     const builder = new IgBuilder(ig)
     builder.forcedSeed = forcedSeed
     try {
       builder.setFixes(fixes)
       builder.setRequirement(requirement)
+      builder.setExtras(extras)
       return builder.generate(n)
     } finally {
       builder.free()
@@ -128,9 +129,18 @@ class IgBuilder {
     this.requirementsLength = requirement.length
   }
 
+  setExtras (extras) {
+    const extrasPtr = this.makeEffects(extras.length)
+    extras.forEach((extra, extraIdx) => {
+      this.setEffect(extrasPtr, extraIdx, extra.min, extra.max, extra.aff, extra.par)
+    })
+    this.extras = extrasPtr
+    this.extrasLength = extras.length
+  }
+
   generate (n) {
     this.makeSeedList()
-    const res = this.ig._ig_generate(n, this.countList, this.groupList, this.lengthList, this.length, this.requirements, this.requirementsLength, this.seedList)
+    const res = this.ig._ig_generate(n, this.countList, this.groupList, this.lengthList, this.length, this.requirements, this.requirementsLength, this.seedList, this.extraList, this.extrasLength)
     return res
   }
 }

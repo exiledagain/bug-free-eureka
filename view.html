@@ -43,7 +43,6 @@
   <body>
     <script>
       async function Load () {
-        console.log(AffixMath.distribution(2, 2))
         const version = 's8cl'
         const list = []
         const files = ['Misc.txt', 'ItemTypes.txt', 'MagicPrefix.txt', 'MagicSuffix.txt', 'MagicPrefix.txt', 'Weapons.txt', 'TreasureClassEx.txt', 'Armor.txt', 'MonStats.txt']
@@ -81,24 +80,42 @@
           if (!readyForSim()) {
             return
           }
-          const values = meta.values()
-          const { prefix, suffix } = values
-          let randomSelection = false
+          const metaValues = meta.values()
+          const { prefix, suffix } = metaValues
+          let distribution
           if (prefix + suffix === 0) {
-            values.prefix = prefixList.isRare ? 3 : 1
-            values.suffix = prefixList.isRare ? 3 : 1
-            randomSelection = true
+            const defaults = {
+              'Rare': 6,
+              'Crafted': 4,
+              'Magic': 2
+            }
+            distribution = AffixMath.distribution(defaults[metaValues.rarity], !prefixList.isRare)
+          } else {
+            distribution = []
+            distribution.push({
+              prefix,
+              suffix,
+              p: 1
+            })
           }
-          const res = setup.setup(meta.values(), requirements.values())
           const n = Number(simInput.value)
           simResults.textContent = 'running'
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-              const k = IgBuilder.Generate(ig, n, res.affixes, res.requirements)
+              let k = 0
+              let m = 0
+              distribution.forEach(({ prefix, suffix, p }) => {
+                const t = Math.ceil(p * n)
+                metaValues.prefix = prefix
+                metaValues.suffix = suffix
+                const res = setup.setup(metaValues, requirements.values())
+                k += IgBuilder.Generate(ig, t, res.affixes, res.requirements)
+                m += t
+              })
               if (k >= 0) {
                 // i18n
-                const nth = k > 0 ? `1 every ${(n / k).toFixed(2)}` : 'never'
-                simResults.textContent = `${k} / ${n}: ${(k / n * 100).toFixed(4)}% or ${nth}`
+                const nth = k > 0 ? `1 every ${(m / k).toFixed(2)}` : 'never'
+                simResults.textContent = `${k} / ${m}: ${(k / m * 100).toFixed(4)}% or ${nth}`
               } else {
                 simResults.textContent = `error: ${k}`
               }

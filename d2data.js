@@ -328,7 +328,6 @@ class AffixView {
     this.list.keys.splice(nIndex + 1, 0, 'p')
     let pIndex = list.data.keyIndex('frequency')
     const sum = this.list.values.reduce((sum, el) => sum + Number(el[pIndex]), 0)
-    console.log(sum)
     this.list.values.forEach(el => {
       el.splice(nIndex + 1, 0, `${(el[pIndex] / sum * 100).toFixed(2)}%`)
       el[pIndex + 1] = `${el[pIndex + 1]}/${sum}`
@@ -341,11 +340,47 @@ class AffixView {
 }
 
 class AffixMath {
-  static distribution (prefix, suffix) {
+  static distribution (n, magic) {
+    if (magic) {
+      if (n !== 2) {
+        throw new Error('two affixes max for magic')
+      }
+      return [
+        { prefix: 0, suffix: 1, p: 0.50 },
+        { prefix: 1, suffix: 0, p: 0.25 },
+        { prefix: 1, suffix: 1, p: 0.25 }
+      ]
+    }
+    const hist = {}
+    const k = 3
+    const recur = (a, b, p) => {
+      if (a + b >= n) {
+        const key = `${a}/${b}`
+        hist[key] = hist[key] + p || p
+        return
+      }
+      if (a >= k) {
+        recur(a, b + 1, p)
+        return
+      }
+      if (b >= k) {
+        recur(a + 1, b, p)
+        return
+      }
+      recur(a + 1, b, p * 0.5)
+      recur(a, b + 1, p * 0.5)
+    }
+    recur(0, 0, 1)
     const res = []
-    let n = prefix + suffix
-    for (let i = 1; i <= 3; ++i) {
-      console.log(i, n - i)
+    for (const [key, val] of Object.entries(hist)) {
+      const pair = key.split('/')
+      const a = Number(pair[0])
+      const b = Number(pair[1])
+      res.push({
+        prefix: a,
+        suffix: b,
+        p: val
+      })
     }
     return res
   }

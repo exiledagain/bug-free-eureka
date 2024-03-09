@@ -125,7 +125,7 @@ void ig_decrement(struct effect* summary, ig_int length, struct effect* effect) 
 	}
 }
 
-int32_t ig_pass(struct group** selected, ig_int length1, struct effect* summary, ig_int length2, struct effect* scratch) {
+int32_t ig_pass(struct group** selected, ig_int length1, struct effect* summary, ig_int length2, struct effect* scratch, struct effect* extras, ig_int length3) {
 	memcpy(scratch, summary, sizeof(struct group) * length2);
 	for (int32_t i = 0; i < length1 && selected[i]; ++i) {
     if (selected[i]->offset >= 0) {
@@ -134,6 +134,9 @@ int32_t ig_pass(struct group** selected, ig_int length1, struct effect* summary,
       }
     }
 	}
+  for (int32_t i = 0; i < length3; ++i) {
+    ig_decrement(scratch, length2, &extras[i]);
+  }
 	for (int32_t i = 0; i < length2; ++i) {
 		if (scratch[i].min > 0) {
 			return 0;
@@ -233,7 +236,7 @@ ig_int ig_simulate(ig_int* counts, struct group** groups, ig_int* lengths, ig_in
 	return 0;
 }
 
-EMSCRIPTEN_KEEPALIVE ig_int ig_generate(ig_int amount, ig_int* counts, struct group** groups, ig_int* lengths, ig_int length1, struct effect* summary, ig_int length2, ig_int* seed) {
+EMSCRIPTEN_KEEPALIVE ig_int ig_generate(ig_int amount, ig_int* counts, struct group** groups, ig_int* lengths, ig_int length1, struct effect* summary, ig_int length2, ig_int* seed, struct effect* extras, ig_int length4) {
   if (!seed) {
     return ERR_NON;
   }
@@ -248,6 +251,14 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_generate(ig_int amount, ig_int* counts, struct gr
   }
 
   if (!summary || length2 <= 0) {
+    return ERR_NON;
+  }
+
+  if (extras && length4 <= 0) {
+    return ERR_NON;
+  }
+
+  if (!extras && length4 > 0) {
     return ERR_NON;
   }
 
@@ -281,7 +292,7 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_generate(ig_int amount, ig_int* counts, struct gr
       res = err;
       break;
     }
-	  res += ig_pass(selected, length3, summary, length2, scratch);
+	  res += ig_pass(selected, length3, summary, length2, scratch, extras, length4);
 	}
 
 	free(selected);
@@ -416,7 +427,7 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_test_100_one_per_group_rand() {
 	ig_int length2 = 2;
 	ig_int seed[4] = { 0, 1, 2, 3 };
   ig_int N = 1000000;
-	ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed);
+	ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed, NULL, 0);
   free(groups);
   free(effects);
 	return res != 765234;
@@ -458,7 +469,7 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_test_100_one_per_group_all() {
 	ig_int length2 = 1;
 	ig_int seed[4] = { 0, 1, 2, 3 };
   ig_int N = 1000000;
-	ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed);
+	ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed, NULL, 0);
   free(groups);
   free(effects);
 	return res != N;
@@ -503,7 +514,7 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_test_150_one_per_group_two_all() {
 	ig_int length2 = 2;
 	ig_int seed[4] = { 0, 1, 2, 3 };
   ig_int N = 1000000;
-	ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed);
+	ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed, NULL, 0);
   free(groups);
   free(effects);
 	return res != N;
@@ -548,10 +559,70 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_test_150_two_per_group() {
 	ig_int length2 = 2;
 	ig_int seed[4] = { 0, 1, 2, 3 };
   ig_int N = 1000000;
-	ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed);
+	ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed, NULL, 0);
   free(groups);
   free(effects);
 	return res != 875240;
+}
+
+EMSCRIPTEN_KEEPALIVE ig_int ig_test_150_extras() {
+  const ig_int K = 150;
+	struct group* groups = malloc(sizeof(struct group) * K);
+  struct effect* effects = malloc(sizeof(struct effect) * K);
+  struct effect* extras = malloc(sizeof(struct effect) * 2);
+	if (!groups) {
+    free(effects);
+    free(extras);
+		return -1;
+	}
+  if (!effects) {
+    free(groups);
+    free(extras);
+    return -1;
+  }
+  if (!extras) {
+    free(effects);
+    free(groups);
+    return -1;
+  }
+	memset(groups, 0, sizeof(struct group) * K);
+  memset(effects, 0, sizeof(struct effect) * K);
+  memset(extras, 0, sizeof(struct effect) * 2);
+  struct effect* root = effects;
+  for (int32_t i = 0; i < K / 3; ++i) {
+    groups[i].weight = 2 + (i > 0 ? groups[i - 1].weight : 0);
+    groups[i].offset = i * 2 +  K / 3;
+    groups[i].length = 2;
+    for (int32_t j = 0; j < 2; ++j, ++root) {
+      groups[i * 2 + K / 3 + j].length = 1;
+      groups[i * 2 + K / 3 + j].weight = 1 + j;
+      groups[i * 2 + K / 3 + j].effects = root;
+      root->min = 1;
+      root->aff = 10 + j;
+    }
+  }
+	struct effect summary[2];
+	memset(summary, 0, sizeof(summary));
+	summary[0].min = 1;
+  summary[0].aff = 10;
+	summary[0].min = 1;
+  summary[0].aff = 11;
+  // mirror summary
+  extras[0].min = 1;
+  extras[0].aff = 10;
+  extras[1].min = 1;
+  extras[1].aff = 11;
+	ig_int counts = 3;
+	ig_int lengths = K / 3;
+	ig_int length1 = 1;
+	ig_int length2 = 2;
+	ig_int seed[4] = { 0, 1, 2, 3 };
+  ig_int N = 1000000;
+	ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed, extras, 2);
+  free(groups);
+  free(effects);
+  free(extras);
+	return res != N;
 }
 
 EMSCRIPTEN_KEEPALIVE ig_int ig_bench(ig_int n) {
@@ -587,7 +658,7 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_bench(ig_int n) {
 	ig_int length1 = 1;
 	ig_int length2 = 1;
 	ig_int seed[4] = { 0, 1, 2, 3 };
-	ig_int res = ig_generate(n, &counts, &groups, &lengths, length1, summary, length2, seed);
+	ig_int res = ig_generate(n, &counts, &groups, &lengths, length1, summary, length2, seed, NULL, 0);
   free(groups);
   free(effects);
 	return res;
