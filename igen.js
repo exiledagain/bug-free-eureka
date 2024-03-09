@@ -134,7 +134,7 @@ class IgBuilder {
     extras.forEach((extra, extraIdx) => {
       this.setEffect(extrasPtr, extraIdx, extra.min, extra.max, extra.aff, extra.par)
     })
-    this.extras = extrasPtr
+    this.extraList = extrasPtr
     this.extrasLength = extras.length
   }
 
@@ -244,7 +244,7 @@ class IgSetup {
     })
   }
 
-  setup (meta, requirements) {
+  setup (meta, requirements, typeList) {
     this.buildCache()
     const res = { affixes: [], requirements: [] }
     this.caches.forEach((cache, i) => {
@@ -270,7 +270,30 @@ class IgSetup {
         min: requirement.value
       }
     })
+    res.extras = this.setupExtras(meta, requirements, typeList)
     return res
+  }
+
+  setupExtras (meta, requirements, typeList) {
+    if (!meta.rarity.startsWith('Crafted')) {
+      return []
+    }
+    switch (meta.rarity) {
+      case 'Crafted - Blood':
+        if (typeList.overlap('weap', meta.type)) {
+          return [
+            {
+              aff: this.codeLookup('dmg%'),
+              par: 0,
+              min: 50,
+              max: 81
+            }
+          ]
+        }
+        return []
+      default:
+        return []
+    }
   }
 
   setupMembers (group) {
@@ -286,7 +309,7 @@ class IgSetup {
             aff: this.codeLookup(pcode),
             par: 0,
             min: Math.abs(Number(mod.min)) || 1,
-            max: Number(mod.max) + 1
+            max: Number(mod.max) + 1 // [a, b)
           })
         }
         list.push({
@@ -294,7 +317,7 @@ class IgSetup {
           aff: this.codeLookup(mod.code),
           par: Number(mod.param),
           min: Math.abs(Number(mod.min)) || 1,
-          max: Number(mod.max) + 1
+          max: Number(mod.max) + 1 // [a, b)
         })
         return list
       }, [])
@@ -309,10 +332,18 @@ class IgSetup {
 }
 
 class IgMetaForm {
-  static defaultCounts = {
-    'Rare': 3,
-    'Crafted': 3,
-    'Magic': 1
+  static defaultCounts (type) {
+    switch (type) {
+      case 'Rare':
+        return 3
+      case 'Magic':
+        return 1
+      default:
+        if (type.startsWith('Crafted')) {
+          return 3
+        }
+        throw new Error('unknown type for default count')
+    }
   }
 
   constructor (typeList) {
@@ -337,7 +368,11 @@ class IgMetaForm {
     })
     const rarityInput = document.createElement('select')
     rarityInput.id = 'rarity-input'
-    const rarity = ['Magic', 'Rare', 'Crafted']
+    const rarity = ['Magic', 'Rare']
+    const crafts = ['Blood', 'Caster', 'Hitpower', 'Safety', 'Vampiric', 'Bountiful']
+    crafts.forEach(craft => {
+      rarity.push(`Crafted - ${craft}`)
+    })
     rarity.forEach(type => {
       const opt = document.createElement('option')
       opt.value = type
@@ -345,7 +380,7 @@ class IgMetaForm {
       rarityInput.appendChild(opt)
     })
     levelInput.value = '94'
-    typeInput.value = 'jewl'
+    typeInput.value = '2hsw'
     rarityInput.value = 'Magic'
     const prefixInput = document.createElement('select')
     this.populateAffixCount(rarityInput.value, prefixInput)
@@ -376,7 +411,7 @@ class IgMetaForm {
   }
 
   populateAffixCount (rarity, input) {
-    for (let i = 0; i <= IgMetaForm.defaultCounts[rarity]; ++i) {
+    for (let i = 0; i <= IgMetaForm.defaultCounts(rarity); ++i) {
       const opt = document.createElement('option')
       opt.value = opt.textContent = i
       input.appendChild(opt)

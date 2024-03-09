@@ -45,7 +45,7 @@
       async function Load () {
         const version = 's8cl'
         const list = []
-        const files = ['Misc.txt', 'ItemTypes.txt', 'MagicPrefix.txt', 'MagicSuffix.txt', 'MagicPrefix.txt', 'Weapons.txt', 'TreasureClassEx.txt', 'Armor.txt', 'MonStats.txt']
+        const files = ['Misc.txt', 'ItemTypes.txt', 'MagicPrefix.txt', 'MagicSuffix.txt']
         for (const file of files) {
           const data = new DataFrame(`data/${version}/global/excel/${file}`)
           await data.load()
@@ -84,12 +84,17 @@
           const { prefix, suffix } = metaValues
           let distribution
           if (prefix + suffix === 0) {
-            const defaults = {
-              'Rare': metaValues.type === 'jewl' || metaValues.type === 'jew' ? 4 : 6,
-              'Crafted': 4,
-              'Magic': 2
+            const defaults = type => {
+              switch (type) {
+                case 'Rare':
+                  return metaValues.type === 'jewl' || metaValues.type === 'jew' ? 4 : 6
+                case 'Magic':
+                  return 2
+                default:
+                  return 4
+              }
             }
-            distribution = AffixMath.distribution(defaults[metaValues.rarity], !prefixList.isRare)
+            distribution = AffixMath.distribution(defaults(metaValues.rarity), !prefixList.isRare)
           } else {
             distribution = []
             distribution.push({
@@ -104,13 +109,20 @@
             requestAnimationFrame(() => {
               let k = 0
               let m = 0
-              distribution.forEach(({ prefix, suffix, p }) => {
+              console.log('####')
+              distribution.some(({ prefix, suffix, p }) => {
                 const t = Math.ceil(p * n)
                 metaValues.prefix = prefix
                 metaValues.suffix = suffix
-                const res = setup.setup(metaValues, requirements.values())
-                k += IgBuilder.Generate(ig, t, res.affixes, res.requirements)
+                const config = setup.setup(metaValues, requirements.values(), tl)
+                const ret = IgBuilder.Generate(ig, t, config.affixes, config.requirements, config.extras)
+                if (ret < 0) {
+                  k = ret
+                  return true
+                }
+                k += ret
                 m += t
+                console.log(`k=${k} m=${m} prefix=${prefix} suffix=${suffix} p=${p}`)
               })
               if (k >= 0) {
                 // i18n

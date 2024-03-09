@@ -351,6 +351,9 @@ class AffixMath {
         { prefix: 1, suffix: 1, p: 0.25 }
       ]
     }
+    if (n <= 0 || n > 6 || Number(n) !== n) {
+      throw new Error(`unknown n for affix distribution n=${n}`)
+    }
     const hist = {}
     const k = 3
     const recur = (a, b, p) => {
