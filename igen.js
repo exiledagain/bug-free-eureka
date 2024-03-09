@@ -278,11 +278,10 @@ class IgSetup {
     if (!meta.rarity.startsWith('Crafted')) {
       return []
     }
-    const types = typeList.expand(meta.type)
+    const types = typeList.ancestors(meta.type)
     switch (meta.rarity) {
       case 'Crafted - Blood':
-        console.log(types, types.includes('weap'))
-        if (types.includes('weap')) {
+        if (types.has('weap')) {
           return [
             {
               aff: this.codeLookup('dmg%'),

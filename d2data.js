@@ -206,6 +206,24 @@ class TypeList {
     return types1.some(type1 => types2.includes(type1))
   }
 
+  ancestors (type) {
+    const set = {}
+    const stack = [type]
+    const res = new Set()
+    while (stack.length > 0) {
+      const u = stack.pop()
+      set[u] = true
+      res.add(u)
+      for (const v of this.parents(u)) {
+        if (!set[v]) {
+          set[v] = true
+          stack.push(v)
+        }
+      }
+    }
+    return res
+  }
+
   build (miscTxt, typesTxt) {
     this.set = {}
     miscTxt.each(row => {

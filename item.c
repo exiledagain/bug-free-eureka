@@ -29,6 +29,11 @@ static const ig_int ERR_SAN3 = -10;
 static const ig_int ERR_SAN4 = -11;
 static const ig_int ERR_SAN5 = -12;
 static const ig_int ERR_SAN6 = -13;
+static const ig_int ERR_NON1 = -14;
+static const ig_int ERR_NON2 = -15;
+static const ig_int ERR_NON3 = -16;
+static const ig_int ERR_NON4 = -17;
+static const ig_int ERR_NON5 = -18;
 
 /**
 In Diablo 2, affixes (e.g. "of Strength") are assigned to group.
@@ -238,7 +243,7 @@ ig_int ig_simulate(ig_int* counts, struct group** groups, ig_int* lengths, ig_in
 
 EMSCRIPTEN_KEEPALIVE ig_int ig_generate(ig_int amount, ig_int* counts, struct group** groups, ig_int* lengths, ig_int length1, struct effect* summary, ig_int length2, ig_int* seed, struct effect* extras, ig_int length4) {
   if (!seed) {
-    return ERR_NON;
+    return ERR_NON1;
   }
 
 	for (int32_t i = 0; i < 4; ++i) {
@@ -247,26 +252,22 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_generate(ig_int amount, ig_int* counts, struct gr
 	jump();
 
   if (length1 <= 0) {
-    return ERR_NON;
+    return ERR_NON2;
   }
 
   if (!summary || length2 <= 0) {
-    return ERR_NON;
-  }
-
-  if (extras && length4 <= 0) {
-    return ERR_NON;
+    return ERR_NON3;
   }
 
   if (!extras && length4 > 0) {
-    return ERR_NON;
+    return ERR_NON4;
   }
 
 	ig_int length3 = 0;
 
 	for (int32_t i = 0; i < length1; ++i) {
     if (lengths[i] <= 0 || counts[i] <= 0 || !groups[i]) {
-      return ERR_NON;
+      return ERR_NON5;
     }
 		length3 += counts[i];
 	}
