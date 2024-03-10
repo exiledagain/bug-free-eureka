@@ -160,6 +160,7 @@
           document.querySelectorAll('table').forEach(el => el.remove())
           prefixList = new AffixList(tl, list[2], itemCode, level, isRare)
           suffixList = new AffixList(tl, list[3], itemCode, level, isRare)
+          new AffixTree(prefixList, suffixList)
           document.body.querySelectorAll('#igen-form').forEach(el => el.remove())
           const form = document.createElement('div')
           form.id = 'igen-form'

@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+  <body>
+    <script>
+      const vertexShaderSource = `#version 300 es
+        precision highp float;
+        in vec2 position;
+        out vec2 texCoord;
+        void main() {
+            gl_Position = vec4(position, 0.0, 1.0);
+            texCoord = (position * 0.5) + vec2(0.5);
+        }
+      `
+
+      const fragmentShaderSource = `#version 300 es
+        precision highp float;
+
+        out vec4 FragColor;
+
+        void main() {
+            FragColor = vec4(0.0);
+
+            for (uint i = 0u; i < 10000000u; i++) {
+                FragColor.r = float((i >> 24u) & 0xffu) / 255.0;
+                FragColor.g = float((i >> 16u) & 0xffu) / 255.0;
+                FragColor.b = float((i >> 8u) & 0xffu) / 255.0;
+                FragColor.a = float(i & 0xffu) / 255.0;
+            }
+        }
+      `
+    </script>
+    <script>
+      const canvas = document.createElement('canvas')
+      canvas.width = 100
+      canvas.height = 100
+      const context = canvas.getContext('webgl2')
+
+      const createShader = (source, type) => {
+        const res = context.createShader(type)
+        context.shaderSource(res, source)
+        context.compileShader(res)
+        const msg = context.getShaderInfoLog(res)
+        if (msg.length > 0) {
+          throw new Error(`shader compile message: ${msg}`)
+        }
+        return res
+      }
+
+      const createProgram = (vertex, fragment) => {
+        vertex = createShader(vertex, context.VERTEX_SHADER)
+        fragment = createShader(fragment, context.FRAGMENT_SHADER)
+        const res = context.createProgram()
+        context.attachShader(res, vertex)
+        context.attachShader(res, fragment)
+        context.linkProgram(res)
+        const msg = context.getProgramInfoLog(res)
+        if (msg.length > 0) {
+          throw new Error(`program compile message: ${msg}`)
+        }
+        return res
+      }
+
+      const parallelWork = () => {
+        const program = createProgram(vertexShaderSource, fragmentShaderSource)
+
+        const vertices = new Float32Array([
+            -1.0, -1.0,
+             1.0, -1.0,
+            -1.0,  1.0,
+             1.0,  1.0
+        ])
+        const vertexBuffer = context.createBuffer();
+        context.bindBuffer(context.ARRAY_BUFFER, vertexBuffer);
+        context.bufferData(context.ARRAY_BUFFER, vertices, context.STATIC_DRAW);
+
+        const positionAttribLocation = context.getAttribLocation(program, 'position')
+        context.vertexAttribPointer(positionAttribLocation, 2, context.FLOAT, false, 0, 0)
+        context.enableVertexAttribArray(positionAttribLocation)
+
+        const texture = context.createTexture()
+        context.bindTexture(context.TEXTURE_2D, texture)
+        context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, 100, 100, 0, context.RGBA, context.UNSIGNED_BYTE, null)
+        context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR)
+
+        context.clearColor(0.0, 0.0, 0.0, 1.0)
+        context.clear(context.COLOR_BUFFER_BIT)
+
+        context.useProgram(program)
+        context.drawArrays(context.TRIANGLE_STRIP, 0, 4)
+
+        const res = new Uint8Array(100 * 100 * 4)
+        context.readPixels(0, 0, 100, 100, context.RGBA, context.UNSIGNED_BYTE, res)
+        return res
+      }
+
+      performance.mark('s')
+      const res = parallelWork()
+      performance.mark('e')
+      console.log(performance.measure('e-s', 's', 'e'))
+      crypto.subtle.digest('SHA-1', res).then(el => {
+        console.log(Array.from(new Uint8Array(el)).join(','))
+      })
+    </script>
+  </body>
+</html>
