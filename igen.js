@@ -381,8 +381,8 @@ class IgMetaForm {
       rarityInput.appendChild(opt)
     })
     levelInput.value = '94'
-    typeInput.value = '2hsw'
-    rarityInput.value = 'Magic'
+    typeInput.value = 'circ'
+    rarityInput.value = 'Rare'
     const prefixInput = document.createElement('select')
     this.populateAffixCount(rarityInput.value, prefixInput)
     const suffixInput = document.createElement('select')

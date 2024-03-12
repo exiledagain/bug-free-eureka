@@ -1,38 +1,49 @@
 <!doctype html>
 <html>
+  <head>
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <style>
+      * {
+        background-color: black;
+        color: silver;
+      }
+    </style>
+  </head>
   <body>
     <script>
+      const n = 512
       const vertexShaderSource = `#version 300 es
         precision highp float;
-        in vec2 position;
-        out vec2 texCoord;
+        in vec4 position;
         void main() {
-            gl_Position = vec4(position, 0.0, 1.0);
-            texCoord = (position * 0.5) + vec2(0.5);
+            gl_Position = position;
         }
       `
 
       const fragmentShaderSource = `#version 300 es
         precision highp float;
 
-        out vec4 FragColor;
+        layout(location = 0) out uvec4 color;
 
         void main() {
-            FragColor = vec4(0.0);
+          color = uvec4(0u);
 
-            for (uint i = 0u; i < 10000000u; i++) {
-                FragColor.r = float((i >> 24u) & 0xffu) / 255.0;
-                FragColor.g = float((i >> 16u) & 0xffu) / 255.0;
-                FragColor.b = float((i >> 8u) & 0xffu) / 255.0;
-                FragColor.a = float(i & 0xffu) / 255.0;
-            }
+          for (uint i = 0u; i < ${Math.floor(100e9/n/n)}u; i++) {
+            color.r = ((i >> 24u) & 0xffu) / 255u;
+            color.g = ((i >> 16u) & 0xffu) / 255u;
+            color.b = ((i >> 8u) & 0xffu) / 255u;
+            color.a = (i & 0xffu) / 255u;
+          }
+
+          color.r = uint(gl_FragCoord.x);
+          color.g = uint(gl_FragCoord.y);
         }
       `
     </script>
     <script>
       const canvas = document.createElement('canvas')
-      canvas.width = 100
-      canvas.height = 100
+      canvas.width = n
+      canvas.height = n
       const context = canvas.getContext('webgl2')
 
       const createShader = (source, type) => {
@@ -53,9 +64,12 @@
         context.attachShader(res, vertex)
         context.attachShader(res, fragment)
         context.linkProgram(res)
-        const msg = context.getProgramInfoLog(res)
-        if (msg.length > 0) {
-          throw new Error(`program compile message: ${msg}`)
+        if (!context.getProgramParameter(res, context.LINK_STATUS)) {
+          const msg = context.getProgramInfoLog(res)
+          if (msg.length > 0) {
+            throw new Error(`program compile message: ${msg}`)
+          }
+          throw new Error('program failed')
         }
         return res
       }
@@ -79,17 +93,17 @@
 
         const texture = context.createTexture()
         context.bindTexture(context.TEXTURE_2D, texture)
-        context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, 100, 100, 0, context.RGBA, context.UNSIGNED_BYTE, null)
-        context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR)
+        context.texImage2D(context.TEXTURE_2D, 0, context.RGBA32UI, n, n, 0, context.RGBA_INTEGER, context.UNSIGNED_INT, null)
 
-        context.clearColor(0.0, 0.0, 0.0, 1.0)
-        context.clear(context.COLOR_BUFFER_BIT)
+        const frame = context.createFramebuffer()
+        context.bindFramebuffer(context.FRAMEBUFFER, frame)
+        context.framebufferTexture2D(context.FRAMEBUFFER, context.COLOR_ATTACHMENT0, context.TEXTURE_2D, texture, 0)
 
         context.useProgram(program)
         context.drawArrays(context.TRIANGLE_STRIP, 0, 4)
 
-        const res = new Uint8Array(100 * 100 * 4)
-        context.readPixels(0, 0, 100, 100, context.RGBA, context.UNSIGNED_BYTE, res)
+        const res = new Uint32Array(n * n * 4)
+        context.readPixels(0, 0, n, n, context.RGBA_INTEGER, context.UNSIGNED_INT, res)
         return res
       }
 
@@ -97,6 +111,7 @@
       const res = parallelWork()
       performance.mark('e')
       console.log(performance.measure('e-s', 's', 'e'))
+      console.log(res)
       crypto.subtle.digest('SHA-1', res).then(el => {
         console.log(Array.from(new Uint8Array(el)).join(','))
       })
