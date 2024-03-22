@@ -5,55 +5,20 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&amp;display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon"> 
-    <style>
-      body {
-        background-color: black;
-        color: silver;
-        font-family: 'Noto Sans JP', sans-serif;
-      }
-
-      th {
-        text-align: left;
-      }
-
-      td, th {
-        padding-right: 1em;
-        white-space: nowrap;
-      }
-
-      thead {
-        position: sticky;
-        background-color: black;
-        top: 0;
-      }
-
-      input:invalid {
-        border: red solid 3px;
-      }
-
-      button:disabled {
-        color: white
-      }
-    </style>
+    <link rel="stylesheet" href="css/common.css">
     <script src="item.js"></script>
     <script src="d2data.js"></script>
     <script src="igen.js"></script>
-    <script src="tree.js"></script>
   </head>
   <body>
     <script>
       async function Load () {
         const version = 's8cl'
-        const list = []
         const files = ['Misc.txt', 'ItemTypes.txt', 'MagicPrefix.txt', 'MagicSuffix.txt']
-        for (const file of files) {
-          const data = new DataFrame(`data/${version}/global/excel/${file}`)
-          await data.load()
-          list.push(data)
-        }
+        const loader = new DataLoader()
+        await loader.preload(version, files)
         const ig = await new ItemGeneratorModule()
-        const tl = new TypeList(list[0], list[1])
-        // type, level, rare
+        const tl = new TypeList(loader.get(version, 'Misc.txt'), loader.get(version, 'ItemTypes.txt'))
         let setup, meta, requirements
         let prefixList, suffixList
         function populate (container) {
@@ -109,7 +74,6 @@
             requestAnimationFrame(() => {
               let k = 0
               let m = 0
-              console.log('####')
               distribution.some(({ prefix, suffix, p }) => {
                 const t = Math.ceil(p * n)
                 metaValues.prefix = prefix
@@ -125,7 +89,7 @@
                 console.log(`k=${k} m=${m} prefix=${prefix} suffix=${suffix} p=${p}`)
               })
               if (k >= 0) {
-                // i18n
+                // i18n?
                 const nth = k > 0 ? `1 every ${(m / k).toFixed(2)}` : 'never'
                 simResults.textContent = `${k} / ${m}: ${(k / m * 100).toFixed(4)}% or ${nth}`
               } else {
@@ -153,14 +117,15 @@
         populate(div)
         par.appendChild(div)
         document.body.appendChild(par)
+        const prefixData = loader.get(version, 'MagicPrefix.txt')
+        const suffixData = loader.get(version, 'MagicSuffix.txt')
         function reload () {
           const itemCode = document.querySelector('#type-input').value
           const level = Number(document.querySelector('#level-input').value)
           const isRare = document.querySelector('#rarity-input').value !== 'Magic'
           document.querySelectorAll('table').forEach(el => el.remove())
-          prefixList = new AffixList(tl, list[2], itemCode, level, isRare)
-          suffixList = new AffixList(tl, list[3], itemCode, level, isRare)
-          new AffixTree(prefixList, suffixList)
+          prefixList = new AffixList(tl, prefixData, itemCode, level, isRare)
+          suffixList = new AffixList(tl, suffixData, itemCode, level, isRare)
           document.body.querySelectorAll('#igen-form').forEach(el => el.remove())
           const form = document.createElement('div')
           form.id = 'igen-form'

@@ -1,3 +1,34 @@
+class DataLoader {
+  constructor () {
+    this.loaded = {}
+  }
+
+  async load (version, file) {
+    const uri = `data/${version}/global/excel/${file}`
+    if (this.loaded[uri]) {
+      return this.loaded[uri]
+    }
+    const res = this.loaded[uri] = new DataFrame(uri)
+    await res.load()
+    return res
+  }
+
+  async preload (version, files) {
+    for (const file of files) {
+      await this.load(version, file)
+    }
+  }
+
+  get (version, file) {
+    const uri = `data/${version}/global/excel/${file}`
+    const res = this.loaded[uri]
+    if (res) {
+      return res
+    }
+    throw new Error(`file not loaded: ${uri}`)
+  }
+}
+
 class DataFrame {
   constructor (uri) {
     this.uri = uri

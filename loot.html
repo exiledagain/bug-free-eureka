@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&amp;display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon"> 
+    <link rel="stylesheet" href="css/common.css">
+    <script src="item.js"></script>
+    <script src="d2data.js"></script>
+    <script src="igen.js"></script>
+  </head>
+  <body>
+    <script>
+      class DropAbacus {
+        constructor (version) {
+          this.version = version
+          this.loader = new DataLoader()          
+        }
+
+        async load () {
+          await this.loader.preload(this.version, [
+            'MonStats.txt',
+            'Levels.txt',
+            'UniqueItems.txt',
+            'SetItems.txt',
+            'ItemRatio.txt',
+            'Weapons.txt',
+            'Misc.txt',
+            'Armor.txt'
+          ])
+        }
+
+        data () {
+          return this.loader.get(this.version, 'ItemRatio.txt')
+        }
+
+        chance (magicFind, rarity, difference) {
+          const magicDivisor = magicFind + 100
+          let base = Math.floor(type - Math.floor(difference / divisor)) << 7
+          if (magicFind !== 0) {
+            const baseDivisor = rarity !== 'magic' && magicDivisor > 110 ? cs[0] * Math.floor((cs[1] * magicDivisor - cs[2]) / (magicDivisor + cs[3])) + 100 : magicDivisor
+            if (baseDivisor) {
+              base = Math.floor(12800 * (type - Math.floor(difference / divisor)) / baseDivisor)
+            }
+          }
+          base = Math.max(base, min)
+          const chance = base - Math.floor(base * extra / 1024)
+          return chance / 128
+        }
+      }
+
+      class DropView {
+        constructor (abacus) {
+          this.abacus = abacus
+        }
+
+        populate (container) {
+          new DataView(this.abacus.data()).populate(container)
+        }
+      }
+
+      async function Load () {
+        const abacus = new DropAbacus('s8')
+        await abacus.load()
+        const view = new DropView(abacus)
+        view.populate(document.body)
+      }
+      requestAnimationFrame(Load)
+    </script>
+  </body>
+</html>
