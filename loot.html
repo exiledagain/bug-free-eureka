@@ -60,13 +60,13 @@
             this.loader.get(this.version, 'ItemRatio.txt'),
             // this.loader.get(this.version, 'ItemTypes.txt')
             // this.loader.get(this.version, 'Misc.txt'),
-            // this.loader.get(this.version, 'Weapons.txt'),
+            this.loader.get(this.version, 'Weapons.txt'),
           ] 
         }
 
         isClassSpecific (item) {
-          if (this.typeList.has(item)) {
-            item = this.getType(item)
+          if (!this.typeList.has(item)) {
+            item = this.codeLookup[item].type
           }
           return this.typeList.expand('clas').includes(item)
         }
@@ -93,7 +93,7 @@
           const clazzy = this.isClassSpecific(item)
           let res
           this.itemRatio.each(ratio => {
-            if ((ratio['Class Specific'] === 1 && clazzy) && ratio.Version === '1') {
+            if ((ratio['Class Specific'] === '1' && clazzy) && ratio.Version === '1') {
               res = ratio
             } else if (ratio.Version === '1' && ratio['Class Specific'] !== '1') {
               res = ratio
@@ -103,6 +103,7 @@
             base: Number(res[rarity]),
             divisor: Number(res[`${rarity}Divisor`]),
             min: Number(res[`${rarity}Min`]),
+            class: clazzy,
             raw: res
           }
         }
@@ -117,7 +118,6 @@
         }
 
         chance (magicFind, extra, difference, rarity, rarityBase, divisor, min, cs) {
-          console.log(...arguments)
           const magicDivisor = magicFind + 100
           let base = Math.floor(rarityBase - Math.floor(difference / divisor)) << 7
           if (magicFind !== 0) {
@@ -128,7 +128,7 @@
           }
           base = Math.max(base, min)
           const chance = base - Math.floor(base * extra / 1024)
-          return chance
+          return chance > 0 ? 128 / chance : 1
         }
       }
 
@@ -149,7 +149,11 @@
         await abacus.load()
         const view = new DropView(abacus)
         view.populate(document.body)
-        console.log(abacus.p('Unique', 100, 87, 983, '7gw'))
+        const code = '9qr'
+        const level = 87
+        const extra = 980
+        console.log(abacus.p('Unique', 0, level, extra, code))
+        console.log(abacus.p('Unique', 100000, level, extra, code))
       }
       requestAnimationFrame(Load)
     </script>
