@@ -13,6 +13,12 @@
   <body>
     <script>
       class DropAbacus {
+        static constants = {
+          'Rare': [200, 3, 300, 500],
+          'Set': [100, 5, 500, 400],
+          'Unique': [50, 5, 500, 150]
+        }
+
         constructor (version) {
           this.version = version
           this.loader = new DataLoader()          
@@ -20,33 +26,109 @@
 
         async load () {
           await this.loader.preload(this.version, [
-            'MonStats.txt',
-            'Levels.txt',
-            'UniqueItems.txt',
-            'SetItems.txt',
+            'Armor.txt',
             'ItemRatio.txt',
-            'Weapons.txt',
+            'ItemTypes.txt',
+            'Levels.txt',
             'Misc.txt',
-            'Armor.txt'
+            'MonStats.txt',
+            'SetItems.txt',
+            'UniqueItems.txt',
+            'Weapons.txt',
           ])
+
+          this.itemRatio = this.loader.get(this.version, 'ItemRatio.txt')
+          this.typeList = new TypeList(this.loader.get(this.version, 'Misc.txt'), this.loader.get(this.version, 'ItemTypes.txt'))
+          this.weapons = this.loader.get(this.version, 'Weapons.txt')
+          this.armors = this.loader.get(this.version, 'Armor.txt')
+          this.misc = this.loader.get(this.version, 'Misc.txt')
+
+          this.codeLookup = {}
+          this.weapons.each(weapon => {
+            this.codeLookup[weapon.code] = weapon
+          })
+          this.armors.each(armor => {
+            this.codeLookup[armor.code] = armor
+          })
+          this.misc.each(misc => {
+            this.codeLookup[misc.code] = misc
+          })
         }
 
         data () {
-          return this.loader.get(this.version, 'ItemRatio.txt')
+          return [
+            this.loader.get(this.version, 'ItemRatio.txt'),
+            // this.loader.get(this.version, 'ItemTypes.txt')
+            // this.loader.get(this.version, 'Misc.txt'),
+            // this.loader.get(this.version, 'Weapons.txt'),
+          ] 
         }
 
-        chance (magicFind, rarity, difference) {
+        isClassSpecific (item) {
+          if (this.typeList.has(item)) {
+            item = this.getType(item)
+          }
+          return this.typeList.expand('clas').includes(item)
+        }
+
+        getType (item) {
+          let res = item
+          this.weapons.each(weapon => {
+            if (weapon.code === item) {
+              res = weapon.type1
+            }
+          })
+          if (res !== item) {
+            return res
+          }
+          this.armors.each(armor => {
+            if (armor.code === item) {
+              res = armor.type1
+            }
+          })
+          return res
+        }
+
+        getItemRatio (item, rarity) {
+          const clazzy = this.isClassSpecific(item)
+          let res
+          this.itemRatio.each(ratio => {
+            if ((ratio['Class Specific'] === 1 && clazzy) && ratio.Version === '1') {
+              res = ratio
+            } else if (ratio.Version === '1' && ratio['Class Specific'] !== '1') {
+              res = ratio
+            }
+          })
+          return {
+            base: Number(res[rarity]),
+            divisor: Number(res[`${rarity}Divisor`]),
+            min: Number(res[`${rarity}Min`]),
+            raw: res
+          }
+        }
+
+        getItemLevel (item) {
+          return Number(this.codeLookup[item].level)
+        }
+
+        p (rarity, magicFind, level, extra, item) {
+          const ratio = this.getItemRatio(item, rarity)
+          return this.chance(magicFind, extra, level - this.getItemLevel(item), rarity, ratio.base, ratio.divisor, ratio.min, DropAbacus.constants[rarity])
+        }
+
+        chance (magicFind, extra, difference, rarity, rarityBase, divisor, min, cs) {
+          console.log(...arguments)
           const magicDivisor = magicFind + 100
-          let base = Math.floor(type - Math.floor(difference / divisor)) << 7
+          let base = Math.floor(rarityBase - Math.floor(difference / divisor)) << 7
           if (magicFind !== 0) {
-            const baseDivisor = rarity !== 'magic' && magicDivisor > 110 ? cs[0] * Math.floor((cs[1] * magicDivisor - cs[2]) / (magicDivisor + cs[3])) + 100 : magicDivisor
+            const baseDivisor = rarity !== 'Magic' && magicDivisor > 110 ? cs[0] * Math.floor((cs[1] * magicDivisor - cs[2]) / (magicDivisor + cs[3])) + 100 : magicDivisor
             if (baseDivisor) {
-              base = Math.floor(12800 * (type - Math.floor(difference / divisor)) / baseDivisor)
+              base = Math.floor(12800 * (rarityBase - Math.floor(difference / divisor)) / baseDivisor)
             }
           }
           base = Math.max(base, min)
           const chance = base - Math.floor(base * extra / 1024)
-          return chance / 128
+          return chance
         }
       }
 
@@ -56,7 +138,9 @@
         }
 
         populate (container) {
-          new DataView(this.abacus.data()).populate(container)
+          for (const data of this.abacus.data()) {
+            new DataView(data).populate(container)
+          }
         }
       }
 
@@ -65,6 +149,7 @@
         await abacus.load()
         const view = new DropView(abacus)
         view.populate(document.body)
+        console.log(abacus.p('Unique', 100, 87, 983, '7gw'))
       }
       requestAnimationFrame(Load)
     </script>

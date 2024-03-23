@@ -173,6 +173,10 @@ class TypeList {
     return res
   }
 
+  has (type) {
+    return !!this.set[type]
+  }
+
   add (type, parents) {
     if (!type) {
       return
