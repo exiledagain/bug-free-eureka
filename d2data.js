@@ -40,14 +40,14 @@ class DataFrame {
     const res = await fetch(this.uri)
     const text = await res.text()
     const lines = text.split(/\r?\n/)
-    lines.forEach((line, idx) => {
+    for (const line of lines) {
       const values = line.split('\t')
-      if (idx === 0) {
+      if (!this.keys) {
         this.keys = values
       } else if (values.length === this.keys.length) {
         this.values.push(values)
       }
-    })
+    }
   }
 
   combine (values) {

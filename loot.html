@@ -9,15 +9,30 @@
     <script src="item.js"></script>
     <script src="d2data.js"></script>
     <script src="igen.js"></script>
+    <script src="util.js"></script>
   </head>
   <body>
     <script>
       class DropAbacus {
         static constants = {
-          'Rare': [200, 3, 300, 500],
-          'Set': [100, 5, 500, 400],
-          'Unique': [50, 5, 500, 150]
+          'Unique': 250,
+          'Set': 500,
+          'Rare': 600,
+          'Magic': 0
         }
+        static itemKeys = Array.from({ length: 10 }, (_, id) => `Item${id + 1}`)
+        static probKeys = Array.from({ length: 10 }, (_, id) => `Prob${id + 1}`)
+        static monLevelKeys = Array.from({ length: 3 }, (_, id) => `MonLvl${id + 1}Ex`)
+        static monNormalKeys = Array.from({ length: 25 }, (_ , id) => `mon${id + 1}`)
+        static monHellKeys = Array.from({ length: 25 }, (_ , id) => `nmon${id + 1}`)
+        static monUniqueKeys = Array.from({ length: 25 }, (_ , id) => `umon${id + 1}`)
+        static monBossLevelKeys = ['Level', 'Level(N)', 'Level(H)']
+        static monNormalTreasureKeys = Array.from({ length: 4 }, (_, id) => `TreasureClass${id + 1}`)
+        static monNightmareTreasureKeys = Array.from({ length: 4 }, (_, id) => `TreasureClass${id + 1}(N)`)
+        static monHellTreasureKeys = Array.from({ length: 4 }, (_, id) => `TreasureClass${id + 1}(H)`)
+        static monTreasureKeys = DropAbacus.monHellTreasureKeys.concat(DropAbacus.monNightmareTreasureKeys, DropAbacus.monNormalTreasureKeys)
+        static monMinionKeys = ['minion1', 'minion2']
+        static monKeys = DropAbacus.monNormalKeys.concat(DropAbacus.monHellKeys)
 
         constructor (version) {
           this.version = version
@@ -33,6 +48,7 @@
             'Misc.txt',
             'MonStats.txt',
             'SetItems.txt',
+            'TreasureClassEx.txt',
             'UniqueItems.txt',
             'Weapons.txt',
           ])
@@ -42,6 +58,9 @@
           this.weapons = this.loader.get(this.version, 'Weapons.txt')
           this.armors = this.loader.get(this.version, 'Armor.txt')
           this.misc = this.loader.get(this.version, 'Misc.txt')
+          this.treasure = this.loader.get(this.version, 'TreasureClassEx.txt')
+          this.monsters = this.loader.get(this.version, 'MonStats.txt')
+          this.levels = this.loader.get(this.version, 'Levels.txt')
 
           this.codeLookup = {}
           this.weapons.each(weapon => {
@@ -53,6 +72,54 @@
           this.misc.each(misc => {
             this.codeLookup[misc.code] = misc
           })
+          const treasureGraph = new Graph()
+          this.treasure.each(treasure => {
+            if (treasure.Picks === '0' || treasure.Picks.length === 0) {
+              return
+            }
+            DropAbacus.itemKeys.forEach((key, idx) => {
+              if (treasure[key].length > 0 && treasure[DropAbacus.probKeys[idx]] > 0) {                
+                treasureGraph.edge(treasure['Treasure Class'], treasure[key])
+              }
+            })
+          })
+          const set = new Set()
+          console.log(DropAbacus.monTreasureKeys)
+          const map = new Map()
+          this.monsters.each(monster => {
+            if (monster.isSpawn !== '1' || monster.killable !== '1' || monster.enabled !== '1') {
+              return
+            }
+            map.set(monster.Id, monster)
+            if (monster.placespawn === '1' && monster.spawn.length > 0) {
+              console.log('spawn', monster.spawn)
+            }
+            if (monster.SplEndDeath === '1') {
+              console.log('death', monster.minion1)
+            }
+            DropAbacus.monMinionKeys.forEach(key => {
+              if (monster[key]) {
+                console.log('minion', monster[key])
+              }
+            })
+            DropAbacus.monTreasureKeys.forEach(key => {
+              if (monster[key]) {
+                set.add(monster[key])
+                treasureGraph.edge(monster.Id, monster[key])
+              }
+            })
+          })
+          const mset = new Set()
+          this.levels.each(level => {
+            DropAbacus.monKeys.forEach(key => {
+              if (level[key] && map.has(level[key])) {
+                mset.add(level[key])
+                treasureGraph.edge(level.Name, level[key])
+              }
+            })
+          })
+          console.log(mset)
+          treasureGraph.top()
         }
 
         data () {
@@ -60,7 +127,10 @@
             this.loader.get(this.version, 'ItemRatio.txt'),
             // this.loader.get(this.version, 'ItemTypes.txt')
             // this.loader.get(this.version, 'Misc.txt'),
-            this.loader.get(this.version, 'Weapons.txt'),
+            // this.loader.get(this.version, 'Weapons.txt'),
+            // this.loader.get(this.version, 'TreasureClassEx.txt'),
+            this.loader.get(this.version, 'MonStats.txt'),
+            this.loader.get(this.version, 'Levels.txt'),
           ] 
         }
 
@@ -93,7 +163,7 @@
           const clazzy = this.isClassSpecific(item)
           let res
           this.itemRatio.each(ratio => {
-            if ((ratio['Class Specific'] === '1' && clazzy) && ratio.Version === '1') {
+            if (ratio.Version === '1' && (ratio['Class Specific'] === '1' && clazzy)) {
               res = ratio
             } else if (ratio.Version === '1' && ratio['Class Specific'] !== '1') {
               res = ratio
@@ -118,17 +188,12 @@
         }
 
         chance (magicFind, extra, difference, rarity, rarityBase, divisor, min, cs) {
-          const magicDivisor = magicFind + 100
-          let base = Math.floor(rarityBase - Math.floor(difference / divisor)) << 7
-          if (magicFind !== 0) {
-            const baseDivisor = rarity !== 'Magic' && magicDivisor > 110 ? cs[0] * Math.floor((cs[1] * magicDivisor - cs[2]) / (magicDivisor + cs[3])) + 100 : magicDivisor
-            if (baseDivisor) {
-              base = Math.floor(12800 * (rarityBase - Math.floor(difference / divisor)) / baseDivisor)
-            }
-          }
-          base = Math.max(base, min)
-          const chance = base - Math.floor(base * extra / 1024)
-          return chance > 0 ? 128 / chance : 1
+          const constant = DropAbacus.constants[rarity]
+          const effectiveMF = rarity !== 'Magic' ? Math.floor(magicFind * constant / (magicFind + constant)) : magicFind
+          const div = Math.floor(difference / divisor)
+          const chance = Math.max(min, Math.floor((rarityBase - div) * 12800 / (100 + effectiveMF)))
+          const final = chance - Math.floor((chance * extra) / 1024)
+          return final > 128 ? 128 / final : 1
         }
       }
 
@@ -149,11 +214,14 @@
         await abacus.load()
         const view = new DropView(abacus)
         view.populate(document.body)
-        const code = '9qr'
-        const level = 87
-        const extra = 980
-        console.log(abacus.p('Unique', 0, level, extra, code))
-        console.log(abacus.p('Unique', 100000, level, extra, code))
+        const code = '7tw'
+        const level = 89
+        const extra = 100
+        const find = 155
+        console.log(abacus.p('Unique', find, level, extra, code))
+        console.log(abacus.p('Set', find, level, extra, code))
+        console.log(abacus.p('Rare', find, level, extra, code))
+        console.log(abacus.p('Magic', find, level, extra, code))
       }
       requestAnimationFrame(Load)
     </script>
