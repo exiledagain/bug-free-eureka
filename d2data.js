@@ -1,3 +1,5 @@
+'use strict'
+
 class DataLoader {
   constructor () {
     this.loaded = {}
@@ -449,6 +451,14 @@ class MonsterSourcer {
   static monUniqueKeys = Array.from({ length: 25 }, (_ , id) => `umon${id + 1}`)
   static monBossLevelKeys = ['Level', 'Level(N)', 'Level(H)']
   static monMinionKeys = ['minion1', 'minion2']
+  static monNormalTreasureKeys = Array.from({ length: 4 }, (_, id) => `TreasureClass${id + 1}`)
+  static monNightmareTreasureKeys = Array.from({ length: 4 }, (_, id) => `TreasureClass${id + 1}(N)`)
+  static monHellTreasureKeys = Array.from({ length: 4 }, (_, id) => `TreasureClass${id + 1}(H)`)
+  static monTreasureKeys = [
+    MonsterSourcer.monNormalTreasureKeys,
+    MonsterSourcer.monNightmareTreasureKeys,
+    MonsterSourcer.monHellTreasureKeys
+  ]
 
   constructor (levels, monsters) {
     this.levelData = levels
@@ -480,59 +490,70 @@ class MonsterSourcer {
       throw new Error(`unknown level: ${levelId}`)
     }
     const res = []
-    // normal
     MonsterSourcer.monNormalKeys.forEach(key => {
       const monsterId = level[key]
       if (!monsterId || !this.inverseMonsterMap.has(monsterId)) {
         return
       }
-      res.push(this.expand(level, monsterId, true))
+      res.push(this.expand(level, 0, monsterId, new Set()))
+    })
+    MonsterSourcer.monHellKeys.forEach(key => {
+      const monsterId = level[key]
+      if (!monsterId || !this.inverseMonsterMap.has(monsterId)) {
+        return
+      }
+      res.push(this.expand(level, 1, monsterId, new Set()))
+    })
+    MonsterSourcer.monHellKeys.forEach(key => {
+      const monsterId = level[key]
+      if (!monsterId || !this.inverseMonsterMap.has(monsterId)) {
+        return
+      }
+      res.push(this.expand(level, 2, monsterId, new Set()))
     })
     return this.filter(res.flat(Infinity))
   }
 
-  expand (level, monsterId, allowMinions) {
+  expand (level, difficulty, monsterId, set) {
     const res = []
-    for (let i = 0; i < 3; ++i) {
-      const monster = this.inverseMonsterMap.get(monsterId)
-      const monLevel = Number(monster.boss ? level[MonsterSourcer.monLevelKeys[i]] : monster[MonsterSourcer.monBossLevelKeys[i]])
-      if (allowMinions) {
-        // maybe check min too?
-        if (monster.PartyMax > 0) {
-          MonsterSourcer.monMinionKeys.forEach(minion => {
-            const minionId = monster[minion]
-            if (minionId && this.inverseMonsterMap.has(minionId)) {
-              // maybe true needed but this avoids infinite loop
-              res.push(this.expand(level, minionId, false))
-            }
-          })
+    if (set.has(monsterId)) {
+      return res
+    }
+    set.add(monsterId)
+    const monster = this.inverseMonsterMap.get(monsterId)
+    const monLevel = Number(monster.boss !== '1' ? level[MonsterSourcer.monLevelKeys[difficulty]] : monster[MonsterSourcer.monBossLevelKeys[difficulty]])
+    // maybe check min too?
+    if (monster.PartyMax > 0) {
+      MonsterSourcer.monMinionKeys.forEach(minion => {
+        const minionId = monster[minion]
+        if (minionId && this.inverseMonsterMap.has(minionId)) {
+          res.push(this.expand(level, difficulty, minionId, set))
         }
-        if (monster.SplEndDeath === '1') {
-          const minionId = monster[MonsterSourcer.monMinionKeys[0]]
-          if (minionId && this.inverseMonsterMap.has(minionId)) {
-            // maybe true needed but this avoids infinite loop
-            res.push(this.expand(level, minionId, false))
-          }
-        }
-        if (monster.placespawn) {
-          const minionId = monster.spawn
-          if (minionId && this.inverseMonsterMap.has(minionId)) {
-            // maybe true needed but this avoids infinite loop
-            res.push(this.expand(level, minionId, false))
-          }
-        }
+      })
+    }
+    if (monster.SplEndDeath === '1') {
+      const minionId = monster[MonsterSourcer.monMinionKeys[0]]
+      if (minionId && this.inverseMonsterMap.has(minionId)) {
+        res.push(this.expand(level, difficulty, minionId, set))
       }
-      // normal, champion, unique
-      const levelTable = [0, 2, 3]
-      for (let j = 0; j < 3; ++j) {
-        res.push({
-          id: monsterId,
-          rarity: j,
-          difficulty: i,
-          level: monLevel + levelTable[j],
-          from: level.Name
-        })
+    }
+    if (monster.placespawn) {
+      const minionId = monster.spawn
+      if (minionId && this.inverseMonsterMap.has(minionId)) {
+        res.push(this.expand(level, difficulty, minionId, set))
       }
+    }
+    // normal, champion, unique
+    const levelTable = [0, 2, 3]
+    for (let j = 0; j < 3; ++j) {
+      res.push({
+        id: monsterId,
+        rarity: j,
+        difficulty,
+        level: monLevel + levelTable[j],
+        treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][j]],
+        from: level.Name
+      })
     }
     return res
   }
@@ -567,6 +588,113 @@ class MonsterSourcer {
         res.push(monster)
       }
     }
+    return res
+  }
+}
+
+class TreasureTree {
+  static itemKeys = Array.from({ length: 10 }, (_, id) => `Item${id + 1}`)
+  static probKeys = Array.from({ length: 10 }, (_, id) => `Prob${id + 1}`)
+
+  constructor (treasure) {
+    this.treasure = treasure
+    this.setup()
+  }
+
+  setup () {
+    this.computedEval = new Map()
+    this.inverseTreasureMap = new Map()
+    this.groupMap = new Map()
+    this.treasure.each(treasure => {
+      this.inverseTreasureMap.set(treasure['Treasure Class'], treasure)
+      const group = treasure.group
+      if (group) {
+        let list = this.groupMap.get(group)
+        if (!list) {
+          list = []
+          this.groupMap.set(group, list)
+        }
+        list.push(treasure)
+      }
+    })
+    for (const members of this.groupMap.values()) {
+      members.sort((a, b) => {
+        return Number(a.level) - Number(b.level)
+      })
+    }
+  }
+
+  upgrade (id, level) {
+    const treasure = this.inverseTreasureMap.get(id)
+    if (!treasure) {
+      return id
+    }
+    const members = this.groupMap.get(treasure.group)
+    if (!members) {
+      return id
+    }
+    for (let i = 0; i < members.length; ++i) {
+      if (members[i]['Treasure Class'] === id) {
+        for (let j = i + 1; j < members.length; ++j) {
+          if (members[j].level > level) {
+            return members[j - 1]['Treasure Class']
+          }
+        }
+        break
+      }
+    }
+    return id
+  }
+
+  walk (id, walker) {
+    const stack = []
+    stack.push(this.eval(id))
+    while (stack.length > 0) {
+      const treasure = stack.pop()
+      for (const child of treasure.children) {
+        if (this.inverseTreasureMap.has(child)) {
+          stack.push(this.eval(child))
+        }
+      }
+    }
+  }
+
+  eval (id) {
+    const treasure = this.inverseTreasureMap.get(id)
+    if (!treasure) {
+      throw new Error(`unknown treasure class: ${id}`)
+    }
+    let res = this.computedEval.get(id)
+    if (res) {
+      return res
+    }
+    let children = []
+    let sum = TreasureTree.probKeys.reduce((sum, key, idx) => {
+      const itemId = treasure[TreasureTree.itemKeys[idx]]
+      if (!itemId) {
+        return sum
+      }
+      children.push(itemId)
+      return sum + Number(treasure[key])
+    }, 0)
+    let noDrop = Number(treasure.NoDrop)
+    let picks = Number(treasure.Picks)
+    let unique = Number(treasure.Unique)
+    let set = Number(treasure.Set)
+    let rare = Number(treasure.Rare)
+    let magic = Number(treasure.Magic)
+    res = {
+      id,
+      sum,
+      noDrop,
+      picks,
+      unique,
+      set,
+      rare,
+      magic,
+      children
+    }
+    this.computedEval.set(id, res)
     return res
   }
 }

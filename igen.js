@@ -1,3 +1,5 @@
+'use strict'
+
 class IgBuilder {
   static Generate (ig, n, fixes, requirement, extras = [], forcedSeed) {
     const builder = new IgBuilder(ig)

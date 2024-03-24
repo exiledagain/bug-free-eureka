@@ -1,3 +1,5 @@
+'use strict'
+
 class Graph {
   constructor () {
     this.nodes = new Map()

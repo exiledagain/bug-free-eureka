@@ -13,6 +13,8 @@
   </head>
   <body>
     <script>
+      'use strict'
+
       class DropAbacus {
         static constants = {
           'Unique': 250,
@@ -62,16 +64,22 @@
           this.treasure = this.loader.get(this.version, 'TreasureClassEx.txt')
           this.monsters = this.loader.get(this.version, 'MonStats.txt')
           this.levels = this.loader.get(this.version, 'Levels.txt')
-          this.sourcer = new MonsterSourcer(this.levels, this.monsters)
 
-          const monsters = []
+          this.sourcer = new MonsterSourcer(this.levels, this.monsters)
+          this.tree = new TreasureTree(this.treasure)
+
+          let monsters = []
           this.levels.each(level => {
             if (level.Name === 'Null') {
               return
             }
             monsters.push(this.sourcer.monsters(level.Name))
           })
-          console.log(monsters.flat(Infinity))
+          monsters = monsters.flat(Infinity)
+          monsters.forEach(monster => {
+            monster.treasure = this.tree.upgrade(monster.treasure, monster.level)
+          })
+          this.tree.walk('Andarielq (H)')
 
           this.codeLookup = {}
           this.weapons.each(weapon => {
@@ -136,7 +144,7 @@
             // this.loader.get(this.version, 'ItemTypes.txt')
             // this.loader.get(this.version, 'Misc.txt'),
             // this.loader.get(this.version, 'Weapons.txt'),
-            // this.loader.get(this.version, 'TreasureClassEx.txt'),
+            this.loader.get(this.version, 'TreasureClassEx.txt'),
             this.loader.get(this.version, 'MonStats.txt'),
             this.loader.get(this.version, 'Levels.txt'),
             this.loader.get(this.version, 'SuperUniques.txt'),
