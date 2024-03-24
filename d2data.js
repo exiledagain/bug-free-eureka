@@ -441,3 +441,132 @@ class AffixMath {
     return res
   }
 }
+
+class MonsterSourcer {
+  static monLevelKeys = Array.from({ length: 3 }, (_, id) => `MonLvl${id + 1}Ex`)
+  static monNormalKeys = Array.from({ length: 25 }, (_ , id) => `mon${id + 1}`)
+  static monHellKeys = Array.from({ length: 25 }, (_ , id) => `nmon${id + 1}`)
+  static monUniqueKeys = Array.from({ length: 25 }, (_ , id) => `umon${id + 1}`)
+  static monBossLevelKeys = ['Level', 'Level(N)', 'Level(H)']
+  static monMinionKeys = ['minion1', 'minion2']
+
+  constructor (levels, monsters) {
+    this.levelData = levels
+    this.monsterData = monsters
+    this.setup()
+  }
+
+  setup () {
+    this.inverseMonsterMap = new Map()
+    this.monsterData.each(monster => {
+      this.inverseMonsterMap.set(monster.Id, monster)
+    })
+    this.inverseLevelMap = new Map()
+    this.levelData.each(level => {
+      this.inverseLevelMap.set(level.Name, level)
+    })
+  }
+
+  levels (monsterId) {
+    const monster = this.inverseMonsterMap.get(monsterId)
+    if (!monster) {
+      throw new Error(`unknown level: ${monsterId}`)
+    }
+  }
+
+  monsters (levelId) {
+    const level = this.inverseLevelMap.get(levelId)
+    if (!level) {
+      throw new Error(`unknown level: ${levelId}`)
+    }
+    const res = []
+    // normal
+    MonsterSourcer.monNormalKeys.forEach(key => {
+      const monsterId = level[key]
+      if (!monsterId || !this.inverseMonsterMap.has(monsterId)) {
+        return
+      }
+      res.push(this.expand(level, monsterId, true))
+    })
+    return this.filter(res.flat(Infinity))
+  }
+
+  expand (level, monsterId, allowMinions) {
+    const res = []
+    for (let i = 0; i < 3; ++i) {
+      const monster = this.inverseMonsterMap.get(monsterId)
+      const monLevel = Number(monster.boss ? level[MonsterSourcer.monLevelKeys[i]] : monster[MonsterSourcer.monBossLevelKeys[i]])
+      if (allowMinions) {
+        // maybe check min too?
+        if (monster.PartyMax > 0) {
+          MonsterSourcer.monMinionKeys.forEach(minion => {
+            const minionId = monster[minion]
+            if (minionId && this.inverseMonsterMap.has(minionId)) {
+              // maybe true needed but this avoids infinite loop
+              res.push(this.expand(level, minionId, false))
+            }
+          })
+        }
+        if (monster.SplEndDeath === '1') {
+          const minionId = monster[MonsterSourcer.monMinionKeys[0]]
+          if (minionId && this.inverseMonsterMap.has(minionId)) {
+            // maybe true needed but this avoids infinite loop
+            res.push(this.expand(level, minionId, false))
+          }
+        }
+        if (monster.placespawn) {
+          const minionId = monster.spawn
+          if (minionId && this.inverseMonsterMap.has(minionId)) {
+            // maybe true needed but this avoids infinite loop
+            res.push(this.expand(level, minionId, false))
+          }
+        }
+      }
+      // normal, champion, unique
+      const levelTable = [0, 2, 3]
+      for (let j = 0; j < 3; ++j) {
+        res.push({
+          id: monsterId,
+          rarity: j,
+          difficulty: i,
+          level: monLevel + levelTable[j],
+          from: level.Name
+        })
+      }
+    }
+    return res
+  }
+
+  filter (monsters) {
+    const cmp = (a, b) => {
+      let c
+      c = a.difficulty - b.difficulty
+      if (c) {
+        return c
+      }
+      c = a.id.localeCompare(b.id)
+      if (c) {
+        return c
+      }
+      c = a.rarity - b.rarity
+      if (c) {
+        return c
+      }
+      c = a.level - b.level
+      if (c) {
+        return c
+      }
+      return 0
+    }
+    monsters.sort(cmp)
+    const res = []
+    for (const monster of monsters) {
+      if (res.length === 0) {
+        res.push(monster)
+      } else if (cmp(monster, res.at(-1))) {
+        res.push(monster)
+      }
+    }
+    return res
+  }
+}

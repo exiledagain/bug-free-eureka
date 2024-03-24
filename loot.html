@@ -51,6 +51,7 @@
             'TreasureClassEx.txt',
             'UniqueItems.txt',
             'Weapons.txt',
+            'SuperUniques.txt'
           ])
 
           this.itemRatio = this.loader.get(this.version, 'ItemRatio.txt')
@@ -61,6 +62,16 @@
           this.treasure = this.loader.get(this.version, 'TreasureClassEx.txt')
           this.monsters = this.loader.get(this.version, 'MonStats.txt')
           this.levels = this.loader.get(this.version, 'Levels.txt')
+          this.sourcer = new MonsterSourcer(this.levels, this.monsters)
+
+          const monsters = []
+          this.levels.each(level => {
+            if (level.Name === 'Null') {
+              return
+            }
+            monsters.push(this.sourcer.monsters(level.Name))
+          })
+          console.log(monsters.flat(Infinity))
 
           this.codeLookup = {}
           this.weapons.each(weapon => {
@@ -92,14 +103,11 @@
             }
             map.set(monster.Id, monster)
             if (monster.placespawn === '1' && monster.spawn.length > 0) {
-              console.log('spawn', monster.spawn)
             }
             if (monster.SplEndDeath === '1') {
-              console.log('death', monster.minion1)
             }
             DropAbacus.monMinionKeys.forEach(key => {
               if (monster[key]) {
-                console.log('minion', monster[key])
               }
             })
             DropAbacus.monTreasureKeys.forEach(key => {
@@ -124,13 +132,14 @@
 
         data () {
           return [
-            this.loader.get(this.version, 'ItemRatio.txt'),
+            // this.loader.get(this.version, 'ItemRatio.txt'),
             // this.loader.get(this.version, 'ItemTypes.txt')
             // this.loader.get(this.version, 'Misc.txt'),
             // this.loader.get(this.version, 'Weapons.txt'),
             // this.loader.get(this.version, 'TreasureClassEx.txt'),
             this.loader.get(this.version, 'MonStats.txt'),
             this.loader.get(this.version, 'Levels.txt'),
+            this.loader.get(this.version, 'SuperUniques.txt'),
           ] 
         }
 
@@ -212,8 +221,10 @@
       async function Load () {
         const abacus = new DropAbacus('s8')
         await abacus.load()
-        const view = new DropView(abacus)
-        view.populate(document.body)
+        requestAnimationFrame(() => {
+          const view = new DropView(abacus)
+          view.populate(document.body)
+        })
         const code = '7tw'
         const level = 89
         const extra = 100
