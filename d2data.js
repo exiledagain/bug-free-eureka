@@ -595,6 +595,7 @@ class MonsterSourcer {
 class TreasureTree {
   static itemKeys = Array.from({ length: 10 }, (_, id) => `Item${id + 1}`)
   static probKeys = Array.from({ length: 10 }, (_, id) => `Prob${id + 1}`)
+  static mergeKeys = ['unique', 'set', 'rare', 'magic']
 
   constructor (treasure) {
     this.treasure = treasure
@@ -653,20 +654,27 @@ class TreasureTree {
       const treasure = stack.pop()
       for (const child of treasure.children) {
         if (this.inverseTreasureMap.has(child)) {
-          stack.push(this.eval(child))
+          stack.push(this.merge(this.eval(child), treasure))
         }
       }
     }
   }
 
+  merge (a, b) {
+    TreasureTree.mergeKeys.forEach(key => {
+      a[key] = Math.max(a[key], b[key])
+    })
+    return a
+  }
+
   eval (id) {
-    const treasure = this.inverseTreasureMap.get(id)
-    if (!treasure) {
-      throw new Error(`unknown treasure class: ${id}`)
-    }
     let res = this.computedEval.get(id)
     if (res) {
       return res
+    }
+    const treasure = this.inverseTreasureMap.get(id)
+    if (!treasure) {
+      throw new Error(`unknown treasure class: ${id}`)
     }
     let children = []
     let sum = TreasureTree.probKeys.reduce((sum, key, idx) => {
