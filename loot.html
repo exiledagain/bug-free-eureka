@@ -64,6 +64,8 @@
           this.treasure = this.loader.get(this.version, 'TreasureClassEx.txt')
           this.monsters = this.loader.get(this.version, 'MonStats.txt')
           this.levels = this.loader.get(this.version, 'Levels.txt')
+          this.uniques = this.loader.get(this.version, 'UniqueItems.txt')
+          this.sets = this.loader.get(this.version, 'SetItems.txt')
 
           this.sourcer = new MonsterSourcer(this.levels, this.monsters)
           this.tree = new TreasureTree(this.treasure)
@@ -98,63 +100,47 @@
               })
             }
           })
-          console.log(dropMap)
+          this.dropMap = dropMap
 
-          this.codeLookup = {}
+          this.codeMap = {}
+          this.wearMap = {}
           this.weapons.each(weapon => {
-            this.codeLookup[weapon.code] = weapon
+            this.codeMap[weapon.code] = weapon
+            this.wearMap[weapon.code] = weapon
           })
           this.armors.each(armor => {
-            this.codeLookup[armor.code] = armor
+            this.codeMap[armor.code] = armor
+            this.wearMap[armor.code] = armor
           })
           this.misc.each(misc => {
-            this.codeLookup[misc.code] = misc
+            this.codeMap[misc.code] = misc
           })
-          const treasureGraph = new Graph()
-          this.treasure.each(treasure => {
-            if (treasure.Picks === '0' || treasure.Picks.length === 0) {
+
+          this.uniqueMap = {}
+          this.uniques.each(unique => {
+            if (unique.enabled !== '1' || unique.rarity < 1) {
               return
             }
-            DropAbacus.itemKeys.forEach((key, idx) => {
-              if (treasure[key].length > 0 && treasure[DropAbacus.probKeys[idx]] > 0) {                
-                treasureGraph.edge(treasure['Treasure Class'], treasure[key])
-              }
+            this.uniqueMap[unique.code] = this.uniqueMap[unique.code] || []
+            this.uniqueMap[unique.code].push({
+              id: unique.index,
+              level: Number(unique.lvl),
+              p: Number(unique.rarity)
             })
           })
-          const set = new Set()
-          console.log(DropAbacus.monTreasureKeys)
-          const map = new Map()
-          this.monsters.each(monster => {
-            if (monster.isSpawn !== '1' || monster.killable !== '1' || monster.enabled !== '1') {
+
+          this.setMap = {}
+          this.sets.each(set => {
+            if (set.rarity < 1) {
               return
             }
-            map.set(monster.Id, monster)
-            if (monster.placespawn === '1' && monster.spawn.length > 0) {
-            }
-            if (monster.SplEndDeath === '1') {
-            }
-            DropAbacus.monMinionKeys.forEach(key => {
-              if (monster[key]) {
-              }
-            })
-            DropAbacus.monTreasureKeys.forEach(key => {
-              if (monster[key]) {
-                set.add(monster[key])
-                treasureGraph.edge(monster.Id, monster[key])
-              }
+            this.setMap[set.item] = this.setMap[set.item] || []
+            this.setMap[set.item].push({
+              id: set.index,
+              level: Number(set.lvl),
+              p: Number(set.rarity)
             })
           })
-          const mset = new Set()
-          this.levels.each(level => {
-            DropAbacus.monKeys.forEach(key => {
-              if (level[key] && map.has(level[key])) {
-                mset.add(level[key])
-                treasureGraph.edge(level.Name, level[key])
-              }
-            })
-          })
-          console.log(mset)
-          treasureGraph.top()
         }
 
         data () {
@@ -163,8 +149,8 @@
             // this.loader.get(this.version, 'ItemTypes.txt')
             // this.loader.get(this.version, 'Misc.txt'),
             // this.loader.get(this.version, 'Weapons.txt'),
-            // this.loader.get(this.version, 'TreasureClassEx.txt'),
-            this.loader.get(this.version, 'MonStats.txt'),
+            this.loader.get(this.version, 'TreasureClassEx.txt'),
+            // this.loader.get(this.version, 'MonStats.txt'),
             // this.loader.get(this.version, 'Levels.txt'),
             // this.loader.get(this.version, 'SuperUniques.txt'),
             // this.loader.get(this.version, 'SetItems.txt'),
@@ -174,27 +160,23 @@
 
         isClassSpecific (item) {
           if (!this.typeList.has(item)) {
-            item = this.codeLookup[item].type
+            item = this.codeMap[item].type
           }
           return this.typeList.expand('clas').includes(item)
         }
 
         getType (item) {
-          let res = item
-          this.weapons.each(weapon => {
-            if (weapon.code === item) {
-              res = weapon.type1
-            }
-          })
-          if (res !== item) {
-            return res
+          if (!this.typeList.has(item)) {
+            return this.wearMap[item].type
           }
-          this.armors.each(armor => {
-            if (armor.code === item) {
-              res = armor.type1
-            }
-          })
-          return res
+          return item
+        }
+
+        getEntry (item) {
+          if (this.codeMap[item]) {
+            return this.codeMap[item]
+          }
+          return this.wearMap[item]
         }
 
         getItemRatio (item, rarity) {
@@ -217,7 +199,7 @@
         }
 
         getItemLevel (item) {
-          return Number(this.codeLookup[item].level)
+          return Number(this.codeMap[item].level)
         }
 
         p (rarity, magicFind, level, extra, item) {
@@ -232,6 +214,25 @@
           const chance = Math.max(min, Math.floor((rarityBase - div) * 12800 / (100 + effectiveMF)))
           const final = chance - Math.floor((chance * extra) / 1024)
           return final > 128 ? 128 / final : 1
+        }
+
+        can (code, rarity) {
+          switch (rarity) {
+            case 'Unique': {
+              return !!this.uniqueMap[code]
+            }
+            case 'Set': {
+              return !!this.setMap[code]
+            }
+          }
+          return false
+        }
+
+        drop (find, code, rarity) {
+          if (!this.can(code, rarity)) {
+            return []
+          }
+
         }
       }
 
@@ -258,10 +259,14 @@
         const level = 89
         const extra = 100
         const find = 155
+        console.log(abacus.can('uar', 'Unique'))
+        console.log(abacus.can('swb', 'Set'))
+        console.log(abacus.getEntry('rin'))
         console.log(abacus.p('Unique', find, level, extra, code))
         console.log(abacus.p('Set', find, level, extra, code))
         console.log(abacus.p('Rare', find, level, extra, code))
         console.log(abacus.p('Magic', find, level, extra, code))
+        console.log(abacus.drop(find, code, 'Normal'))
       }
       requestAnimationFrame(Load)
     </script>
