@@ -469,7 +469,9 @@ class MonsterSourcer {
   setup () {
     this.inverseMonsterMap = new Map()
     this.monsterData.each(monster => {
-      this.inverseMonsterMap.set(monster.Id, monster)
+      if (monster.isSpawn === '1' && monster.enabled === '1') {
+        this.inverseMonsterMap.set(monster.Id, monster)
+      }
     })
     this.inverseLevelMap = new Map()
     this.levelData.each(level => {
@@ -537,7 +539,7 @@ class MonsterSourcer {
         res.push(this.expand(level, difficulty, minionId, set))
       }
     }
-    if (monster.placespawn) {
+    if (monster.placespawn === '1') {
       const minionId = monster.spawn
       if (minionId && this.inverseMonsterMap.has(minionId)) {
         res.push(this.expand(level, difficulty, minionId, set))
@@ -625,6 +627,10 @@ class TreasureTree {
     }
   }
 
+  has (id) {
+    return this.inverseTreasureMap.has(id)
+  }
+
   upgrade (id, level) {
     const treasure = this.inverseTreasureMap.get(id)
     if (!treasure) {
@@ -647,20 +653,36 @@ class TreasureTree {
     return id
   }
 
-  walk (id, walker) {
+  noDrop (n, noDrop, sum) {
+    return n <= 1 ? noDrop : Math.floor(sum / (1 / Math.pow(noDrop / (noDrop + sum), n) - 1))
+  }
+
+  walk (id, n, walker) {
     const stack = []
-    stack.push(this.eval(id))
+    stack.push({ treasure: this.eval(id), p: 1 })
     while (stack.length > 0) {
-      const treasure = stack.pop()
-      for (const child of treasure.children) {
-        if (this.inverseTreasureMap.has(child)) {
-          stack.push(this.merge(this.eval(child), treasure))
+      const { treasure, p } = stack.pop()
+      const noDrop = this.noDrop(n, treasure.noDrop, treasure.sum)
+      for (const { id: childId, p: childP } of treasure.children) {
+        const pickP = p * childP / (noDrop + treasure.sum)
+        if (this.has(childId)) {
+          const child = this.eval(childId)
+          stack.push({ treasure: this.merge(child, treasure), p: pickP })
+        } else {
+          const val = Object.assign({}, treasure)
+          delete val.children
+          delete val.picks
+          delete val.sum
+          delete val.noDrop
+          val.id = childId
+          walker.pre(val, pickP)
         }
       }
     }
   }
 
   merge (a, b) {
+    a = Object.assign({}, a)
     TreasureTree.mergeKeys.forEach(key => {
       a[key] = Math.max(a[key], b[key])
     })
@@ -682,8 +704,9 @@ class TreasureTree {
       if (!itemId) {
         return sum
       }
-      children.push(itemId)
-      return sum + Number(treasure[key])
+      const p = Number(treasure[key])
+      children.push({ id: itemId, p })
+      return sum + p
     }, 0)
     let noDrop = Number(treasure.NoDrop)
     let picks = Number(treasure.Picks)

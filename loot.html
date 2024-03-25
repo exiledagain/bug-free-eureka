@@ -68,6 +68,7 @@
           this.sourcer = new MonsterSourcer(this.levels, this.monsters)
           this.tree = new TreasureTree(this.treasure)
 
+          const walked = {}
           let monsters = []
           this.levels.each(level => {
             if (level.Name === 'Null') {
@@ -76,10 +77,28 @@
             monsters.push(this.sourcer.monsters(level.Name))
           })
           monsters = monsters.flat(Infinity)
+          let pres = 0
+          const dropMap = new Map()
           monsters.forEach(monster => {
             monster.treasure = this.tree.upgrade(monster.treasure, monster.level)
+            if (this.tree.has(monster.treasure) && !walked[monster.treasure]) {
+              walked[monster.treasure] = true
+              this.tree.walk(monster.treasure, 1, {
+                pre: (treasure) => {
+                  const ret = dropMap.get(treasure.id)
+                  const val = { treasure, ancestor: monster.treasure }
+                  if (!ret) {
+                    dropMap.set(treasure.id, [ val ])
+                  } else {
+                    ret.push(val)
+                  }                  
+                },
+                post: () => {
+                }
+              })
+            }
           })
-          this.tree.walk('Andarielq (H)')
+          console.log(dropMap)
 
           this.codeLookup = {}
           this.weapons.each(weapon => {
@@ -144,10 +163,12 @@
             // this.loader.get(this.version, 'ItemTypes.txt')
             // this.loader.get(this.version, 'Misc.txt'),
             // this.loader.get(this.version, 'Weapons.txt'),
-            this.loader.get(this.version, 'TreasureClassEx.txt'),
+            // this.loader.get(this.version, 'TreasureClassEx.txt'),
             this.loader.get(this.version, 'MonStats.txt'),
-            this.loader.get(this.version, 'Levels.txt'),
-            this.loader.get(this.version, 'SuperUniques.txt'),
+            // this.loader.get(this.version, 'Levels.txt'),
+            // this.loader.get(this.version, 'SuperUniques.txt'),
+            // this.loader.get(this.version, 'SetItems.txt'),
+            // this.loader.get(this.version, 'UniqueItems.txt'),
           ] 
         }
 
