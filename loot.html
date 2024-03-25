@@ -57,7 +57,6 @@
           ])
 
           this.itemRatio = this.loader.get(this.version, 'ItemRatio.txt')
-          this.typeList = new TypeList(this.loader.get(this.version, 'Misc.txt'), this.loader.get(this.version, 'ItemTypes.txt'))
           this.weapons = this.loader.get(this.version, 'Weapons.txt')
           this.armors = this.loader.get(this.version, 'Armor.txt')
           this.misc = this.loader.get(this.version, 'Misc.txt')
@@ -66,7 +65,9 @@
           this.levels = this.loader.get(this.version, 'Levels.txt')
           this.uniques = this.loader.get(this.version, 'UniqueItems.txt')
           this.sets = this.loader.get(this.version, 'SetItems.txt')
+          this.types = this.loader.get(this.version, 'ItemTypes.txt')
 
+          this.typeList = new TypeList(this.misc, this.types, this.weapons, this.armors)
           this.sourcer = new MonsterSourcer(this.levels, this.monsters)
           this.tree = new TreasureTree(this.treasure)
 
@@ -113,7 +114,7 @@
             this.wearMap[armor.code] = armor
           })
           this.misc.each(misc => {
-            this.codeMap[misc.code] = misc
+            this.codeMap[misc.type] = misc
           })
 
           this.uniqueMap = {}
@@ -146,10 +147,11 @@
         data () {
           return [
             // this.loader.get(this.version, 'ItemRatio.txt'),
-            // this.loader.get(this.version, 'ItemTypes.txt')
-            // this.loader.get(this.version, 'Misc.txt'),
+            this.loader.get(this.version, 'ItemTypes.txt'),
+            this.loader.get(this.version, 'Misc.txt'),
             // this.loader.get(this.version, 'Weapons.txt'),
-            this.loader.get(this.version, 'TreasureClassEx.txt'),
+            // this.loader.get(this.version, 'Armor.txt'),
+            // this.loader.get(this.version, 'TreasureClassEx.txt'),
             // this.loader.get(this.version, 'MonStats.txt'),
             // this.loader.get(this.version, 'Levels.txt'),
             // this.loader.get(this.version, 'SuperUniques.txt'),
@@ -166,17 +168,20 @@
         }
 
         getType (item) {
-          if (!this.typeList.has(item)) {
-            return this.wearMap[item].type
+          let type
+          type = this.weapons.first('code', item)
+          if (type) {
+            return this.types.first('Code', 'weap')
           }
-          return item
-        }
-
-        getEntry (item) {
-          if (this.codeMap[item]) {
-            return this.codeMap[item]
+          type = this.armors.first('code', item)
+          if (type) {
+            return this.types.first('Code', 'armo')
           }
-          return this.wearMap[item]
+          const misc = this.misc.first('code', item)
+          if (misc) {
+            return this.types.first('Code', misc.type)
+          }
+          return this.types.first('Code', item)
         }
 
         getItemRatio (item, rarity) {
@@ -216,23 +221,47 @@
           return final > 128 ? 128 / final : 1
         }
 
+        mustBeNormal (code) {
+          const type = this.getType(code)
+          return type.Normal === '1'
+        }
+
+        mustBeMagic (code) {
+          const type = this.getType(code)
+          return type.Magic === '1'
+        }
+
+        // don't think anything quest related or forcibly unique can drop from a tc
         can (code, rarity) {
+          const typeId = this.getType(code)
           switch (rarity) {
             case 'Unique': {
-              return !!this.uniqueMap[code]
+              return !this.mustBeNormal(code) && !this.mustBeMagic(code) && !!this.uniqueMap[code]
             }
             case 'Set': {
-              return !!this.setMap[code]
+              return !this.mustBeNormal(code) && !this.mustBeMagic(code) && !!this.setMap[code]
+            }
+            case 'Rare': {
+              const type = this.getType(code)
+              return !this.mustBeNormal(code) && !this.mustBeMagic(code) && type.Rare === '1'
+            }
+            case 'Magic': {
+              const type = this.getType(code)
+              return this.mustBeMagic(code) || type.Normal !== '1'
+            }
+            case 'Normal': {
+              return true
             }
           }
-          return false
+          throw new Error(`unknown rarity: ${rarity}`)
         }
 
         drop (find, code, rarity) {
           if (!this.can(code, rarity)) {
             return []
           }
-
+          const res = []
+          return res
         }
       }
 
@@ -261,7 +290,9 @@
         const find = 155
         console.log(abacus.can('uar', 'Unique'))
         console.log(abacus.can('swb', 'Set'))
-        console.log(abacus.getEntry('rin'))
+        console.log(abacus.can('uar', 'Rare'))
+        console.log(abacus.can('uar', 'Magic'))
+        console.log(abacus.can('aqv', 'Magic'))
         console.log(abacus.p('Unique', find, level, extra, code))
         console.log(abacus.p('Set', find, level, extra, code))
         console.log(abacus.p('Rare', find, level, extra, code))

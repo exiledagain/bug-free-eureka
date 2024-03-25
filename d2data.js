@@ -36,6 +36,7 @@ class DataFrame {
     this.uri = uri
     this.values = []
     this.computed = []
+    this.firsts = new Map()
   }
 
   async load () {
@@ -50,6 +51,24 @@ class DataFrame {
         this.values.push(values)
       }
     }
+  }
+
+  first (key, val) {
+    if (this.firsts.has(key)) {
+      this.firsts.get(key).get(val)
+    }
+    const k = this.keys.indexOf(key)
+    if (k < 0) {
+      throw new Error(`unknown key: ${key}`)
+    }
+    const map = new Map()
+    this.firsts.set(key, map)
+    this.each(value => {
+      if (!map.has(value[key])) {
+        map.set(value[key], value)
+      }
+    })
+    return this.firsts.get(key).get(val)
   }
 
   combine (values) {
@@ -165,8 +184,8 @@ class DataView {
 }
 
 class TypeList {
-  constructor (miscTxt, typesTxt) {
-    this.build(miscTxt, typesTxt)
+  constructor (miscTxt, typesTxt, weaponsTxt, armorsTxt) {
+    this.build(miscTxt, typesTxt, weaponsTxt, armorsTxt)
   }
 
   all () {
@@ -261,7 +280,7 @@ class TypeList {
     return res
   }
 
-  build (miscTxt, typesTxt) {
+  build (miscTxt, typesTxt, weaponsTxt, armorsTxt) {
     this.set = {}
     miscTxt.each(row => {
       this.add(row.code, [row.type, row.type2])
@@ -269,6 +288,16 @@ class TypeList {
     typesTxt.each(row => {
       this.add(row.Code, [row.Equiv1, row.Equiv2])
     })
+    if (weaponsTxt) {
+      weaponsTxt.each(row => {
+        this.add(row.code, [row.type, row.type2])
+      })
+    }
+    if (armorsTxt) {
+      armorsTxt.each(row => {
+        this.add(row.code, [row.type, row.type2])
+      })
+    }
   }
 }
 
