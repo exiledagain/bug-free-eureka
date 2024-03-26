@@ -231,6 +231,22 @@
           return type.Magic === '1'
         }
 
+        mustBeUnique (code) {
+          const weapon = this.weapons.first('code', code)
+          if (weapon && weapon.unique === '1') {
+            return true
+          }
+          const armor = this.armors.first('code', code)
+          if (armor && armor.unique === '1') {
+            return true
+          }
+          // also need magic flag?
+          if ((weapon && weapon.quest > 0) || (armor && armor.quest > 0)) {
+            return true
+          }
+          return false
+        }
+
         // don't think anything quest related or forcibly unique can drop from a tc
         can (code, rarity) {
           const typeId = this.getType(code)
@@ -239,18 +255,17 @@
               return !this.mustBeNormal(code) && !this.mustBeMagic(code) && !!this.uniqueMap[code]
             }
             case 'Set': {
-              return !this.mustBeNormal(code) && !this.mustBeMagic(code) && !!this.setMap[code]
+              return !this.mustBeNormal(code) && !this.mustBeMagic(code) && !this.mustBeUnique(code) && !!this.setMap[code]
             }
             case 'Rare': {
               const type = this.getType(code)
-              return !this.mustBeNormal(code) && !this.mustBeMagic(code) && type.Rare === '1'
+              return !this.mustBeNormal(code) && !this.mustBeMagic(code) && !this.mustBeUnique(code) && type.Rare === '1'
             }
             case 'Magic': {
-              const type = this.getType(code)
-              return this.mustBeMagic(code) || type.Normal !== '1'
+              return !this.mustBeNormal(code) && !this.mustBeUnique(code)
             }
             case 'Normal': {
-              return true
+              return !this.mustBeMagic(code) && !this.mustBeUnique(code)
             }
           }
           throw new Error(`unknown rarity: ${rarity}`)
@@ -261,6 +276,7 @@
             return []
           }
           const res = []
+
           return res
         }
       }
@@ -292,7 +308,7 @@
         console.log(abacus.can('swb', 'Set'))
         console.log(abacus.can('uar', 'Rare'))
         console.log(abacus.can('uar', 'Magic'))
-        console.log(abacus.can('aqv', 'Magic'))
+        console.log(abacus.can('aqv', 'Normal'))
         console.log(abacus.p('Unique', find, level, extra, code))
         console.log(abacus.p('Set', find, level, extra, code))
         console.log(abacus.p('Rare', find, level, extra, code))
