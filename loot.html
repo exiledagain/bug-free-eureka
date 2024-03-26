@@ -87,9 +87,9 @@
             if (this.tree.has(monster.treasure) && !walked[monster.treasure]) {
               walked[monster.treasure] = true
               this.tree.walk(monster.treasure, 1, {
-                pre: (treasure) => {
+                pre: (treasure, p) => {
                   const ret = dropMap.get(treasure.id)
-                  const val = { treasure, ancestor: monster.treasure }
+                  const val = { p, treasure, monster }
                   if (!ret) {
                     dropMap.set(treasure.id, [ val ])
                   } else {
@@ -102,6 +102,33 @@
             }
           })
           this.dropMap = dropMap
+
+          this.armorTable = {}
+          this.inverseArmorTable = {}
+          this.armors.each(armor => {
+            const rarity = Number(armor.rarity)
+            if (rarity < 1) {
+              return
+            }
+            const armo = `armo${(Math.floor((armor.level - 1) / 3) + 1) * 3}`
+            const table = this.armorTable[armo] = this.armorTable[armo] || { sum: 0 }
+            this.inverseArmorTable[armor.code] = { armo, rarity, table }
+            table.sum += rarity
+          })
+
+          this.weaponTable = {}
+          this.inverseWeaponTable = {}
+          this.weapons.each(weapon => {
+            const rarity = Number(weapon.rarity)
+            if (rarity < 1) {
+              return
+            }
+            const weap = `weap${(Math.floor((weapon.level - 1) / 3) + 1) * 3}`
+            const table = this.weaponTable[weap] = this.weaponTable[weap] || { sum: 0 }
+            this.inverseWeaponTable[weapon.code] = { weap, rarity, table }
+            table.sum += rarity
+          })
+          console.log(this.inverseWeaponTable, this.inverseArmorTable)
 
           this.codeMap = {}
           this.wearMap = {}
@@ -142,15 +169,6 @@
               p: Number(set.rarity)
             })
           })
-
-          this.weapons.each(weapon => {
-            const a = Math.floor(Math.floor(weapon.mindam * 1.25) * 5/6)
-            const b = Math.floor((5 * Math.floor((weapon.mindam * 5) / 4)) / 6)
-            if (a !== b && weapon.ultracode === weapon.code) {
-              console.log(weapon.name, a, b)
-            }
-            console.log(weapon.name, weapon['2handmindam'], weapon['2handmaxdam'])
-          })
         }
 
         data () {
@@ -158,14 +176,14 @@
             // this.loader.get(this.version, 'ItemRatio.txt'),
             // this.loader.get(this.version, 'ItemTypes.txt'),
             // this.loader.get(this.version, 'Misc.txt'),
-            this.loader.get(this.version, 'Weapons.txt'),
+            // this.loader.get(this.version, 'Weapons.txt'),
             // this.loader.get(this.version, 'Armor.txt'),
             // this.loader.get(this.version, 'TreasureClassEx.txt'),
             // this.loader.get(this.version, 'MonStats.txt'),
             // this.loader.get(this.version, 'Levels.txt'),
             // this.loader.get(this.version, 'SuperUniques.txt'),
             // this.loader.get(this.version, 'SetItems.txt'),
-            // this.loader.get(this.version, 'UniqueItems.txt'),
+            this.loader.get(this.version, 'UniqueItems.txt'),
           ] 
         }
 
@@ -234,6 +252,10 @@
         }
 
         p (rarity, magicFind, level, extra, item) {
+          if (rarity === 'Normal') {
+            return 1
+          }
+          console.log(arguments)
           const ratio = this.getItemRatio(item, rarity)
           return this.chance(magicFind, extra, level - this.getItemLevel(item), rarity, ratio.base, ratio.divisor, ratio.min, DropAbacus.constants[rarity])
         }
@@ -296,18 +318,41 @@
           throw new Error(`unknown rarity: ${rarity}`)
         }
 
+        getBaseP (code) {
+          const armor = this.inverseArmorTable[code]
+          if (armor) {
+            return {
+              baseP: armor.rarity / armor.table.sum,
+              dropCode: armor.armo
+            }
+          }
+          const weapon = this.inverseWeaponTable[code]
+          if (weapon) {
+            return {
+              baseP: weapon.rarity / weapon.table.sum,
+              dropCode: weapon.weap
+            }
+          }
+          return code
+        }
+
         drop (find, code, rarity) {
           if (!this.can(code, rarity)) {
             return []
           }
-          const monsters = this.dropMap[code]
-          if (!monsters) {
-            console.log(this.dropMap)
+          const { baseP, dropCode } = this.getBaseP(code)
+          const sources = this.dropMap.get(dropCode)
+          if (!sources) {
             return []
           }
           const res = []
-          monsters.forEach(monster => {
-            console.log(monster)
+          sources.forEach(source => {
+            const rarityP = this.p(rarity, find, source.monster.level, source.treasure[rarity.toLowerCase()], code)
+            const p = baseP * source.p * rarityP
+            res.push({
+              p: 1 / p,
+              source
+            })
           })
           return res
         }
@@ -336,16 +381,7 @@
         const level = 89
         const extra = 100
         const find = 0
-        console.log(abacus.can('uar', 'Unique'))
-        console.log(abacus.can('swb', 'Set'))
-        console.log(abacus.can('uar', 'Rare'))
-        console.log(abacus.can('uar', 'Magic'))
-        console.log(abacus.can('aqv', 'Normal'))
-        console.log(abacus.p('Unique', find, level, extra, code))
-        console.log(abacus.p('Set', find, level, extra, code))
-        console.log(abacus.p('Rare', find, level, extra, code))
-        console.log(abacus.p('Magic', find, level, extra, code))
-        console.log(abacus.drop(find, code, 'Normal'))
+        console.log(abacus.drop(find, code, 'Unique'))
       }
       requestAnimationFrame(Load)
     </script>
