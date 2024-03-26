@@ -142,14 +142,23 @@
               p: Number(set.rarity)
             })
           })
+
+          this.weapons.each(weapon => {
+            const a = Math.floor(Math.floor(weapon.mindam * 1.25) * 5/6)
+            const b = Math.floor((5 * Math.floor((weapon.mindam * 5) / 4)) / 6)
+            if (a !== b && weapon.ultracode === weapon.code) {
+              console.log(weapon.name, a, b)
+            }
+            console.log(weapon.name, weapon['2handmindam'], weapon['2handmaxdam'])
+          })
         }
 
         data () {
           return [
             // this.loader.get(this.version, 'ItemRatio.txt'),
-            this.loader.get(this.version, 'ItemTypes.txt'),
-            this.loader.get(this.version, 'Misc.txt'),
-            // this.loader.get(this.version, 'Weapons.txt'),
+            // this.loader.get(this.version, 'ItemTypes.txt'),
+            // this.loader.get(this.version, 'Misc.txt'),
+            this.loader.get(this.version, 'Weapons.txt'),
             // this.loader.get(this.version, 'Armor.txt'),
             // this.loader.get(this.version, 'TreasureClassEx.txt'),
             // this.loader.get(this.version, 'MonStats.txt'),
@@ -165,6 +174,23 @@
             item = this.codeMap[item].type
           }
           return this.typeList.expand('clas').includes(item)
+        }
+
+        entry (code) {
+          let entry
+          entry = this.weapons.first('code', item)
+          if (entry) {
+            return entry
+          }
+          entry = this.armors.first('code', item)
+          if (entry) {
+            return entry
+          }
+          entry = this.misc.first('code', item)
+          if (entry) {
+            return entry
+          }
+          throw new Error(`unknown entry type: ${code}`)
         }
 
         getType (item) {
@@ -249,7 +275,6 @@
 
         // don't think anything quest related or forcibly unique can drop from a tc
         can (code, rarity) {
-          const typeId = this.getType(code)
           switch (rarity) {
             case 'Unique': {
               return !this.mustBeNormal(code) && !this.mustBeMagic(code) && !!this.uniqueMap[code]
@@ -275,8 +300,15 @@
           if (!this.can(code, rarity)) {
             return []
           }
+          const monsters = this.dropMap[code]
+          if (!monsters) {
+            console.log(this.dropMap)
+            return []
+          }
           const res = []
-
+          monsters.forEach(monster => {
+            console.log(monster)
+          })
           return res
         }
       }
@@ -300,10 +332,10 @@
           const view = new DropView(abacus)
           view.populate(document.body)
         })
-        const code = '7tw'
+        const code = 'uar'
         const level = 89
         const extra = 100
-        const find = 155
+        const find = 0
         console.log(abacus.can('uar', 'Unique'))
         console.log(abacus.can('swb', 'Set'))
         console.log(abacus.can('uar', 'Rare'))
