@@ -17,10 +17,10 @@
 
       class DropAbacus {
         static constants = {
-          'Unique': 250,
-          'Set': 500,
-          'Rare': 600,
-          'Magic': 0
+          'unique': 250,
+          'set': 500,
+          'rare': 600,
+          'magic': 0
         }
         static itemKeys = Array.from({ length: 10 }, (_, id) => `Item${id + 1}`)
         static probKeys = Array.from({ length: 10 }, (_, id) => `Prob${id + 1}`)
@@ -71,8 +71,10 @@
           this.sourcer = new MonsterSourcer(this.levels, this.monsters)
           this.tree = new TreasureTree(this.treasure)
 
+          const seenMonsters = {}
           const walked = {}
           let monsters = []
+          monsters.push(this.sourcer.bosses())
           this.levels.each(level => {
             if (level.Name === 'Null') {
               return
@@ -80,24 +82,58 @@
             monsters.push(this.sourcer.monsters(level.Name))
           })
           monsters = monsters.flat(Infinity)
-          let pres = 0
+
+          this.sourceMap = {}
           const dropMap = new Map()
           monsters.forEach(monster => {
             monster.treasure = this.tree.upgrade(monster.treasure, monster.level)
+            this.sourceMap[monster.treasure] = this.sourceMap[monster.treasure] || []
+            this.sourceMap[monster.treasure].push(monster)
             if (this.tree.has(monster.treasure) && !walked[monster.treasure]) {
+              const treasures = new Map()
               walked[monster.treasure] = true
               this.tree.walk(monster.treasure, 1, {
                 pre: (treasure, p) => {
-                  const ret = dropMap.get(treasure.id)
-                  const val = { p, treasure, monster }
+                  let ret = treasures.get(treasure.id)
                   if (!ret) {
-                    dropMap.set(treasure.id, [ val ])
+                    ret = []
+                    treasures.set(treasure.id, ret)
+                  }
+                  const keys = [
+                    'unique',
+                    'set',
+                    'rare',
+                    'magic'
+                  ]
+                  const entry = ret.find(e => {
+                    return keys.every(k => e.treasure[k] === treasure[k])
+                  })
+                  if (entry) {
+                    entry.p += p
                   } else {
-                    ret.push(val)
+                    ret.push({
+                      p,
+                      treasure,
+                      monster
+                    })
                   }
                 },
                 post: () => {
                 }
+              })
+              treasures.forEach((entries, id) => {
+                entries.forEach(entry => {
+                  let ret = dropMap.get(id)
+                  if (!ret) {
+                    ret = []
+                    dropMap.set(id, ret)
+                  }
+                  if (!entry.monster) {
+                    console.log(entry, id)
+                    throw new Error('?')
+                  }
+                  ret.push(entry)
+                })
               })
             }
           })
@@ -145,17 +181,28 @@
           })
 
           this.uniqueMap = {}
+          const uniqueSums = {}
           this.uniques.each(unique => {
             if (unique.enabled !== '1' || unique.rarity < 1) {
               return
             }
-            this.uniqueMap[unique.code] = this.uniqueMap[unique.code] || []
-            this.uniqueMap[unique.code].push({
+            uniqueSums[unique.code] = uniqueSums[unique.code] || 0
+            const p = Number(unique.rarity)
+            uniqueSums[unique.code] += p
+            this.uniqueMap[unique.code] = this.uniqueMap[unique.code] || new Map()
+            this.uniqueMap[unique.code].set(unique.index, {
               id: unique.index,
+              code: unique.code,
               level: Number(unique.lvl),
-              p: Number(unique.rarity)
+              p
             })
           })
+          console.log(this.uniqueMap)
+          for (const code in this.uniqueMap) {
+            for (const [k, v] of this.uniqueMap[code]) {
+              v.p /= uniqueSums[code]
+            }
+          }
 
           this.setMap = {}
           this.sets.each(set => {
@@ -251,18 +298,12 @@
           return Number(this.codeMap[item].level)
         }
 
-        p (rarity, magicFind, level, extra, item) {
-          if (rarity === 'Normal') {
-            return 1
-          }
-          console.log(arguments)
-          const ratio = this.getItemRatio(item, rarity)
-          return this.chance(magicFind, extra, level - this.getItemLevel(item), rarity, ratio.base, ratio.divisor, ratio.min, DropAbacus.constants[rarity])
+        p (ratio, constant, isMagic, magicFind, level, extra, item) {
+          return this.chance(magicFind, extra, level - this.getItemLevel(item), isMagic, ratio.base, ratio.divisor, ratio.min, constant)
         }
 
-        chance (magicFind, extra, difference, rarity, rarityBase, divisor, min, cs) {
-          const constant = DropAbacus.constants[rarity]
-          const effectiveMF = rarity !== 'Magic' ? Math.floor(magicFind * constant / (magicFind + constant)) : magicFind
+        chance (magicFind, extra, difference, isMagic, rarityBase, divisor, min, constant) {
+          const effectiveMF = !isMagic ? Math.floor(magicFind * constant / (magicFind + constant)) : magicFind
           const div = Math.floor(difference / divisor)
           const chance = Math.max(min, Math.floor((rarityBase - div) * 12800 / (100 + effectiveMF)))
           const final = chance - Math.floor((chance * extra) / 1024)
@@ -297,28 +338,28 @@
 
         // don't think anything quest related or forcibly unique can drop from a tc
         can (code, rarity) {
-          switch (rarity) {
-            case 'Unique': {
+          switch (rarity.toLowerCase()) {
+            case 'unique': {
               return !this.mustBeNormal(code) && !this.mustBeMagic(code) && !!this.uniqueMap[code]
             }
-            case 'Set': {
+            case 'set': {
               return !this.mustBeNormal(code) && !this.mustBeMagic(code) && !this.mustBeUnique(code) && !!this.setMap[code]
             }
-            case 'Rare': {
+            case 'rare': {
               const type = this.getType(code)
               return !this.mustBeNormal(code) && !this.mustBeMagic(code) && !this.mustBeUnique(code) && type.Rare === '1'
             }
-            case 'Magic': {
+            case 'magic': {
               return !this.mustBeNormal(code) && !this.mustBeUnique(code)
             }
-            case 'Normal': {
+            case 'normal': {
               return !this.mustBeMagic(code) && !this.mustBeUnique(code)
             }
           }
           throw new Error(`unknown rarity: ${rarity}`)
         }
 
-        getBaseP (code) {
+        getBaseP (code, rarity) {
           const armor = this.inverseArmorTable[code]
           if (armor) {
             return {
@@ -336,6 +377,25 @@
           return code
         }
 
+        getUniqueItem (item) {
+          const entry = this.uniques.first('index', item)
+          return this.uniqueMap[entry.code].get(item)
+        }
+
+        unique (find, itemId) {
+          const item = this.getUniqueItem(itemId)
+          const drops = this.drop(find, item.code, 'unique')
+          const p = item.p
+          return drops.filter(drop => {
+            if (drop.source.level < item.level) {
+              return false
+            }
+            drop.p *= p
+            drop.p = 1 / drop.p
+            return true
+          })
+        }
+
         drop (find, code, rarity) {
           if (!this.can(code, rarity)) {
             return []
@@ -345,17 +405,26 @@
           if (!sources) {
             return []
           }
+          const cased = rarity.toUpperCase()[0] + rarity.toLowerCase().substring(1)
+          rarity = rarity.toLowerCase()
+          const constant = DropAbacus.constants[rarity]
+          const ratio = this.getItemRatio(code, cased)
           const res = []
-          sources.forEach(source => {
-            const rarityP = this.p(rarity, find, source.monster.level, source.treasure[rarity.toLowerCase()], code)
-            const p = baseP * source.p * rarityP
-            res.push({
-              p: 1 / p,
-              source
+          sources.forEach(first => {
+            this.sourceMap[first.monster.treasure].forEach(source => {
+              const rarityP = this.p(ratio, constant, rarity === 'magic', find, source.level, first.treasure[rarity], code)
+              const p = baseP * first.p * rarityP
+              res.push({
+                p,
+                first,
+                source,
+                baseP,
+                rarityP
+              })
             })
           })
           res.sort((a, b) => {
-            return a.p - b.p
+            return b.p - a.p
           })
           return res
         }
@@ -380,11 +449,17 @@
           const view = new DropView(abacus)
           view.populate(document.body)
         })
-        const code = 'uar'
+        const code = 'ulc'
         const level = 89
         const extra = 100
         const find = 0
-        console.log(abacus.drop(find, code, 'Unique'))
+        const item = 'Arachnid Mesh'
+        const sources = abacus.unique(find, item)
+        sources.forEach(source => {
+          const el = document.createElement('p')
+          el.textContent = `${source.source.id} ${source.p}`
+          document.body.appendChild(el)
+        })
       }
       requestAnimationFrame(Load)
     </script>

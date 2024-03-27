@@ -498,7 +498,7 @@ class MonsterSourcer {
   setup () {
     this.inverseMonsterMap = new Map()
     this.monsterData.each(monster => {
-      if (monster.isSpawn === '1' && monster.enabled === '1') {
+      if (monster.killable === '1') {
         this.inverseMonsterMap.set(monster.Id, monster)
       }
     })
@@ -506,6 +506,25 @@ class MonsterSourcer {
     this.levelData.each(level => {
       this.inverseLevelMap.set(level.Name, level)
     })
+  }
+
+  bosses () {
+    const res = []
+    this.monsterData.each(monster => {
+      if (monster.boss !== '1' || monster.killable !== '1') {
+        return
+      }
+      res.push(this.expand({
+        Name: 'boss'
+      }, 0, monster.Id, new Set(), false))
+      res.push(this.expand({
+        Name: 'boss'
+      }, 1, monster.Id, new Set(), false))
+      res.push(this.expand({
+        Name: 'boss'
+      }, 2, monster.Id, new Set(), false))
+    })
+    return res.flat(Infinity)
   }
 
   levels (monsterId) {
@@ -545,7 +564,7 @@ class MonsterSourcer {
     return this.filter(res.flat(Infinity))
   }
 
-  expand (level, difficulty, monsterId, set) {
+  expand (level, difficulty, monsterId, set, nestable = true) {
     const res = []
     if (set.has(monsterId)) {
       return res
@@ -553,38 +572,51 @@ class MonsterSourcer {
     set.add(monsterId)
     const monster = this.inverseMonsterMap.get(monsterId)
     const monLevel = Number(monster.boss !== '1' ? level[MonsterSourcer.monLevelKeys[difficulty]] : monster[MonsterSourcer.monBossLevelKeys[difficulty]])
-    // maybe check min too?
-    if (monster.PartyMax > 0) {
-      MonsterSourcer.monMinionKeys.forEach(minion => {
-        const minionId = monster[minion]
+    if (nestable) {
+      // maybe check min too?
+      if (monster.PartyMax > 0) {
+        MonsterSourcer.monMinionKeys.forEach(minion => {
+          const minionId = monster[minion]
+          if (minionId && this.inverseMonsterMap.has(minionId)) {
+            res.push(this.expand(level, difficulty, minionId, set))
+          }
+        })
+      }
+      if (monster.SplEndDeath === '1') {
+        const minionId = monster[MonsterSourcer.monMinionKeys[0]]
         if (minionId && this.inverseMonsterMap.has(minionId)) {
           res.push(this.expand(level, difficulty, minionId, set))
         }
-      })
-    }
-    if (monster.SplEndDeath === '1') {
-      const minionId = monster[MonsterSourcer.monMinionKeys[0]]
-      if (minionId && this.inverseMonsterMap.has(minionId)) {
-        res.push(this.expand(level, difficulty, minionId, set))
       }
-    }
-    if (monster.placespawn === '1') {
-      const minionId = monster.spawn
-      if (minionId && this.inverseMonsterMap.has(minionId)) {
-        res.push(this.expand(level, difficulty, minionId, set))
+      if (monster.placespawn === '1') {
+        const minionId = monster.spawn
+        if (minionId && this.inverseMonsterMap.has(minionId)) {
+          res.push(this.expand(level, difficulty, minionId, set))
+        }
       }
     }
     // normal, champion, unique
     const levelTable = [0, 2, 3]
-    for (let j = 0; j < 3; ++j) {
+    if (monster.boss === '1') {
       res.push({
         id: monsterId,
-        rarity: j,
+        rarity: 2,
         difficulty,
-        level: monLevel + levelTable[j],
-        treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][j]],
+        level: monLevel + 3,
+        treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][2]],
         from: level.Name
       })
+    } else {
+      for (let j = 0; j < 3; ++j) {
+        res.push({
+          id: monsterId,
+          rarity: j,
+          difficulty,
+          level: monLevel + levelTable[j],
+          treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][j]],
+          from: level.Name
+        })
+      }
     }
     return res
   }
@@ -708,6 +740,10 @@ class TreasureTree {
         }
       }
     }
+  }
+
+  table (id, n) {
+
   }
 
   merge (a, b) {
