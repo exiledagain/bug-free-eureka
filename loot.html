@@ -94,7 +94,7 @@
                     dropMap.set(treasure.id, [ val ])
                   } else {
                     ret.push(val)
-                  }                  
+                  }
                 },
                 post: () => {
                 }
@@ -353,6 +353,9 @@
               p: 1 / p,
               source
             })
+          })
+          res.sort((a, b) => {
+            return a.p - b.p
           })
           return res
         }
