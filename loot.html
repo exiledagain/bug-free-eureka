@@ -129,7 +129,6 @@
                     dropMap.set(id, ret)
                   }
                   if (!entry.monster) {
-                    console.log(entry, id)
                     throw new Error('?')
                   }
                   ret.push(entry)
@@ -164,7 +163,6 @@
             this.inverseWeaponTable[weapon.code] = { weap, rarity, table }
             table.sum += rarity
           })
-          console.log(this.inverseWeaponTable, this.inverseArmorTable)
 
           this.codeMap = {}
           this.wearMap = {}
@@ -197,7 +195,6 @@
               p
             })
           })
-          console.log(this.uniqueMap)
           for (const code in this.uniqueMap) {
             for (const [k, v] of this.uniqueMap[code]) {
               v.p /= uniqueSums[code]
@@ -226,11 +223,11 @@
             // this.loader.get(this.version, 'Weapons.txt'),
             // this.loader.get(this.version, 'Armor.txt'),
             // this.loader.get(this.version, 'TreasureClassEx.txt'),
-            // this.loader.get(this.version, 'MonStats.txt'),
+            this.loader.get(this.version, 'MonStats.txt'),
             // this.loader.get(this.version, 'Levels.txt'),
             // this.loader.get(this.version, 'SuperUniques.txt'),
             // this.loader.get(this.version, 'SetItems.txt'),
-            this.loader.get(this.version, 'UniqueItems.txt'),
+            // this.loader.get(this.version, 'UniqueItems.txt'),
           ] 
         }
 
@@ -452,12 +449,12 @@
         const code = 'ulc'
         const level = 89
         const extra = 100
-        const find = 300
+        const find = 0
         const item = "Tyrael's Might"
         const sources = abacus.unique(find, item)
         sources.forEach(source => {
           const el = document.createElement('p')
-          el.textContent = `${source.source.id} ${source.p}`
+          el.textContent = `${source.source.id} ${source.p} ${source.first.monster.treasure}`
           document.body.appendChild(el)
         })
       }

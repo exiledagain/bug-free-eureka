@@ -42,6 +42,10 @@ class DataFrame {
   async load () {
     const res = await fetch(this.uri)
     const text = await res.text()
+    this.parse(text)
+  }
+
+  parse (text) {    
     const lines = text.split(/\r?\n/)
     for (const line of lines) {
       const values = line.split('\t')
@@ -51,11 +55,12 @@ class DataFrame {
         this.values.push(values)
       }
     }
+    return this
   }
 
   first (key, val) {
     if (this.firsts.has(key)) {
-      this.firsts.get(key).get(val)
+      return this.firsts.get(key).get(val)
     }
     const k = this.keys.indexOf(key)
     if (k < 0) {
@@ -527,6 +532,25 @@ class MonsterSourcer {
     return res.flat(Infinity)
   }
 
+  quests () {
+    const res = []
+    this.monsterData.each(monster => {
+      if (monster.boss !== '1' || monster.killable !== '1') {
+        return
+      }
+      res.push(this.expand({
+        Name: 'boss'
+      }, 0, monster.Id, new Set(), false))
+      res.push(this.expand({
+        Name: 'boss'
+      }, 1, monster.Id, new Set(), false))
+      res.push(this.expand({
+        Name: 'boss'
+      }, 2, monster.Id, new Set(), false))
+    })
+    return res.flat(Infinity)
+  }
+
   levels (monsterId) {
     const monster = this.inverseMonsterMap.get(monsterId)
     if (!monster) {
@@ -606,16 +630,29 @@ class MonsterSourcer {
         treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][2]],
         from: level.Name
       })
-    } else {
-      for (let j = 0; j < 3; ++j) {
+      if (monster[MonsterSourcer.monTreasureKeys[difficulty][3]]) {
         res.push({
           id: monsterId,
-          rarity: j,
+          rarity: 2,
           difficulty,
-          level: monLevel + levelTable[j],
-          treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][j]],
+          level: monLevel + 3,
+          treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][3]],
           from: level.Name
         })
+      }
+    } else {
+      for (let j = 0; j < 4; ++j) {
+        const treasure = monster[MonsterSourcer.monTreasureKeys[difficulty][j]]
+        if (treasure.length > 0) {
+          res.push({
+            id: monsterId,
+            rarity: j,
+            difficulty,
+            level: monLevel + levelTable[j < 4 ? j : 3],
+            treasure,
+            from: level.Name
+          })
+        }
       }
     }
     return res
