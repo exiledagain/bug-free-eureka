@@ -1,0 +1,209 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&amp;display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon"> 
+    <link rel="stylesheet" href="../css/common.css">
+    <script src="../item.js"></script>
+    <script src="../igen.js"></script>
+  </head>
+  <body>
+    <script>
+      function Test (ig) {
+        if (ig._ig_get_size_group() !== 16) {
+          throw new Error('test failed: group size')
+        }
+        if (ig._ig_get_size_effect() !== 16) {
+          throw new Error('test failed: group size')
+        }
+        for (const k in ig) {
+          if (k.startsWith('_ig_test')) {
+            if (ig[k]() !== 0) {
+              throw new Error(`test failed: ${k}`)
+            }
+          }
+        }
+      }
+
+      function TestJs1 (ig) {
+        const data = []
+        for (let i = 0; i < 3; ++i) {
+          data.push({
+            weight: i + 1,
+            members: [
+              {
+                weight: 1,
+                effects: [
+                  {
+                    min: 1,
+                    aff: 10
+                  },
+                  {
+                    min: 1,
+                    aff: 11
+                  }
+                ]
+              }
+            ]
+          })
+        }
+        const n = 1000
+        const res = IgBuilder.Generate(ig, n, [{
+          count: 3,
+          groups: data
+        }], [
+          {
+            min: 1,
+            aff: 10
+          }
+        ], [], [0, 1, 2, 3])
+        return res.n !== n
+      }
+
+      function TestJs2 (ig) {
+        const data = []
+        for (let i = 0; i < 3; ++i) {
+          data.push({
+            weight: i + 1,
+            members: [
+              {
+                weight: 1,
+                effects: [
+                  {
+                    min: 1,
+                    aff: 10
+                  },
+                  {
+                    min: 1,
+                    aff: 11
+                  }
+                ]
+              }
+            ]
+          })
+        }
+        const n = 1000
+        const res = IgBuilder.Generate(ig, n, [{
+          count: 3,
+          groups: data
+        }], [
+          {
+            min: 1,
+            aff: 12
+          }
+        ], false, [], [0, 1, 2, 3])
+        return res.n !== 0
+      }
+
+      function TestJs3 (ig) {
+        const data = []
+        for (let i = 0; i < 3; ++i) {
+          data.push({
+            weight: i + 1,
+            members: [
+              {
+                weight: 1,
+                effects: [
+                ]
+              }
+            ]
+          })
+        }
+        const n = 1000
+        try {
+          const res = IgBuilder.Generate(ig, n, [{
+            count: 3,
+            groups: data
+          }], [
+            {
+              min: 1,
+              aff: 12
+            }
+          ], false, [], [0, 1, 2, 3])
+        } catch (e) {
+          if (e.message !== 'sanity check failed: -11') {
+            return true
+          }
+        }
+        return false
+      }
+
+      function TestJs_mirror_c_100_one_per_group_rand (ig) {
+        const data = []
+        for (let i = 0; i < 50; ++i) {
+          data.push({
+            weight: i + 1,
+            members: [
+              {
+                weight: 1,
+                effects: [
+                  {
+                    min: 1,
+                    aff: 10 + i % 2
+                  },
+                ]
+              }
+            ]
+          })
+        }
+        const n = 1000000
+        const res = IgBuilder.Generate(ig, n, [{
+          count: 3,
+          groups: data
+        }], [
+          {
+            min: 1,
+            aff: 10
+          },
+          {
+            min: 1,
+            aff: 11
+          }
+        ], false, [], [0, 1, 2, 3])
+        return res.n !== 765234
+      }
+
+      function TestJs (ig) {
+        if (TestJs1(ig)) {
+          throw new Error('test failed: TestJs1')
+        }
+        if (TestJs2(ig)) {
+          throw new Error('test failed: TestJs2')
+        }
+        if (TestJs3(ig)) {
+          throw new Error('test failed: TestJs3')
+        }
+        if (TestJs_mirror_c_100_one_per_group_rand(ig)) {
+          throw new Error('test failed: TestJs_mirror_c_100_one_per_group_rand')
+        }
+      }
+
+      async function Load () {
+        const ig = await new ItemGeneratorModule()
+        Test(ig)
+        TestJs(ig)
+        document.body.append('tests passed')
+        // avoid console usage
+        function Bench (ig) {
+          const n = 1e7
+          const s = performance.now()
+          const res = ig._ig_bench(n)
+          const e = performance.now()
+          const sps = n / (e - s) * 1000
+          document.body.append(sps.toFixed(3))
+        }
+        const btn = document.createElement('button')
+        btn.textContent = 'bench'
+        btn.onclick = () => {
+          btn.remove()
+          Bench(ig)
+        }
+        document.body.appendChild(document.createElement('br'))
+        document.body.appendChild(btn)
+      }
+      Load()
+    </script>
+  </body>
+</html>

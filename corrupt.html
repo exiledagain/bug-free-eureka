@@ -1,0 +1,347 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf8">
+    <title>PD2 Corruption</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+    <style>
+      body {
+        background-color: rgb(23, 39, 63);
+        color: silver;
+        font-family: 'Noto Sans JP', sans-serif;
+      }
+
+      .container {
+        display: flex;
+        gap: 3em;
+      }
+
+      .no-selection {
+        user-select: none;
+        filter: grayscale(100%);
+        margin-right: .15em;
+      }
+
+      .no-selection[set=true] {
+        filter: none;
+      }
+
+      .no-selection:hover {
+        outline: 2px silver outset;
+      }
+
+      .no-selection:active {
+        outline: 2px silver inset;
+      }
+
+      #minutes {
+        width: 3em;
+        border: none;
+        color: silver;
+        background-color: rgb(23, 39, 63);
+      }
+
+      #volume {
+        vertical-align: middle;
+      }
+    </style>
+    <script>
+      const bell = {
+        true: '🔔',
+        false: '🔕'
+      }
+
+      const speaker = {
+        false: '🔇',
+        true: '🔊'
+      }
+
+      class SoundControl {
+        static threshold = 10 * 1000
+
+        constructor (uri) {
+          this.last = 0
+          this.audio = new Audio(uri)
+        }
+
+        volume (n = this.audio.volume) {
+          this.audio.volume = n
+          return this.audio.volume
+        }
+
+        async play (override) {
+          const now = Date.now()
+          if (this.audio.volume <= 0) {
+            return false
+          }
+          if (!override && now - this.last < SoundControl.threshold) {
+            return true
+          }
+          try {
+            this.audio.currentTime = 0
+            await this.audio.play()
+            if (!override) {
+              this.last = now
+            }
+            return true
+          } catch (e) {
+            // user interaction required ?
+            console.error(e)
+          }
+          return false
+        }
+      }
+
+      class ZoneAlarm {
+        constructor (audio) {
+          this.audio = audio
+          this.minutes = 0
+          this.fired = {}
+          this.timeouts = new Map()
+          this.load()
+        }
+
+        storageKey () {
+          return `alarm`
+        }
+
+        load () {
+          const key = this.storageKey()
+          this.followed = JSON.parse(localStorage.getItem(key) || "{}")
+        }
+
+        save () {
+          const key = this.storageKey()
+          localStorage.setItem(key, JSON.stringify(this.followed))
+        }
+
+        follow (name, value) {
+          this.followed[name] = value
+          this.save()
+          this.setupAlarms()
+        }
+
+        countdown (value) {
+          this.minutes = value
+          this.fired = {}
+          this.setupAlarms()
+        }
+
+        isFollowed (name) {
+          return !!this.followed[name]
+        }
+
+        reset (zones) {
+          this.zones = zones
+          this.timeouts = new Map()
+          this.sets = {}
+          this.setupAlarms()
+        }
+
+        clearTimeouts () {
+          this.timeouts.forEach(clearTimeout)
+          this.timeouts = new Map()
+        }
+
+        setupAlarms () {
+          if (!this.zones) {
+            return
+          }
+          this.clearTimeouts()
+          const n = this.minutes
+          const now = Date.now()
+          for (const [zone, { ts }] of Object.entries(this.zones)) {
+            if (!this.isFollowed(zone)) {
+              continue
+            }
+            this.timeouts.set(zone, (setTimeout(this.alert.bind(this, zone, n, ts), (ts - now) - n * 60 * 1000)))
+          }
+        }
+
+        setup (zone, el) {
+          el.textContent = bell[this.isFollowed(zone)]
+          el.setAttribute('set', this.isFollowed(zone))
+        }
+
+        async alert (zone, n, ts) {
+          this.timeouts.delete(zone)
+          if (this.fired[zone] === ts) {
+            return
+          }
+          if (await this.audio.play()) {
+            this.fired[zone] = ts
+          } else {
+            if (!this.timeouts.has(zone)) {
+              this.timeouts.set(zone, setTimeout(this.alert.bind(this, zone, n, ts), 1000))
+            }
+          }
+        }
+
+        track (zone, container) {
+          const el = document.createElement('span')
+          this.sets[zone] = this.sets[zone] || []
+          this.sets[zone].push(el)
+          el.classList.add('no-selection')
+          this.setup(zone, el)
+          el.onclick = () => {
+            this.follow(zone, !this.isFollowed(zone))
+            this.sets[zone].forEach(el => {
+              this.setup(zone, el)
+            })
+          }
+          container.appendChild(el)
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <span style="margin: 0 auto;">
+      <label for="minutes">🔔 Alarm (minutes) 🔔</label>
+      <input id="minutes" type="number" pattern="\d*" min="0" max="99" value="0">
+      <label id="volumeLabel" for="volume" class="no-selection">🔇</label><input id="volume" type="range" value="80" min="0" max="100">
+    </span>
+    <script>
+      const audioEl = new SoundControl("bell.wav")
+      const alarm = new ZoneAlarm(audioEl)
+      const maxZoneLength = 15
+      const formatTs = ts => {
+        return new Date(ts).toLocaleString()
+      }
+      const zones = ["Blood Moor", "Cold Plains", "Stony Field", "Dark Wood", "Black Marsh", "Tamoe Highland", "Den of Evil", "The Cave", "The Underground Passage", "The Hole", "The Pit", "Burial Grounds + Crypt/Masoleum", "Forgotten Tower", "Outer Cloister + Barracks", "Jail", "Inner Cloister + Cathedral", "Catacombs", "Tristram", "The Cow Level", "Rocky Wastes", "Dry Hills", "Far Oasis", "Lost City", "Canyon of Magi", "Lut Gholein Sewers", "Palace Cellars", "Stony Tomb", "Halls of the Dead", "Claw Viper Temple", "Maggot Lair", "Ancient Tunnels", "Tal Rasha Tombs", "Arcane Sanctuary", "Spider Forest", "Great Marsh", "Flayer Jungle", "Lower Kurast", "Kurast Bazaar", "Upper Kurast", "Causeway + Travincal", "Arachnid Lair", "Spider Cavern", "Swampy Pit", "Flayer Dungeon", "Kurast Sewers", "Durance of Hate", "Outer Steppes", "Plains of Despair", "City of the Damned", "River of Flame", "Chaos Sanctuary", "Bloody Foothills", "Frigid Highlands", "Arreat Plateau", "Crystalline Passage + Icy Cavern", "Frozen River", "Drifter Cavern", "Frozen Tundra", "Ancient's Way", "Icy Cellar", "Nihlathak's Temple", "Abaddon", "Pit of Acheron", "Infernal Pit", "Worldstone Keep", "Throne of Destruction"]
+      const getNextPrng = (seed, mul, inc) => {
+        return Number(((BigInt(seed) * BigInt(mul) + BigInt(inc)) >> BigInt(16)) & BigInt(32767))
+      }
+      const getZone = (ts = Date.now(), n = 0) => {
+        ts += 900e3 * n
+        ts = Math.floor(ts / 900e3) * 900e3
+        const seed = Math.floor(Math.floor(ts / 1e3) / 900)
+        return { zone: zones[getNextPrng(seed, 214013, 2531011) % zones.length], ts, seed }
+      }
+      const getNextZones = () => {
+        const ts = Date.now()
+        let k = zones.length
+        const set = {}
+        const list = []
+        for (let i = 0; k > 0 || list.length < maxZoneLength; ++i) {
+          const info = getZone(ts, i)
+          if (!set[info.zone]) {
+            k -= 1
+            set[info.zone] = { ts: info.ts, seed: info.seed }
+          }
+          if (list.length < maxZoneLength) {
+            list.push({ zone: info.zone, ts: info.ts, seed: info.seed })
+          }
+        }
+        return { list, zones: set }
+      }
+      const populate = (container) => {
+        const nextNContainer = document.createElement('div')
+        const next = getNextZones()
+        alarm.reset(next.zones)
+        for (const { zone, ts } of next.list) {
+          const el = document.createElement('p')
+          alarm.track(zone, el)
+          el.append(`${zone} at ${formatTs(ts)}`)
+          nextNContainer.appendChild(el)
+        }
+        const nextAvailableContainer = document.createElement('div')
+        for (const zone of zones) {
+          const el = document.createElement('p')
+          alarm.track(zone, el)
+          el.append(`${zone} at ${formatTs(next.zones[zone].ts)}`)
+          nextAvailableContainer.appendChild(el)
+        }
+        container.appendChild(nextNContainer)
+        container.appendChild(nextAvailableContainer)
+        container.classList.add('container')
+      }
+      const updateMuteControl = muted => {
+        const volumeLabel = document.querySelector('#volumeLabel')
+        volumeLabel.textContent = speaker[!muted]
+      }
+      requestAnimationFrame(() => {
+        // interaction required
+        let muted = true
+        const volume = document.querySelector('#volume')
+        let lastVolume = volume.value = localStorage.getItem('volume') || 80
+        audioEl.volume(volume.value / 100)
+        const minutes = document.querySelector('#minutes')
+        minutes.value = localStorage.getItem('countdown') || 0
+        alarm.countdown(minutes.value)
+        minutes.onchange = e => {
+          const value = Math.max(0, Math.min(99, minutes.value))
+          minutes.value = value
+          alarm.countdown(value)
+          localStorage.setItem('countdown', value)
+        }
+        volume.onchange = e => {
+          const value = volume.value
+          lastVolume = value
+          audioEl.volume(value / 100)
+          localStorage.setItem('volume', value)
+          muted = false
+          localStorage.setItem('muted', false)
+          updateMuteControl(muted)
+          audioEl.play(true)
+        }
+        const volumeLabel = document.querySelector('#volumeLabel')
+        if (muted) {
+          volume.value = 0
+          audioEl.volume(0)
+        }
+        volumeLabel.onclick = e => {
+          lastVolume = muted ? lastVolume : audioEl.volume() * 100
+          audioEl.volume(muted ? lastVolume / 100 : 0)
+          volume.value = audioEl.volume() * 100
+          muted = !muted
+          localStorage.setItem('muted', muted)
+          updateMuteControl(muted)
+          alarm.setupAlarms()
+        }
+      })
+      let lastTs = -1
+      const refresh = () => {
+        const seed = getZone().seed
+        if (lastTs === seed) {
+          return
+        }
+        lastTs = seed
+        const old = document.querySelector('#main')
+        if (old) {
+          old.remove()
+        }
+        document.body.appendChild(document.createElement('div'))
+        document.body.lastElementChild.id = 'main'
+        populate(document.body.lastElementChild)
+      }
+      // refresh()
+      // setInterval(refresh, 5000)
+      const getCowZones = () => {
+        const ts = Date.now()
+        let k = 100
+        const list = []
+        const hist = {}
+        let last
+        for (let i = 0; list.length < k; ++i) {
+          const info = getZone(ts, i)
+          if (info.zone === 'The Cow Level') {
+            info.cest = new Date(info.ts).toLocaleTimeString('en-US', { timeZone: 'Europe/Berlin', hourCycle: 'h24' })
+            if (!(info.cest.startsWith('18') || info.cest.startsWith('19') || info.cest.startsWith('20') || info.cest.startsWith('21'))) {
+              continue
+            }
+            info.cest = new Date(info.ts).toLocaleString('en-US', { timeZone: 'Europe/Berlin', hourCycle: 'h24' })
+            hist[info.cest] = hist[info.cest] + 1 || 1
+            list.push(info)
+            last = info
+          }
+        }
+        console.log(formatTs(last.ts))
+        console.log(hist)
+        return list
+      }
+      console.log(getCowZones())
+    </script>
+  </body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&amp;display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon"> 
+    <link rel="stylesheet" href="css/common.css">
+    <script src="item.js"></script>
+    <script src="d2data.js"></script>
+    <script src="util.js"></script>
+  </head>
+  <body>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            <select id="file">
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div id="content"></div>
+    <script>
+      const version = 's9'
+      const files = [
+        'UniqueItems.txt',
+        'Armor.txt',
+        'Weapons.txt',
+        'TreasureClassEx.txt',
+        'Misc.txt',
+        'CubeMain.txt',
+        'MonStats.txt',
+        'Levels.txt',
+        'MagicPrefix.txt',
+        'MagicSuffix.txt'
+      ]
+      const loader = new DataLoader()
+      function populate (container) {
+        const select = document.querySelector('#file')
+        select.innerHTML = ''
+        files.forEach(file => {
+          const el = document.createElement('option')
+          el.textContent = file
+          el.value = file
+          select.appendChild(el)
+        })
+        select.onchange = e => {
+          container.innerHTML = ''
+          new DataFrameView(loader.get(version, select.value)).populate(container)
+        }
+        select.onchange()
+      }
+      async function Load () {
+        await loader.preload(version, files)
+        populate(document.querySelector('#content'))
+      }
+      requestAnimationFrame(Load)
+    </script>
+  </body>
+</html>

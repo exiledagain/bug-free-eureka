@@ -1,0 +1,772 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&amp;display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon"> 
+    <link rel="stylesheet" href="css/common.css">
+    <script src="item.js"></script>
+    <script src="d2data.js"></script>
+    <script src="igen.js"></script>
+    <script src="util.js"></script>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <td style="vertical-align: baseline;">
+          <form autocomplete="off">
+            <fieldset>
+              <legend>Config</legend>
+              <table>
+                <tr>
+                  <td>
+                    <label for="version">Version</label>
+                  </td>
+                  <td>
+                    <select id="version" name="version">
+                      <option value="s9" selected>S9</option>
+                      <option value="s8">S8</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="players">Players</label>
+                  </td>
+                  <td>
+                    <select id="players" name="players">
+                      <option value="1" selected>1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="magicFind">Magic Find</label>
+                  </td>
+                  <td>
+                    <input id="magicFind" name="magicFind" type="text" value="0" pattern="\d+" maxlength="4" style="width: 5em;">
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="top">Limit</label>
+                  </td>
+                  <td>
+                    <select id="top" name="top">
+                      <option value="100" selected>100</option>
+                      <option value="1000">1000</option>
+                      <option value="2000">2000</option>
+                      <option value="3000">3000</option>
+                      <option value="4000">4000</option>
+                      <option value="5000">5000</option>
+                      <option value="Infinity">None</option>
+                    </select>
+                  </td>
+                </tr>
+              </table>
+            </fieldset>
+          </form>
+          </td>
+          <td style="vertical-align: baseline;">
+          <form autocomplete="off">
+            <fieldset>
+              <legend>Search</legend>
+              <table>
+                <tr>
+                  <td>
+                    <label for="rarity">Rarity</label>
+                  </td>
+                  <td>
+                    <select id="rarity" name="rarity">
+                      <option value="normal">Normal</option>
+                      <option value="magic">Magic</option>
+                      <option value="rare">Rare</option>
+                      <option value="set">Set</option>
+                      <option value="unique" selected>Unique</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="item">Item</label>
+                  </td>
+                  <td>
+                    <select id="item" name="item">
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="explain">Explain</label>
+                  </td>
+                  <td>
+                    <input id="explain" name="explain" type="checkbox">
+                  </td>
+                </tr>
+              </table>
+            </fieldset>
+          </form>
+        </td>
+      </tr>
+    </table>
+    <table id="sources">
+
+    </table>
+    <script>
+      'use strict'
+
+      class DropAbacus {
+        static constants = {
+          'unique': 250,
+          'set': 500,
+          'rare': 600,
+          'magic': 0
+        }
+        static itemKeys = Array.from({ length: 10 }, (_, id) => `Item${id + 1}`)
+        static probKeys = Array.from({ length: 10 }, (_, id) => `Prob${id + 1}`)
+        static monLevelKeys = Array.from({ length: 3 }, (_, id) => `MonLvl${id + 1}Ex`)
+        static monNormalKeys = Array.from({ length: 25 }, (_ , id) => `mon${id + 1}`)
+        static monHellKeys = Array.from({ length: 25 }, (_ , id) => `nmon${id + 1}`)
+        static monUniqueKeys = Array.from({ length: 25 }, (_ , id) => `umon${id + 1}`)
+        static monBossLevelKeys = ['Level', 'Level(N)', 'Level(H)']
+        static monNormalTreasureKeys = Array.from({ length: 4 }, (_, id) => `TreasureClass${id + 1}`)
+        static monNightmareTreasureKeys = Array.from({ length: 4 }, (_, id) => `TreasureClass${id + 1}(N)`)
+        static monHellTreasureKeys = Array.from({ length: 4 }, (_, id) => `TreasureClass${id + 1}(H)`)
+        static monTreasureKeys = DropAbacus.monHellTreasureKeys.concat(DropAbacus.monNightmareTreasureKeys, DropAbacus.monNormalTreasureKeys)
+        static monMinionKeys = ['minion1', 'minion2']
+        static monKeys = DropAbacus.monNormalKeys.concat(DropAbacus.monHellKeys)
+        static blacklist = {
+          'BRArenaZombie': true,
+          'willowispboss': true
+        }
+
+        constructor (version, dc = 1) {
+          this.dc = dc
+          this.version = version
+          this.loader = new DataLoader()          
+        }
+
+        async load () {
+          await this.loader.preload(this.version, [
+            'Armor.txt',
+            'ItemRatio.txt',
+            'ItemTypes.txt',
+            'Levels.txt',
+            'Misc.txt',
+            'MonStats.txt',
+            'SetItems.txt',
+            'TreasureClassEx.txt',
+            'UniqueItems.txt',
+            'Weapons.txt',
+            'SuperUniques.txt',
+          ])
+          const strings = new StringTable(`data/${this.version}/global/excel/string.tbl`)
+          await strings.load()
+          this.strings = strings
+
+          this.itemRatio = this.loader.get(this.version, 'ItemRatio.txt')
+          this.weapons = this.loader.get(this.version, 'Weapons.txt')
+          this.armors = this.loader.get(this.version, 'Armor.txt')
+          this.misc = this.loader.get(this.version, 'Misc.txt')
+          this.treasure = this.loader.get(this.version, 'TreasureClassEx.txt')
+          this.monsters = this.loader.get(this.version, 'MonStats.txt')
+          this.levels = this.loader.get(this.version, 'Levels.txt')
+          this.uniques = this.loader.get(this.version, 'UniqueItems.txt')
+          this.sets = this.loader.get(this.version, 'SetItems.txt')
+          this.types = this.loader.get(this.version, 'ItemTypes.txt')
+          this.supers = this.loader.get(this.version, 'SuperUniques.txt')
+          this.players(this.dc)
+        }
+
+        players (dc) {
+          this.dc = dc
+          this.eligible = []
+
+          this.typeList = new TypeList(this.misc, this.types, this.weapons, this.armors)
+          this.sourcer = new MonsterSourcer(this.levels, this.monsters, this.supers)
+          this.tree = new TreasureTree(this.treasure, this.typeList, this.weapons, this.armors)
+
+          const walked = {}
+          let monsters = []
+          monsters.push(this.sourcer.bosses())
+          monsters.push(this.sourcer.supers())
+          this.levels.each(level => {
+            if (level.Name === 'Null') {
+              return
+            }
+            monsters.push(this.sourcer.monsters(level.Name))
+          })
+          monsters = monsters.flat(Infinity)
+
+          this.sourceMap = {}
+          const dropMap = new Map()
+          monsters.forEach(monster => {
+            if (DropAbacus.blacklist[monster.id]) {
+              return
+            }
+            monster.treasure = this.tree.upgrade(monster.treasure, monster.level)
+            this.sourceMap[monster.treasure] = this.sourceMap[monster.treasure] || []
+            this.sourceMap[monster.treasure].push(monster)
+            if (this.tree.has(monster.treasure) && !walked[monster.treasure]) {
+              const treasures = new Map()
+              walked[monster.treasure] = true
+              this.tree.walk(monster.treasure, this.dc, {
+                pre: (treasure, p) => {
+                  this.eligible[treasure.id] = true
+                  let ret = treasures.get(treasure.id)
+                  if (!ret) {
+                    ret = []
+                    treasures.set(treasure.id, ret)
+                  }
+                  const keys = [
+                    'unique',
+                    'set',
+                    'rare',
+                    'magic'
+                  ]
+                  const entry = ret.find(e => {
+                    return keys.every(k => e.treasure[k] === treasure[k])
+                  })
+                  if (entry) {
+                    entry.p += p
+                  } else {
+                    ret.push({
+                      p,
+                      treasure,
+                      monster
+                    })
+                  }
+                },
+                post: () => {
+                }
+              })
+              treasures.forEach((entries, id) => {
+                entries.forEach(entry => {
+                  let ret = dropMap.get(id)
+                  if (!ret) {
+                    ret = []
+                    dropMap.set(id, ret)
+                  }
+                  if (!entry.monster) {
+                    throw new Error('?')
+                  }
+                  ret.push(entry)
+                })
+              })
+            }
+          })
+          this.dropMap = dropMap
+
+          this.codeMap = {}
+          this.wearMap = {}
+          this.weapons.each(weapon => {
+            this.codeMap[weapon.code] = weapon
+            this.wearMap[weapon.code] = weapon
+            this.eligible[weapon.code] = true
+          })
+          this.armors.each(armor => {
+            this.codeMap[armor.code] = armor
+            this.wearMap[armor.code] = armor
+            this.eligible[armor.code] = true
+          })
+          this.misc.each(misc => {
+            this.codeMap[misc.type] = misc
+          })
+
+          this.uniqueMap = {}
+          const uniqueSums = {}
+          this.uniques.each((unique, idx) => {
+            if (unique.enabled !== '1' || unique.rarity < 1) {
+              return
+            }
+            uniqueSums[unique.code] = uniqueSums[unique.code] || 0
+            const p = Number(unique.rarity)
+            uniqueSums[unique.code] += p
+            this.uniqueMap[unique.code] = this.uniqueMap[unique.code] || new Map()
+            this.uniqueMap[unique.code].set(idx, {
+              id: idx,
+              name: unique.index,
+              code: unique.code,
+              level: Number(unique.lvl),
+              rarity: p,
+              p
+            })
+          })
+          for (const code in this.uniqueMap) {
+            for (const [k, v] of this.uniqueMap[code]) {
+              v.p /= uniqueSums[code]
+            }
+          }
+
+          this.setMap = {}
+          const setSums = {}
+          this.sets.each(set => {
+            if (set.rarity < 1) {
+              return
+            }
+            setSums[set.item] = setSums[set.item] || 0
+            const p = Number(set.rarity)
+            setSums[set.item] += p
+            this.setMap[set.item] = this.setMap[set.item] || new Map()
+            this.setMap[set.item].set(set.index, {
+              id: set.index,
+              code: set.item,
+              level: Number(set.lvl),
+              p
+            })
+          })
+          for (const code in this.setMap) {
+            for (const [k, v] of this.setMap[code]) {
+              v.p /= setSums[code]
+            }
+          }
+        }
+
+        items (rarity) {
+          const res = []
+          switch (rarity) {
+            case 'unique': {
+              for (const code in this.uniqueMap) {
+                for (const { name, id } of this.uniqueMap[code].values()) {
+                  res.push({ name, id })
+                }
+              }
+              break
+            }
+            case 'set': {
+              for (const code in this.setMap) {
+                for (const { id } of this.setMap[code].values()) {
+                  res.push({ name: id, id })
+                }
+              }
+              break
+            }
+            case 'normal':
+            case 'magic':
+            case 'rare': {
+              for (const code in this.eligible) {
+                if (!code || code[0] === '"' || code.startsWith('gld')) {
+                  continue
+                }
+                if (code.startsWith('weap') || code.startsWith('armo') || code.startsWith('mele')) {
+                  continue
+                }
+                // may need digit check
+                if (code.startsWith('bow')) {
+                  continue
+                }
+                if (this.can(code, rarity)) {
+                  res.push({ name: code, id: code })
+                }
+              }
+              break
+            }
+          }
+          res.sort((a, b) => {
+            return a.name.localeCompare(b.name)
+          })
+          return res
+        }
+
+        isClassSpecific (item) {
+          if (!this.typeList.has(item)) {
+            item = this.codeMap[item].type
+          }
+          return this.typeList.expand('clas').includes(item)
+        }
+
+        entry (code) {
+          let entry
+          entry = this.weapons.first('code', item)
+          if (entry) {
+            return entry
+          }
+          entry = this.armors.first('code', item)
+          if (entry) {
+            return entry
+          }
+          entry = this.misc.first('code', item)
+          if (entry) {
+            return entry
+          }
+          throw new Error(`unknown entry type: ${code}`)
+        }
+
+        getType (item) {
+          if (item.startsWith('weap')) {
+            return this.types.first('Code', 'weap')
+          }
+          if (item.startsWith('armo')) {
+            return this.types.first('Code', 'armo')
+          }
+          if (item.startsWith('mele')) {
+            return this.types.first('Code', 'mele')
+          }
+          if (item.startsWith('bow')) {
+            return this.types.first('Code', 'bow')
+          }
+          let type
+          type = this.weapons.first('code', item)
+          if (type) {
+            return this.types.first('Code', 'weap')
+          }
+          type = this.armors.first('code', item)
+          if (type) {
+            return this.types.first('Code', 'armo')
+          }
+          const misc = this.misc.first('code', item)
+          if (misc) {
+            return this.types.first('Code', misc.type)
+          }
+          return this.types.first('Code', item)
+        }
+
+        getItemRatio (item, rarity) {
+          const clazzy = this.isClassSpecific(item)
+          let res
+          this.itemRatio.each(ratio => {
+            if (ratio.Version === '1' && (ratio['Class Specific'] === '1' && clazzy)) {
+              res = ratio
+            } else if (ratio.Version === '1' && ratio['Class Specific'] !== '1') {
+              res = ratio
+            }
+          })
+          return {
+            base: Number(res[rarity]),
+            divisor: Number(res[`${rarity}Divisor`]),
+            min: Number(res[`${rarity}Min`]),
+            class: clazzy,
+            raw: res
+          }
+        }
+
+        getItemLevel (item) {
+          return Number((this.codeMap[item] || { level: 1 }).level)
+        }
+
+        p (ratio, constant, isMagic, magicFind, level, extra, item) {
+          return this.chance(magicFind, extra, level - this.getItemLevel(item), isMagic, ratio.base, ratio.divisor, ratio.min, constant)
+        }
+
+        chance (magicFind, extra, difference, isMagic, rarityBase, divisor, min, constant) {
+          const effectiveMF = !isMagic ? Math.floor(magicFind * constant / (magicFind + constant)) : magicFind
+          const div = Math.floor(difference / divisor)
+          const chance = Math.max(min, Math.floor((rarityBase - div) * 12800 / (100 + effectiveMF)))
+          const final = chance - Math.floor((chance * extra) / 1024)
+          return final > 128 ? 128 / final : 1
+        }
+
+        mustBeNormal (code) {
+          const type = this.getType(code)
+          return type.Normal === '1'
+        }
+
+        mustBeMagic (code) {
+          const type = this.getType(code)
+          return type.Magic === '1'
+        }
+
+        mustBeUnique (code) {
+          const weapon = this.weapons.first('code', code)
+          if (weapon && weapon.unique === '1') {
+            return true
+          }
+          const armor = this.armors.first('code', code)
+          if (armor && armor.unique === '1') {
+            return true
+          }
+          // also need magic flag?
+          if ((weapon && weapon.quest > 0) || (armor && armor.quest > 0)) {
+            return true
+          }
+          return false
+        }
+
+        // don't think anything quest related or forcibly unique can drop from a tc
+        can (code, rarity) {
+          switch (rarity.toLowerCase()) {
+            case 'unique': {
+              return !this.mustBeNormal(code) && !!this.uniqueMap[code]
+            }
+            case 'set': {
+              return !this.mustBeNormal(code) && !this.mustBeUnique(code) && !!this.setMap[code]
+            }
+            case 'rare': {
+              const type = this.getType(code)
+              return !this.mustBeNormal(code) && !this.mustBeUnique(code) && type.Rare === '1'
+            }
+            case 'magic': {
+              return !this.mustBeNormal(code) && !this.mustBeUnique(code)
+            }
+            case 'normal': {
+              return !this.mustBeMagic(code) && !this.mustBeUnique(code)
+            }
+          }
+          throw new Error(`unknown rarity: ${rarity}`)
+        }
+
+        getUniqueItem (item) {
+          const { code } = this.uniques.combineFromIndex(item)
+          return this.uniqueMap[code].get(Number(item))
+        }
+
+        getSetItem (item) {
+          const entry = this.sets.first('index', item)
+          return this.setMap[entry.item].get(item)
+        }
+
+        unique (find, itemId) {
+          const item = this.getUniqueItem(itemId)
+          const drops = this.drop(find, item.code, 'unique')
+          const { code } = this.uniques.combineFromIndex(itemId)
+          const res = drops.filter(drop => {
+            if (drop.source.level < item.level) {
+              return false
+            }
+            let sum = 0
+            this.uniqueMap[code].forEach(el => {
+              if (el.level <= drop.source.level)
+                sum += el.rarity
+            })
+            drop.explain.base = item.rarity / sum
+            drop.p *= item.rarity / sum
+            return true
+          })
+          res.sort((a, b) => {
+            return b.p - a.p
+          })
+          return res
+        }
+
+        set (find, itemId) {
+          const item = this.getSetItem(itemId)
+          const drops = this.drop(find, item.code, 'set')
+          const p = item.p
+          return drops.filter(drop => {
+            if (drop.source.level < item.level) {
+              return false
+            }
+            drop.p *= p
+            return true
+          })
+        }
+
+        drop (find, code, rarity) {
+          if (!this.can(code, rarity)) {
+            return []
+          }
+          const sources = this.dropMap.get(code)
+          if (!sources) {
+            return []
+          }
+          const cased = rarity.toUpperCase()[0] + rarity.toLowerCase().substring(1)
+          rarity = rarity.toLowerCase() 
+          const constant = DropAbacus.constants[rarity]
+          const ratio = this.getItemRatio(code, cased)
+          const res = []
+          sources.forEach(first => {
+            this.sourceMap[first.monster.treasure].forEach(source => {
+              const rarityP = this.p(ratio, constant, rarity === 'magic', find, source.level, first.treasure[rarity], code)
+              const p = first.p * rarityP
+              const explain = {
+                rarity: rarityP,
+                drop: first.p
+              }
+              res.push({
+                p,
+                first,
+                source,
+                rarityP,
+                explain
+              })
+            })
+          })
+          res.sort((a, b) => {
+            return b.p - a.p
+          })
+          return res
+        }
+      }
+
+      class DropView {
+        constructor () {
+          document.querySelectorAll('form').forEach(form => {
+            form.onsubmit = e => {
+              e.preventDefault()
+            }
+          })
+        }
+
+        populate (container) {
+          for (const data of this.abacus.data()) {
+            new DataFrameView(data).populate(container)
+          }
+        }
+
+        values () {
+          return {
+            version: document.querySelector('#version').value,
+            players: Number(document.querySelector('#players').value),
+            magicFind: Number(document.querySelector('#magicFind').value),
+            top: document.querySelector('#top').value,
+            rarity: document.querySelector('#rarity').value,
+            item: document.querySelector('#item').value,
+            explain: document.querySelector('#explain').checked
+          }
+        }
+
+        async setup () {
+          const initialValues = this.values()
+          const abacus = new DropAbacus(initialValues.version, initialValues.players)
+          await abacus.load()
+          this.abacus = abacus
+          if (!initialValues.item) {
+            this.populateItems(document.querySelector('#item'), initialValues.rarity)
+            this.generate()
+          }
+          document.querySelector('#rarity').onchange = () => {
+            const values = this.values()
+            this.populateItems(document.querySelector('#item'), values.rarity)
+            this.generate()
+          }
+          document.querySelector('#item').onchange = () => {
+            this.generate()
+          }
+          document.querySelector('#magicFind').onchange = () => {
+            this.generate()
+          }
+          document.querySelector('#top').onchange = () => {
+            this.generate()
+          }
+          document.querySelector('#players').onchange = () => {
+            const { players } = this.values()
+            this.abacus.players(players)
+            this.generate()
+          }
+          document.querySelector('#version').onchange = async () => {
+            const { version, players, rarity, item } = this.values()
+            this.abacus = new DropAbacus(version, players)
+            await this.abacus.load()
+            this.populateItems(document.querySelector('#item'), rarity, item)
+            this.generate()
+          }
+          document.querySelector('#explain').onchange = () => {
+            this.generate()
+          }
+        }
+
+        generate () {
+          const current = JSON.stringify(this.values())
+          if (JSON.stringify(this.previous) === current) {
+            return
+          }
+          this.previous = current
+          const { players, magicFind, rarity, item, top } = this.values()
+          if (!item) {
+            document.querySelector('#sources').textContent = 'pick an item'
+            return
+          }
+          let sources
+          switch (rarity) {
+            case 'normal':
+            case 'magic':
+            case 'rare': {
+              sources = this.abacus.drop(magicFind, item, rarity)
+              break
+            }
+            case 'set': {
+              sources = this.abacus.set(magicFind, item)
+              break
+            }
+            case 'unique': {
+              sources = this.abacus.unique(magicFind, item)
+              break
+            }
+          }
+          this.populateDrops(document.querySelector('#sources'), sources, top)
+        }
+
+        populateDrops (container, sources, limit = Infinity) {
+          if (!sources || sources.length === 0) {
+            container.innerHTML = 'nothing yet'
+            return
+          }
+          container.innerHTML = ''
+          const head = document.createElement('thead')
+          let last
+          if (limit !== Infinity) {
+            sources = sources.slice(0, limit)
+          }
+          sources.forEach(source => {
+            const row = document.createElement('tr')
+            if (last && last.source.id === source.source.id && last.source.level === source.source.level) {
+              return
+            }
+            last = source
+            const entry = {
+              name: source.source.id,
+              level: source.source.level,
+              treasure: source.source.treasure,
+              E: (1 / source.p).toFixed(2),
+              E: (1 / source.p).toFixed(2),
+              from: source.source.from,
+              type: source.source.rarity
+            }
+            const { explain } = this.values()
+            if (explain) {
+              entry.drop = (1 / source.explain.drop).toFixed(3)
+              entry.rarity = (1 / source.explain.rarity).toFixed(3)
+              if (source.explain.base) {
+                entry.base = (1 / source.explain.base).toFixed(3)
+              }
+            }
+            if (head.childElementCount === 0) {
+              const row = document.createElement('tr')
+              for (const key in entry) {
+                const el = document.createElement('th')
+                el.textContent = key
+                row.appendChild(el)
+              }
+              head.appendChild(row)
+            }
+            for (const k in entry) {
+              const el = document.createElement('td')
+              el.textContent = this.abacus.strings ? this.abacus.strings.get(entry[k]) : entry[k]
+              row.appendChild(el)
+            }
+            container.appendChild(head)
+            container.appendChild(row)
+          })
+        }
+
+        populateItems (container, rarity, preferred) {
+          container.innerHTML = ''
+          this.abacus.items(rarity).forEach(({ name, id }) => {
+            const el = document.createElement('option')
+            el.value = id
+            if (item === preferred) {
+              el.selected = true
+            }
+            el.textContent = name
+            container.appendChild(el)
+          })
+        }
+      }
+
+      async function Load () {
+        const view = new DropView()
+        await view.setup()
+        window.abacus = view.abacus
+      }
+      requestAnimationFrame(Load)
+    </script>
+  </body>
+</html>

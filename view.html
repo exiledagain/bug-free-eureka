@@ -1,0 +1,159 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&amp;display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon"> 
+    <link rel="stylesheet" href="css/common.css">
+    <script src="item.js"></script>
+    <script src="d2data.js"></script>
+    <script src="igen.js"></script>
+  </head>
+  <body>
+    <script>
+      async function Load () {
+        const version = 's8'
+        const files = ['Misc.txt', 'ItemTypes.txt', 'MagicPrefix.txt', 'MagicSuffix.txt']
+        const loader = new DataLoader()
+        await loader.preload(version, files)
+        const ig = await new ItemGeneratorModule()
+        const tl = new TypeList(loader.get(version, 'Misc.txt'), loader.get(version, 'ItemTypes.txt'))
+        let setup, meta, requirements
+        let prefixList, suffixList
+        function populate (container) {
+          meta = new IgMetaForm(tl)
+          meta.populate(container)
+        }
+        function readyForSim () {
+          if (!setup || !meta || !requirements) {
+            return false
+          }
+          if (!requirements || requirements.values().length === 0) {
+            return false
+          }
+          if (prefixList.empty() && suffixList.empty()) {
+            return false
+          }
+          return true
+        }
+        const par = document.createElement('div')
+        const sim = document.createElement('button')
+        sim.textContent = 'sim'
+        sim.onclick = async e => {
+          sim.setAttribute('disabled', 'true')
+          if (!readyForSim()) {
+            return
+          }
+          const metaValues = meta.values()
+          const { prefix, suffix } = metaValues
+          let distribution
+          if (prefix + suffix === 0) {
+            const defaults = type => {
+              switch (type) {
+                case 'Rare':
+                  return metaValues.type === 'jewl' || metaValues.type === 'jew' ? 4 : 6
+                case 'Magic':
+                  return 2
+                default:
+                  return 4
+              }
+            }
+            distribution = AffixMath.distribution(defaults(metaValues.rarity), !prefixList.isRare)
+          } else {
+            distribution = []
+            distribution.push({
+              prefix,
+              suffix,
+              p: 1
+            })
+          }
+          const n = Number(simInput.value)
+          simResults.textContent = 'running'
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              let k = 0
+              let m = 0
+              distribution.some(({ prefix, suffix, p }) => {
+                const t = Math.ceil(p * n)
+                metaValues.prefix = prefix
+                metaValues.suffix = suffix
+                const config = setup.setup(metaValues, requirements.values(), tl)
+                const ret = IgBuilder.Generate(ig, t, config.affixes, config.requirements, true, config.extras)
+                if (ret.n < 0) {
+                  k = ret
+                  return true
+                }
+                k += ret.n
+                m += t
+                console.log(ret)
+              })
+              if (k >= 0) {
+                // i18n?
+                const nth = k > 0 ? `1 every ${(m / k).toFixed(2)}` : 'never'
+                simResults.textContent = `${k} / ${m}: ${(k / m * 100).toFixed(4)}% or ${nth}`
+              } else {
+                console.log(k)
+                simResults.textContent = `error: ${k}`
+              }
+              sim.removeAttribute('disabled')
+            })
+          })
+        }
+        sim.setAttribute('disabled', 'true')
+        par.appendChild(sim)
+        const simInput = document.createElement('select')
+        for (let i = 0; i <= 3; ++i) {
+          const opt = document.createElement('option')
+          // i18n?
+          opt.textContent = `1${''.padEnd(i, '0')}M`
+          opt.value = Math.pow(10, 6 + i)
+          simInput.appendChild(opt)
+        }
+        simInput.value = simInput.firstElementChild.value
+        const simResults = document.createElement('span')
+        par.appendChild(simInput)
+        par.appendChild(simResults)
+        const div = document.createElement('div')
+        populate(div)
+        par.appendChild(div)
+        document.body.appendChild(par)
+        const prefixData = loader.get(version, 'MagicPrefix.txt')
+        const suffixData = loader.get(version, 'MagicSuffix.txt')
+        function reload () {
+          const itemCode = document.querySelector('#type-input').value
+          const level = Number(document.querySelector('#level-input').value)
+          const isRare = document.querySelector('#rarity-input').value !== 'Magic'
+          document.querySelectorAll('table').forEach(el => el.remove())
+          prefixList = new AffixList(tl, prefixData, itemCode, level, isRare)
+          suffixList = new AffixList(tl, suffixData, itemCode, level, isRare)
+          document.body.querySelectorAll('#igen-form').forEach(el => el.remove())
+          const form = document.createElement('div')
+          form.id = 'igen-form'
+          setup = new IgSetup([prefixList, suffixList])
+          if (!prefixList.empty() && !suffixList.empty()) {
+            requirements = new IgRequirementForm(setup.codes, setup.params)
+            requirements.populate(form)
+            form.onclick = () => {
+              if (readyForSim()) {
+                sim.removeAttribute('disabled')
+                return
+              }
+              sim.setAttribute('disabled', 'true')
+            }
+          } else {
+            requirements = null
+          }
+          simResults.textContent = ''
+          document.body.appendChild(form)
+          new AffixView(prefixList).populate(document.body)
+          new AffixView(suffixList).populate(document.body)
+          readyForSim()
+        }
+        div.onchange = reload
+        reload()
+      }
+      requestAnimationFrame(Load)
+    </script>
+  </body>
+</html>

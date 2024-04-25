@@ -1,0 +1,32 @@
+:root {
+  --commong-bg-color: rgb(23, 39, 63);
+}
+
+body {
+  background-color: var(--commong-bg-color);
+  color: silver;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+th {
+  text-align: left;
+}
+
+td, th {
+  padding-right: 1em;
+  white-space: nowrap;
+}
+
+thead {
+  position: sticky;
+  background-color: var(--commong-bg-color);
+  top: 0;
+}
+
+input:invalid {
+  border: red solid 3px;
+}
+
+button:disabled {
+  color: white
+}
