@@ -53,7 +53,7 @@ Runes 16 equiv			1						r31s	3	r32s	2	Runes 15 equiv	3957																		0
 Runes 17 equiv			1						r33s	1	Runes 16 equiv	5170																				0
 Map Tier 1			1			400	800		t23	1	t15	1	t12	1	t26	1	t25	1	t22	1	t36	1										0
 Map Tier 2			1			400	800		t34	1	t31	1	t24	1	t11	1	t33	1	t13	1												0
-Map Tier 3			1			400	800		t3a	2	t3a	2	t38	2	t39	2	t37	2	t14	2	t21	2	t32	2	t16	2						0
+Map Tier 3			1			400	800		t3a	2	t38	2	t39	2	t37	2	t14	2	t21	2	t32	2	t16	2	t35	2						0
 T1 Map Drop			1						Map Tier 1	66	Map Tier 2	33																				0
 T2 Map Drop			1						Map Tier 1	39	Map Tier 2	40	Map Tier 3	20																		0
 T3 Map Drop			1						Map Tier 1	32	Map Tier 2	33	Map Tier 3	33																		0
@@ -994,7 +994,7 @@ Treasure Fallen Rune NM			2					12	Runes 10	2																						0
 Treasure Fallen Craft NM			2					16	crfb	1	crfc	1	crfs	1	crfh	1	crfv	1	crfu	1												0
 Treasure Fallen N			3					12	Treasure Fallen Gem N	1	Treasure Fallen Rune N	1	Treasure Fallen Craft N	1	"gld,mul=2048"	2																0
 Treasure Fallen NM			3					11	Treasure Fallen Gem NM	1	Treasure Fallen Rune NM	1	Treasure Fallen Craft NM	1	"gld,mul=3072"	2																0
-Treasure Fallen H			-3						Treasure Fallen Gem H	1	Treasure Fallen Rune H	1	Treasure Fallen Craft H	1	Treasure Fallen Map	1	"gld,mul=4096"	1														0
+Treasure Fallen H			3						Treasure Fallen Gem H	1	Treasure Fallen Rune H	1	Treasure Fallen Craft H	1	Treasure Fallen Map	1	"gld,mul=4096"	1														0
 Larzuk Puzzlebox N				0																												0
 Larzuk Puzzlebox NM				4500	100																											0
 Larzuk Puzzlebox H				2250	100																											0

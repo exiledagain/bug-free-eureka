@@ -34,7 +34,9 @@
         'MonStats.txt',
         'Levels.txt',
         'MagicPrefix.txt',
-        'MagicSuffix.txt'
+        'MagicSuffix.txt',
+        'Weapons.txt',
+        'Armor.txt'
       ]
       const loader = new DataLoader()
       function populate (container) {
@@ -48,7 +50,9 @@
         })
         select.onchange = e => {
           container.innerHTML = ''
-          new DataFrameView(loader.get(version, select.value)).populate(container)
+          const raw = loader.get(version, select.value)
+          new DataFrameView(raw).populate(container)
+          window.table = raw
         }
         select.onchange()
       }
