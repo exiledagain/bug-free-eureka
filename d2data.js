@@ -526,7 +526,7 @@ class MonsterSourcer {
   bosses () {
     const res = []
     this.monsterData.each(monster => {
-      if (monster.boss !== '1' || monster.killable !== '1') {
+      if (monster.NameStr === '' || monster.boss !== '1' || monster.killable !== '1') {
         return
       }
       res.push(this.expand({
@@ -562,7 +562,8 @@ class MonsterSourcer {
           level: monLevel + 3,
           treasure: superUnique[MonsterSourcer.superTreasureKeys[difficulty]],
           xp: Number(monster[MonsterSourcer.monExpKey]),
-          from: 'superunique (beta)'
+          from: 'superunique (beta)',
+          string: monster['NameStr']
         })
       }
     })
@@ -666,7 +667,8 @@ class MonsterSourcer {
         level: monLevel + (this.super(monsterId) ? 3 : 0),
         treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][2]],
         xp: Number(monster[MonsterSourcer.monExpKey]),
-        from: level.Name
+        from: level.Name,
+        string: monster['NameStr']
       })
       // quest tc
       if (monster[MonsterSourcer.monTreasureKeys[difficulty][3]]) {
@@ -677,7 +679,8 @@ class MonsterSourcer {
           level: monLevel + (this.super(monsterId) ? 3 : 0),
           treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][3]],
           xp: Number(monster[MonsterSourcer.monExpKey]),
-          from: level.Name
+          from: level.Name,
+          string: monster['NameStr']
         })
       }
     } else {
@@ -691,7 +694,8 @@ class MonsterSourcer {
             level: monLevel + levelTable[j < 4 ? j : 3],
             treasure,
             xp: Number(monster[MonsterSourcer.monExpKey]),
-            from: level.Name
+            from: level.Name,
+            string: monster['NameStr']
           })
           if (j === 2) {
             res.push({
@@ -701,7 +705,8 @@ class MonsterSourcer {
               level: monLevel + 3,
               treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][0]],
               xp: Number(monster[MonsterSourcer.monExpKey]),
-              from: level.Name
+              from: level.Name,
+              string: monster['NameStr']
             })
           }
         }
@@ -1095,6 +1100,29 @@ class StringTable {
     if (!res) {
       return key
     }
+    return res
+  }
+}
+
+class StringResolver {
+  constructor (uris) {
+    this.uris = uris
+    this.tables = uris.map(uri => new StringTable(uri))
+  }
+
+  async load () {
+    return await Promise.all(this.tables.map(table => table.load()))
+  }
+
+  get (key) {
+    let res = key
+    this.tables.some(table => {
+      res = table.get(key)
+      if (!res || res.length === 0) {
+        throw new Error(`key=${key}`)
+      }
+      return res !== key  
+    })
     return res
   }
 }

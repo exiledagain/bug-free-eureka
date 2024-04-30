@@ -168,9 +168,6 @@
             'Weapons.txt',
             'SuperUniques.txt',
           ])
-          const strings = new StringTable(`data/${this.version}/global/excel/string.tbl`)
-          await strings.load()
-          this.strings = strings
 
           this.itemRatio = this.loader.get(this.version, 'ItemRatio.txt')
           this.weapons = this.loader.get(this.version, 'Weapons.txt')
@@ -625,6 +622,13 @@
 
         async setup () {
           const initialValues = this.values()
+          const strings = new StringResolver([
+          `data/${initialValues.version}/global/excel/patchstring.tbl`,
+          `data/${initialValues.version}/global/excel/expansionstring.tbl`,
+          `data/${initialValues.version}/global/excel/string.tbl`,
+          ])
+          await strings.load()
+          this.strings = strings
           const abacus = new DropAbacus(initialValues.version, initialValues.players)
           await abacus.load()
           this.abacus = abacus
@@ -665,7 +669,7 @@
 
         generate () {
           const current = JSON.stringify(this.values())
-          if (JSON.stringify(this.previous) === current) {
+          if (this.previous === current) {
             return
           }
           this.previous = current
@@ -712,13 +716,16 @@
             }
             last = source
             const entry = {
-              name: source.source.id,
+              name: this.strings.get(source.source.string),
               level: source.source.level,
               treasure: source.source.treasure,
               E: (1 / source.p).toFixed(2),
               E: (1 / source.p).toFixed(2),
               from: source.source.from,
               type: source.source.rarity
+            }
+            if (entry.name.codePointAt(0) == 195) {
+              entry.name = entry.name.substring(4)
             }
             const { explain } = this.values()
             if (explain) {
@@ -739,7 +746,7 @@
             }
             for (const k in entry) {
               const el = document.createElement('td')
-              el.textContent = this.abacus.strings ? this.abacus.strings.get(entry[k]) : entry[k]
+              el.textContent = entry[k]
               row.appendChild(el)
             }
             container.appendChild(head)
