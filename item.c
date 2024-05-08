@@ -51,16 +51,16 @@ If an affix cannot contribute to the target,
 */
 
 struct effect {
-	ig_int min;
-	ig_int max;
-	ig_int aff;
-	ig_int par;
+  ig_int min;
+  ig_int max;
+  ig_int aff;
+  ig_int par;
 };
 
 struct group {
-	ig_int weight;
-	ig_int offset;
-	ig_int length;
+  ig_int weight;
+  ig_int offset;
+  ig_int length;
   struct effect* effects;
 };
 
@@ -116,31 +116,31 @@ EMSCRIPTEN_KEEPALIVE void ig_print_group(struct group* groups, ig_int length) {
 }
 
 IG_FN ig_int ig_prng(ig_int min, ig_int max) {
-	if (max - min <= 1) {
-		return min;
-	}
-	return (next() % (max - min)) + min;
+  if (max - min <= 1) {
+    return min;
+  }
+  return (next() % (max - min)) + min;
 }
 
 IG_FN void ig_decrement(struct effect* summary, ig_int length, struct effect* effect) {
-	for (int32_t i = 0; i < length; ++i) {
-		if (summary[i].aff == effect->aff && summary[i].par == effect->par) {
+  for (int32_t i = 0; i < length; ++i) {
+    if (summary[i].aff == effect->aff && summary[i].par == effect->par) {
       ig_int amt = ig_prng(effect->min, effect->max);
-			summary[i].min -= amt;
+      summary[i].min -= amt;
       break;
-		}
-	}
+    }
+  }
 }
 
 IG_FN int32_t ig_pass(struct group** selected, ig_int length1, struct effect* summary, ig_int length2, struct effect* scratch, struct effect* extras, ig_int length3, ig_int* histogram, const size_t capacity) {
-	memcpy(scratch, summary, sizeof(struct group) * length2);
-	for (int32_t i = 0; i < length1 && selected[i]; ++i) {
+  memcpy(scratch, summary, sizeof(struct group) * length2);
+  for (int32_t i = 0; i < length1 && selected[i]; ++i) {
     if (selected[i]->offset >= 0) {
       for (int32_t j = 0; j < selected[i]->length; ++j) {
         ig_decrement(scratch, length2, &selected[i]->effects[j]);
       }
     }
-	}
+  }
   for (int32_t i = 0; i < length3; ++i) {
     ig_decrement(scratch, length2, &extras[i]);
   }
@@ -153,21 +153,21 @@ IG_FN int32_t ig_pass(struct group** selected, ig_int length1, struct effect* su
       }
     }
   }
-	for (int32_t i = 0; i < length2; ++i) {
-		if (scratch[i].min > 0) {
-			return 0;
-		}
-	}
-	return 1;
+  for (int32_t i = 0; i < length2; ++i) {
+    if (scratch[i].min > 0) {
+      return 0;
+    }
+  }
+  return 1;
 }
 
 ig_int ig_which_sequential(struct group* group, ig_int length, ig_int random) {
-	for (int32_t i = 0; i < length; ++i) {
-		if (random < group[i].weight) {
-			return i;
-		}
-	}
-	return ERR_WHI;
+  for (int32_t i = 0; i < length; ++i) {
+    if (random < group[i].weight) {
+      return i;
+    }
+  }
+  return ERR_WHI;
 }
 
 ig_int ig_which_binary(struct group* group, ig_int length, ig_int random) {
@@ -193,28 +193,28 @@ ig_int (*ig_which)(struct group* group, ig_int length, ig_int random) = ig_which
 
 IG_FN ig_int ig_pick(struct group* group, ig_int length, struct group** res, struct group** parent) {
   ig_int limit = length << 3;
-	while (limit--) {
-		ig_int max = group[length - 1].weight;
-		ig_int random = ig_prng(0, max);
-		ig_int k = ig_which(group, length, random);
+  while (limit--) {
+    ig_int max = group[length - 1].weight;
+    ig_int random = ig_prng(0, max);
+    ig_int k = ig_which(group, length, random);
     if (k < 0) {
       return ERR_PI1;
     }
-		if (group[k].offset < 0) {
-			continue;
-		}
-		if (k > 0) {
-			random -= group[k - 1].weight;
-		}
-		ig_int m = ig_which(&group[group[k].offset], group[k].length, random);
+    if (group[k].offset < 0) {
+      continue;
+    }
+    if (k > 0) {
+      random -= group[k - 1].weight;
+    }
+    ig_int m = ig_which(&group[group[k].offset], group[k].length, random);
     if (m < 0) {
       return ERR_PI2;
     }
     m += group[k].offset;
     *parent = &group[k];
-		*res = &group[m];
-		break;
-	}
+    *res = &group[m];
+    break;
+  }
   if (limit <= 0) {
     return ERR_PI3;
   }
@@ -223,33 +223,33 @@ IG_FN ig_int ig_pick(struct group* group, ig_int length, struct group** res, str
 
 IG_FN ig_int ig_select(ig_int count, struct group* group, ig_int length, struct group** res, struct group** parents) {
   ig_int err = 0;
-	for (int32_t i = 0; i < count && i < length; ++i) {
-		if ((err = ig_pick(group, length, &res[i], &parents[i]))) {
+  for (int32_t i = 0; i < count && i < length; ++i) {
+    if ((err = ig_pick(group, length, &res[i], &parents[i]))) {
       for (int32_t j = 0; j < i; ++j) {
         parents[j]->offset = -parents[j]->offset;
       }
       return err;
     }
-		parents[i]->offset = -parents[i]->offset;
-	}
-	for (int32_t i = 0; i < count && i < length; ++i) {
-		parents[i]->offset = -parents[i]->offset;
-	}
+    parents[i]->offset = -parents[i]->offset;
+  }
+  for (int32_t i = 0; i < count && i < length; ++i) {
+    parents[i]->offset = -parents[i]->offset;
+  }
   return 0;
 }
 
 IG_FN ig_int ig_simulate(ig_int* counts, struct group** groups, ig_int* lengths, ig_int length1, struct group** selected, struct group** selectedParents) {
   ig_int err = 0;
-	struct group** root = selected;
-	struct group** rootParents = selectedParents;
-	for (int32_t i = 0; i < length1; ++i) {
-		if ((err = ig_select(counts[i], groups[i], lengths[i], root, rootParents))) {
+  struct group** root = selected;
+  struct group** rootParents = selectedParents;
+  for (int32_t i = 0; i < length1; ++i) {
+    if ((err = ig_select(counts[i], groups[i], lengths[i], root, rootParents))) {
       return err;
     }
-		root += counts[i];
+    root += counts[i];
     rootParents += counts[i];
-	}
-	return 0;
+  }
+  return 0;
 }
 
 static ig_int allocs = 0;
@@ -278,10 +278,10 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_generate(ig_int amount, ig_int* counts, struct gr
     return ERR_NON1;
   }
 
-	for (int32_t i = 0; i < 4; ++i) {
-		s[i] = seed[i];
-	}
-	jump();
+  for (int32_t i = 0; i < 4; ++i) {
+    s[i] = seed[i];
+  }
+  jump();
 
   if (length1 <= 0) {
     return ERR_NON2;
@@ -295,53 +295,53 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_generate(ig_int amount, ig_int* counts, struct gr
     return ERR_NON4;
   }
 
-	ig_int length3 = 0;
+  ig_int length3 = 0;
   
-	for (int32_t i = 0; i < length1; ++i) {
+  for (int32_t i = 0; i < length1; ++i) {
     if (lengths[i] <= 0 || counts[i] <= 0 || !groups[i]) {
       return ERR_NON5;
     }
-		length3 += counts[i];
-	}
+    length3 += counts[i];
+  }
 
-	if (length3 <= 0) {
-		return ERR_LEN;
-	}
+  if (length3 <= 0) {
+    return ERR_LEN;
+  }
 
-	struct group** selected = (struct group**)malloc(sizeof(struct group*) * length3);
-	struct group** selectedParents = (struct group**)malloc(sizeof(struct group*) * length3);
-	struct effect* scratch = (struct effect*)malloc(sizeof(struct effect) * length2);
+  struct group** selected = (struct group**)malloc(sizeof(struct group*) * length3);
+  struct group** selectedParents = (struct group**)malloc(sizeof(struct group*) * length3);
+  struct effect* scratch = (struct effect*)malloc(sizeof(struct effect) * length2);
 
-	if (!selected || !selectedParents || !scratch) {
-		free(selected);
+  if (!selected || !selectedParents || !scratch) {
+    free(selected);
     free(selectedParents);
-		free(scratch);
-		return ERR_MEM;
-	}
+    free(scratch);
+    return ERR_MEM;
+  }
 
   ig_int* histogram = NULL;
   if (hist) {
     histogram = (ig_int*)ig_alloc(length2 * capacity * sizeof(ig_int));
   }
 
-	ig_int res = 0, err = 0;
-	for (int32_t i = 0; i < amount; ++i) {
+  ig_int res = 0, err = 0;
+  for (int32_t i = 0; i < amount; ++i) {
     if ((err = ig_simulate(counts, groups, lengths, length1, selected, selectedParents))) {
       res = err;
       break;
     }
-	  res += ig_pass(selected, length3, summary, length2, scratch, extras, length4, histogram, capacity);
-	}
+    res += ig_pass(selected, length3, summary, length2, scratch, extras, length4, histogram, capacity);
+  }
 
   if (hist) {
     *hist = histogram;
   }
 
-	free(selected);
+  free(selected);
   free(selectedParents);
-	free(scratch);
+  free(scratch);
 
-	return res;
+  return res;
 }
 
 EMSCRIPTEN_KEEPALIVE ig_int ig_get_size_group() {
@@ -432,17 +432,17 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_get_effect_max(struct effect* effect) {
 
 EMSCRIPTEN_KEEPALIVE ig_int ig_test_100_one_per_group_rand() {
   const ig_int K = 100;
-	struct group* groups = (struct group*)malloc(sizeof(struct group) * K);
+  struct group* groups = (struct group*)malloc(sizeof(struct group) * K);
   struct effect* effects = (struct effect*)malloc(sizeof(struct effect) * K);
-	if (!groups) {
+  if (!groups) {
     free(effects);
-		return -1;
-	}
+    return -1;
+  }
   if (!effects) {
     free(groups);
     return -1;
   }
-	memset(groups, 0, sizeof(struct group) * K);
+  memset(groups, 0, sizeof(struct group) * K);
   memset(effects, 0, sizeof(struct effect) * K);
   struct effect* root = effects;
   for (ig_int i = 0; i < K / 2; ++i) {
@@ -456,37 +456,37 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_test_100_one_per_group_rand() {
     root->aff = 10 + i % 2;
     root += 1;
   }
-	struct effect summary[2];
-	memset(summary, 0, sizeof(summary));
-	summary[0].min = 1;
+  struct effect summary[2];
+  memset(summary, 0, sizeof(summary));
+  summary[0].min = 1;
   summary[0].aff = 10;
-	summary[1].min = 1;
+  summary[1].min = 1;
   summary[1].aff = 11;
-	ig_int counts = 3;
-	ig_int lengths = K / 2;
-	ig_int length1 = 1;
-	ig_int length2 = 2;
-	ig_int seed[4] = { 0, 1, 2, 3 };
+  ig_int counts = 3;
+  ig_int lengths = K / 2;
+  ig_int length1 = 1;
+  ig_int length2 = 2;
+  ig_int seed[4] = { 0, 1, 2, 3 };
   ig_int N = 1000000;
-	ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed, NULL, 0, NULL, 0);
+  ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed, NULL, 0, NULL, 0);
   free(groups);
   free(effects);
-	return res != 765234;
+  return res != 765234;
 }
 
 EMSCRIPTEN_KEEPALIVE ig_int ig_test_100_one_per_group_all() {
   const ig_int K = 100;
-	struct group* groups = (struct group*)malloc(sizeof(struct group) * K);
+  struct group* groups = (struct group*)malloc(sizeof(struct group) * K);
   struct effect* effects = (struct effect*)malloc(sizeof(struct effect) * K);
-	if (!groups) {
+  if (!groups) {
     free(effects);
-		return -1;
-	}
+    return -1;
+  }
   if (!effects) {
     free(groups);
     return -1;
   }
-	memset(groups, 0, sizeof(struct group) * K);
+  memset(groups, 0, sizeof(struct group) * K);
   memset(effects, 0, sizeof(struct effect) * K);
   struct effect* root = effects;
   for (int32_t i = 0; i < K / 2; ++i) {
@@ -500,35 +500,35 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_test_100_one_per_group_all() {
     root->aff = 10;
     root += 1;
   }
-	struct effect summary[1];
-	memset(summary, 0, sizeof(summary));
-	summary[0].min = 1;
+  struct effect summary[1];
+  memset(summary, 0, sizeof(summary));
+  summary[0].min = 1;
   summary[0].aff = 10;
-	ig_int counts = 3;
-	ig_int lengths = K / 2;
-	ig_int length1 = 1;
-	ig_int length2 = 1;
-	ig_int seed[4] = { 0, 1, 2, 3 };
+  ig_int counts = 3;
+  ig_int lengths = K / 2;
+  ig_int length1 = 1;
+  ig_int length2 = 1;
+  ig_int seed[4] = { 0, 1, 2, 3 };
   ig_int N = 1000000;
-	ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed, NULL, 0, NULL, 0);
+  ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed, NULL, 0, NULL, 0);
   free(groups);
   free(effects);
-	return res != N;
+  return res != N;
 }
 
 EMSCRIPTEN_KEEPALIVE ig_int ig_test_150_one_per_group_two_all() {
   const ig_int K = 100;
-	struct group* groups = (struct group*)malloc(sizeof(struct group) * K);
+  struct group* groups = (struct group*)malloc(sizeof(struct group) * K);
   struct effect* effects = (struct effect*)malloc(sizeof(struct effect) * K);
-	if (!groups) {
+  if (!groups) {
     free(effects);
-		return -1;
-	}
+    return -1;
+  }
   if (!effects) {
     free(groups);
     return -1;
   }
-	memset(groups, 0, sizeof(struct group) * K);
+  memset(groups, 0, sizeof(struct group) * K);
   memset(effects, 0, sizeof(struct effect) * K);
   struct effect* root = effects;
   for (int32_t i = 0; i < K / 2; ++i) {
@@ -543,37 +543,37 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_test_150_one_per_group_two_all() {
       root->aff = 10 + j;
     }
   }
-	struct effect summary[2];
-	memset(summary, 0, sizeof(summary));
-	summary[0].min = 1;
+  struct effect summary[2];
+  memset(summary, 0, sizeof(summary));
+  summary[0].min = 1;
   summary[0].aff = 10;
-	summary[0].min = 1;
+  summary[0].min = 1;
   summary[0].aff = 11;
-	ig_int counts = 3;
-	ig_int lengths = K / 3;
-	ig_int length1 = 1;
-	ig_int length2 = 2;
-	ig_int seed[4] = { 0, 1, 2, 3 };
+  ig_int counts = 3;
+  ig_int lengths = K / 3;
+  ig_int length1 = 1;
+  ig_int length2 = 2;
+  ig_int seed[4] = { 0, 1, 2, 3 };
   ig_int N = 1000000;
-	ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed, NULL, 0, NULL, 0);
+  ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed, NULL, 0, NULL, 0);
   free(groups);
   free(effects);
-	return res != N;
+  return res != N;
 }
 
 EMSCRIPTEN_KEEPALIVE ig_int ig_test_150_two_per_group() {
   const ig_int K = 150;
-	struct group* groups = (struct group*)malloc(sizeof(struct group) * K);
+  struct group* groups = (struct group*)malloc(sizeof(struct group) * K);
   struct effect* effects = (struct effect*)malloc(sizeof(struct effect) * K);
-	if (!groups) {
+  if (!groups) {
     free(effects);
-		return -1;
-	}
+    return -1;
+  }
   if (!effects) {
     free(groups);
     return -1;
   }
-	memset(groups, 0, sizeof(struct group) * K);
+  memset(groups, 0, sizeof(struct group) * K);
   memset(effects, 0, sizeof(struct effect) * K);
   struct effect* root = effects;
   for (int32_t i = 0; i < K / 3; ++i) {
@@ -588,34 +588,34 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_test_150_two_per_group() {
       root->aff = 10 + j;
     }
   }
-	struct effect summary[2];
-	memset(summary, 0, sizeof(summary));
-	summary[0].min = 1;
+  struct effect summary[2];
+  memset(summary, 0, sizeof(summary));
+  summary[0].min = 1;
   summary[0].aff = 10;
-	summary[0].min = 1;
+  summary[0].min = 1;
   summary[0].aff = 11;
-	ig_int counts = 3;
-	ig_int lengths = K / 3;
-	ig_int length1 = 1;
-	ig_int length2 = 2;
-	ig_int seed[4] = { 0, 1, 2, 3 };
+  ig_int counts = 3;
+  ig_int lengths = K / 3;
+  ig_int length1 = 1;
+  ig_int length2 = 2;
+  ig_int seed[4] = { 0, 1, 2, 3 };
   ig_int N = 1000000;
-	ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed, NULL, 0, NULL, 0);
+  ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed, NULL, 0, NULL, 0);
   free(groups);
   free(effects);
-	return res != 875240;
+  return res != 875240;
 }
 
 EMSCRIPTEN_KEEPALIVE ig_int ig_test_150_extras() {
   const ig_int K = 150;
-	struct group* groups = (struct group*)malloc(sizeof(struct group) * K);
+  struct group* groups = (struct group*)malloc(sizeof(struct group) * K);
   struct effect* effects = (struct effect*)malloc(sizeof(struct effect) * K);
   struct effect* extras = (struct effect*)malloc(sizeof(struct effect) * 2);
-	if (!groups) {
+  if (!groups) {
     free(effects);
     free(extras);
-		return -1;
-	}
+    return -1;
+  }
   if (!effects) {
     free(groups);
     free(extras);
@@ -626,7 +626,7 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_test_150_extras() {
     free(groups);
     return -1;
   }
-	memset(groups, 0, sizeof(struct group) * K);
+  memset(groups, 0, sizeof(struct group) * K);
   memset(effects, 0, sizeof(struct effect) * K);
   memset(extras, 0, sizeof(struct effect) * 2);
   struct effect* root = effects;
@@ -642,43 +642,43 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_test_150_extras() {
       root->aff = 10 + j;
     }
   }
-	struct effect summary[2];
-	memset(summary, 0, sizeof(summary));
-	summary[0].min = 1;
+  struct effect summary[2];
+  memset(summary, 0, sizeof(summary));
+  summary[0].min = 1;
   summary[0].aff = 10;
-	summary[0].min = 1;
+  summary[0].min = 1;
   summary[0].aff = 11;
   // mirror summary
   extras[0].min = 1;
   extras[0].aff = 10;
   extras[1].min = 1;
   extras[1].aff = 11;
-	ig_int counts = 3;
-	ig_int lengths = K / 3;
-	ig_int length1 = 1;
-	ig_int length2 = 2;
-	ig_int seed[4] = { 0, 1, 2, 3 };
+  ig_int counts = 3;
+  ig_int lengths = K / 3;
+  ig_int length1 = 1;
+  ig_int length2 = 2;
+  ig_int seed[4] = { 0, 1, 2, 3 };
   ig_int N = 1000000;
-	ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed, extras, 2, NULL, 0);
+  ig_int res = ig_generate(N, &counts, &groups, &lengths, length1, summary, length2, seed, extras, 2, NULL, 0);
   free(groups);
   free(effects);
   free(extras);
-	return res != N;
+  return res != N;
 }
 
 EMSCRIPTEN_KEEPALIVE ig_int ig_bench(ig_int n) {
   const ig_int K = 1000;
-	struct group* groups = (struct group*)malloc(sizeof(struct group) * K);
+  struct group* groups = (struct group*)malloc(sizeof(struct group) * K);
   struct effect* effects = (struct effect*)malloc(sizeof(struct effect) * K);
-	if (!groups) {
+  if (!groups) {
     free(effects);
-		return -1;
-	}
+    return -1;
+  }
   if (!effects) {
     free(groups);
     return -1;
   }
-	memset(groups, 0, sizeof(struct group) * K);
+  memset(groups, 0, sizeof(struct group) * K);
   memset(effects, 0, sizeof(struct effect) * K);
   struct effect* root = effects;
   for (int32_t i = 0; i < K / 2; ++i, ++root) {
@@ -690,21 +690,21 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_bench(ig_int n) {
     root->min = 1;
     root->aff = 10;
   }
-	struct effect summary[1];
-	memset(summary, 0, sizeof(summary));
-	summary[0].min = 1;
+  struct effect summary[1];
+  memset(summary, 0, sizeof(summary));
+  summary[0].min = 1;
   summary[0].aff = 10;
-	ig_int counts = 3;
-	ig_int lengths = K / 2;
-	ig_int length1 = 1;
-	ig_int length2 = 1;
-	ig_int seed[4] = { 0, 1, 2, 3 };
-	ig_int res = ig_generate(n, &counts, &groups, &lengths, length1, summary, length2, seed, NULL, 0, NULL, 0);
+  ig_int counts = 3;
+  ig_int lengths = K / 2;
+  ig_int length1 = 1;
+  ig_int length2 = 1;
+  ig_int seed[4] = { 0, 1, 2, 3 };
+  ig_int res = ig_generate(n, &counts, &groups, &lengths, length1, summary, length2, seed, NULL, 0, NULL, 0);
   free(groups);
   free(effects);
-	return res;
+  return res;
 }
 
 int main() {
-	return 0;
+  return 0;
 }
