@@ -352,6 +352,24 @@ class IgSetup {
           ]
         }
         return []
+      case 'Crafted - Diamond':
+        if (types.has('weap')) {
+          return [
+            {
+              aff: this.codeLookup('dmg%'),
+              par: 0,
+              min: 20,
+              max: 41
+            },
+            {
+              aff: this.codeLookup('swing'),
+              par: 0,
+              min: 20,
+              max: 21
+            }
+          ]
+        }
+        return []
       default:
         return []
     }
@@ -430,7 +448,7 @@ class IgMetaForm {
     const rarityInput = document.createElement('select')
     rarityInput.id = 'rarity-input'
     const rarity = ['Magic', 'Rare']
-    const crafts = ['Blood', 'Caster', 'Hitpower', 'Safety', 'Vampiric', 'Bountiful']
+    const crafts = ['Blood', 'Diamond']
     crafts.forEach(craft => {
       rarity.push(`Crafted - ${craft}`)
     })
