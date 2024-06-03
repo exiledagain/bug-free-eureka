@@ -35,7 +35,6 @@ class DataFrame {
   constructor (uri) {
     this.uri = uri
     this.values = []
-    this.computed = []
     this.firsts = new Map()
   }
 
@@ -59,6 +58,18 @@ class DataFrame {
       }
     }
     return this
+  }
+
+  reset (keys) {
+    this.keys = keys
+  }
+
+  add (values) {
+    if (typeof values === 'object') {
+      this.values.push(this.keys.map(key => values[key]))
+      return
+    }
+    this.values.push(values)
   }
 
   first (key, val) {
@@ -95,14 +106,6 @@ class DataFrame {
     this.values.forEach((values, idx) => {
       cb(this.combine(values), idx)
     })
-  }
-
-  set (idx, val) {
-    this.computed[idx] = val
-  }
-
-  get (idx) {
-    return this.computed[idx]
   }
 
   keyIndex (needle) {
@@ -194,6 +197,10 @@ class DataFrameView {
 class TypeList {
   constructor (miscTxt, typesTxt, weaponsTxt, armorsTxt) {
     this.build(miscTxt, typesTxt, weaponsTxt, armorsTxt)
+    this.miscTxt = miscTxt
+    this.typesTxt = typesTxt
+    this.weaponsTxt = weaponsTxt
+    this.armorsTxt = armorsTxt
   }
 
   all () {
@@ -310,6 +317,22 @@ class TypeList {
         this.add(row.code, [row.type, row.type2])
       })
     }
+  }
+
+  isWeapon (code) {
+    return !!this.weaponsTxt.first('code', code)
+  }
+
+  isArmor (code) {
+    return !!this.armorsTxt.first('code', code)
+  }
+
+  isMisc (code) {
+    return !!this.miscTxt.first('code', code)
+  }
+
+  entry (code) {
+    return this.weaponsTxt.first('code', code) || this.armorsTxt.first('code', code) || this.miscTxt.first('code', code)
   }
 }
 
@@ -1124,5 +1147,35 @@ class StringResolver {
       return res !== key  
     })
     return res
+  }
+}
+
+class MonsterMetrics {
+  constructor (monsters, extended) {
+    this.monsters = monsters
+    this.extended = extended
+  }
+
+  blockRate ({ name, id }) {
+    let monster = name ? this.monsters.first('Id', name) : this.monsters.first('hcIdx', id)
+    if (monster['NoShldBlock'] || this.hasBlockMode(monster['MonStatsEx'])) {
+      return [
+        monster['ToBlock'],
+        monster['ToBlock(N)'],
+        monster['ToBlock(H)'],
+      ]
+    }
+    return [0, 0, 0]
+  }
+
+  hasBlockMode (id) {
+    return this.extended.first('Id', id)['mBL'] === '1'
+  }
+}
+
+if (module && module.exports) {
+  module.exports = {
+    DataFrame,
+    TypeList
   }
 }
