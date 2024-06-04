@@ -1173,7 +1173,7 @@ class MonsterMetrics {
   }
 }
 
-if (module && module.exports) {
+if (window.module && module.exports) {
   module.exports = {
     DataFrame,
     TypeList
