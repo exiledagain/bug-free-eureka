@@ -97,11 +97,12 @@ class BitWriter {
     this.bytes = [0]
     this.index = 0
     this.offset = 0
-    this.length = 0
   }
 
   write (value, count) {
-    this.length += count
+    if (typeof value !== 'bigint') {
+      value = BigInt(value)
+    }
     for (let i = 0; i < count; ++i) {
       this.put(value & BigInt(1))
       value >>= BigInt(1)
@@ -116,12 +117,14 @@ class BitWriter {
     if (this.index === this.bytes.length) {
       this.bytes.push(0)
     }
+    if (this.index >= this.bytes.length) {
+      throw new Error('cannot write past buffer length')
+    }
     this.bytes[this.index] |= Number(bit) << this.offset
     this.offset += 1
     if (this.offset >= 8) {
       this.offset = 0
       this.index += 1
-      this.bytes.push(0)
     }
   }
 
@@ -129,8 +132,17 @@ class BitWriter {
     if (this.offset !== 0) {
       this.offset = 0
       this.index += 1
-      this.length = this.bytes.length * 8
     }
+  }
+
+  seek (index) {
+    this.index = Number(index)
+    this.offset = 0
+    return this
+  }
+
+  rem () {
+    return 8 - this.offset
   }
 }
 
@@ -159,6 +171,10 @@ class SaveFileParser {
     tempered: 9
   }
 
+  static isItemFlag (item, id) {
+    return (item.compact.flags & BigInt(1 << id)) != BigInt(0)
+  }
+
   /**
    * 
    * @param {BitReader} reader 
@@ -166,11 +182,14 @@ class SaveFileParser {
    */
   constructor (typeList, reader, costs) {
     this.typeList = typeList
-    this.reader = reader
+    this.reader = new BitReader(reader)
     this.costs = costs
   }
 
   read () {
+    if (this.data) {
+      return
+    }
     this.data = {}
     this.data.header = {}
     this.data.header.magic = this.reader.read(32)
@@ -190,7 +209,7 @@ class SaveFileParser {
     this.data.status = this.reader.read(8)
     this.data.progression = this.reader.read(8)
     this.data.unknown1 = this.reader.read(16)
-    this.classId = this.reader.read(8)
+    this.data.classId = this.reader.read(8)
     this.data.unknown2 = this.reader.read(16)
     this.data.level = this.reader.read(8)
     this.data.created = this.reader.read(32)
@@ -236,8 +255,6 @@ class SaveFileParser {
     res.header = this.reader.read(16)
     if (this.data.mercenary.id !== BigInt(0)) {
       res.items = this.items()
-    } else {
-      res.items = {}
     }
     return res
   }
@@ -255,11 +272,10 @@ class SaveFileParser {
   }
 
   item () {
-    const isItemFlag = (item, id) => (item.compact.flags & BigInt(1 << id)) != BigInt(0)
     const item = {}
     item.header = this.reader.read(16)
     if (item.header !== 19786n) {
-      throw new Error('item header wrong')
+      throw new Error(`item header wrong: ${item.header.toString(16)}`)
     }
     item.compact = {}
     item.compact.flags = this.reader.read(32)
@@ -269,17 +285,17 @@ class SaveFileParser {
     item.compact.x = this.reader.read(4)
     item.compact.y = this.reader.read(4)
     item.compact.page = this.reader.read(3)
-    if (!isItemFlag(item, SaveFileParser.ItemFlags.ear)) {
+    if (!SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.ear)) {
       item.compact.code = this.reader.read(32)
-      item.compact.socketed = this.reader.read(isItemFlag(item, SaveFileParser.ItemFlags.compact) ? 1 : 3)
+      item.compact.socketed = this.reader.read(SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.compact) ? 1 : 3)
       item.code = this.codeToString(item.compact.code)
     } else {
-      item.ear = {}
-      item.ear.file = this.reader.read(3)
-      item.ear.level = this.reader.read(7)
-      item.ear.name = this.string()
+      item.compact.ear = {}
+      item.compact.ear.file = this.reader.read(3)
+      item.compact.ear.level = this.reader.read(7)
+      item.compact.ear.name = this.string()
     }
-    if (!isItemFlag(item, SaveFileParser.ItemFlags.compact)) {
+    if (!SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.compact)) {
       const extra = item.extra = {}
       extra.id = this.reader.read(32)
       extra.level = this.reader.read(7)
@@ -325,20 +341,20 @@ class SaveFileParser {
         }
       }
       extra.properties = 0
-      if (isItemFlag(item, SaveFileParser.ItemFlags.runeword)) {
+      if (SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.runeword)) {
         extra.runeId = this.reader.read(12)
         extra.runeProperty = this.reader.read(4)
         extra.properties = 1 << (1 + Number(extra.runeProperty))
       }
-      if (isItemFlag(item, SaveFileParser.ItemFlags.personalized)) {
+      if (SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.personalized)) {
         extra.name = this.string()
       }
       if (item.compact.code === BigInt(0x206B6269) || item.compact.code === BigInt(0x206B6274)) {
-        extra.suffix = [this.reader.read(5)]
+        extra.suffix = this.reader.read(5)
       }
       extra.realm = this.reader.read(1)
       if (extra.realm !== BigInt(0)) {
-        extra.realm = this.reader.read(96)
+        extra.realmData = this.reader.read(96)
       }
       if (item.code) {
         const code = item.code
@@ -359,7 +375,7 @@ class SaveFileParser {
           extra.quantity = this.reader.read(9)
         }
       }
-      if (isItemFlag(item, SaveFileParser.ItemFlags.socketed)) {
+      if (SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.socketed)) {
         extra.sockets = this.reader.read(4)
       }
       if (Number(extra.quality) === SaveFileParser.ItemQuality.set) {
@@ -395,35 +411,37 @@ class SaveFileParser {
 
   itemStat (id) {
     const res = { id }
+    res.real = {}
+    res.real.name = this.costs.first('ID', id.toString())['Stat']
     const entry = this.costs.first('ID', id.toString())
     const bits = Number(entry['Save Param Bits'])
     if (bits !== 0) {
       res.param = this.reader.read(bits)
       if (entry['descfunc'] === '14') {
-        res.skill = {}
-        res.skill.table = Number(res.param & BigInt(0x7))
-        res.skill.level = Number((res.param >> BigInt(3)) >> BigInt(0x1FFF))
+        res.real.skill = {}
+        res.real.skill.table = Number(res.param & BigInt(0x7))
+        res.real.skill.level = Number((res.param >> BigInt(3)) >> BigInt(0x1FFF))
       }
       switch (Number(entry['Encode'])) {
         case 2:
         case 3: {
-          res.skill = {}
-          res.skill.level = Number(res.param & BigInt(0x3F))
-          res.skill.id = Number((res.param >> BigInt(6)) & BigInt(0x3FF))
+          res.real.skill = {}
+          res.real.skill.level = Number(res.param & BigInt(0x3F))
+          res.real.skill.id = Number((res.param >> BigInt(6)) & BigInt(0x3FF))
           break
         }
       }
     }
     res.value = this.reader.read(Number(entry['Save Bits']))
-    res.raw = res.value - BigInt(entry['Save Add'])
+    res.real.raw = res.value - BigInt(entry['Save Add'])
     switch (Number(entry['Encode'])) {
       case 3: {
-        res.charges = (res.raw >> BigInt(8)) & BigInt(0xFF)
-        res.current = res.raw & BigInt(0xFF)
+        res.real.charges = (res.real.raw >> BigInt(8)) & BigInt(0xFF)
+        res.real.current = res.real.raw & BigInt(0xFF)
         break
       }
     }
-    res.raw = Number(res.raw)
+    res.real.raw = Number(res.real.raw)
     return res
   }
 
@@ -451,10 +469,14 @@ class SaveFileParser {
     const res = {}
     res.header = this.reader.read(16)
     res.count = this.reader.read(16)
-    res.items = []
+    res.list = []
     for (let i = 0; i < res.count; ++i) {
       const item = this.item()
-      res.items.push(item)
+      item.id = i
+      res.list.push(item)
+      BigInt.prototype.toJSON = function () {
+        return `0x${this.toString(16)}`
+      }
     }
     return res
   }
@@ -466,7 +488,7 @@ class SaveFileParser {
     res.corpses = []
     for (let i = 0; i < res.count; ++i) {
       const corpse = {}
-      res.corpses.push(corpse)
+      res.list.push(corpse)
       corpse.unknown = this.reader.read(32)
       corpse.x = this.reader.read(16)
       corpse.y = this.reader.read(16)
@@ -481,7 +503,7 @@ class SaveFileParser {
     }
     const res = {}
     res.header = this.reader.read(16)
-    res.values = {}
+    res.values = []
     for (;;) {
       const id = this.reader.read(9)
       if (id === BigInt(0x1FF)) {
@@ -489,9 +511,21 @@ class SaveFileParser {
       }
       const el = this.costs.first('ID', id.toString())
       const n = Number(el['CSvBits'])
-      res.values[el['Stat']] = this.reader.read(n)
+      const value = this.reader.read(n)
+      res.values.push({
+        real: {
+          name: el['Stat']
+        },
+        id,
+        value
+      })
     }
     return res
+  }
+
+  object () {
+    this.read()
+    return this.data
   }
 
   json () {
@@ -551,11 +585,11 @@ class SaveFileWriter {
     "mapId": "0x1",
     "unknown4": "0x0",
     "mercenary": {
-      "dead": "0x1",
-      "id": "0xa7870272",
-      "name": "0x7",
+      "dead": "0x0",
+      "id": "0x0",
+      "name": "0x0",
       "type": "0x0",
-      "experience": "0x57f19ec"
+      "experience": "0x0"
     },
     "realm": "0x0",
     "quests": "0x80029ffd9ffd000c17899fed802200000000000100000000000000019ffd9ffd10010001000197fd9ffd10019ffd9ffd1001000100011fe59ffd9ffd9ffd1c391011000100019ffd9ffd9ffd804a9ffd1001000100000000000000000000000080029ffd9ffd000417899fed802200000000000100000000000000019ffd9ffd10010001000197fd9ffd10019ffd9ffd1001000100011fe59ffd9ffd9ffd1c791011000100019ffd9ffd9ffd804a9ffd1001000100000000000000000000000080029ffd9ffd000417899fed802200000000000100000000000000019ffd9ffd10010001000197fd9ffd10019ffd9ffd1001000100011fe59ffd9ffd9ffd1c79100100000001101910151019804e101110010001012a00000006216f6f5700000000",
@@ -601,8 +635,276 @@ class SaveFileWriter {
     }
   }
 
-  constructor () {
+  constructor (typeList, costs) {
+    this.typeList = typeList
+    this.costs = costs
+  }
 
+  checksum (bytes) {
+    let res = 0
+    for (let i = 0; i < bytes.length; ++i) {
+      let data = i >= 12 && i <= 15 ? 0 : bytes[i]
+      if (res < 0) {
+        data += 1
+      }
+      res = (res << 1) + data
+    }
+    return BigInt(res)
+  }
+
+  write (object) {
+    const writer = new BitWriter()
+    this.writer = writer
+    writer.write(object.header.magic, 32)
+    writer.write(object.header.version, 32)
+    // reserve for length
+    writer.write(BigInt(0), 32)
+    // reserve for checksum
+    writer.write(BigInt(0), 32)
+    writer.write(object.activeWeapon, 32)
+    this.writeName(object.name)
+    writer.write(object.status, 8)
+    writer.write(object.progression, 8)
+    writer.write(object.unknown1, 16)
+    writer.write(object.classId, 8)
+    writer.write(object.unknown2, 16)
+    writer.write(object.level, 8)
+    writer.write(object.created, 32)
+    writer.write(object.lastPlayed, 32)
+    writer.write(object.unknown3, 32)
+    for (let i = 0; i < 16; ++i) {
+      writer.write(object.assignedSkills[i], 32)
+    }
+    writer.write(object.leftSkill, 32)
+    writer.write(object.rightSkill, 32)
+    writer.write(object.leftSkillAlt, 32)
+    writer.write(object.rightSkillAlt, 32)
+    writer.write(object.appearance, 32 * 8)
+    writer.write(object.location, 24)
+    writer.write(object.mapId, 32)
+    writer.write(object.unknown4, 16)
+    this.writeMercenary(object.mercenary)
+    writer.write(object.realm, 140 * 8)
+    writer.write(object.quests, 302 * 8)
+    writer.write(object.waypoints, 80 * 8)
+    writer.write(object.dialog, 52 * 8)
+    this.writeAttributes(object.attributes)
+    writer.align()
+    writer.write(object.skills, 35 * 8)
+    this.writeItems(object.items)
+    this.writeCorpses(object.corpses)
+    this.writeMercenaryItems(object.mercenaryItems)
+    delete this.writer
+    writer.seek(8)
+    writer.write(writer.bytes.length, 32)
+    writer.write(this.checksum(writer.bytes), 32)
+    return writer.bytes
+  }
+
+  writeMercenaryItems (mercenaryItems) {
+    this.writer.write(mercenaryItems.header, 16)
+    if (mercenaryItems.items) {
+      this.writeItems(mercenaryItems.items)
+    }
+  }
+
+  writeCorpses (corpses) {
+    this.writer.write(corpses.header, 16)
+    this.writer.write(BigInt(corpses.list?.length || 0), 16)
+    if (corpses.list?.length > 0) {
+      for (const { unknown, x, y, items } of corpses.list) {
+        this.writer.write(unknown, 32)
+        this.writer.write(x, 16)
+        this.writer.write(y, 16)
+        this.writeItems(items)
+      }
+    }
+  }
+
+  writeItemStat ({ id, param,  value }) {
+    const entry = this.costs.first('ID', id.toString())
+    const bits = Number(entry['Save Param Bits'])
+    if (bits !== 0) {
+      this.writer.write(param, bits)
+    }
+    this.writer.write(value, Number(entry['Save Bits']))
+  }
+
+  writeItemStatList (list) {
+    for (let i = 0; i < list.length; ++i) {
+      // for stat pairs e.g. ed% -> min ed%, max ed%
+      this.writer.write(list[i][0].id, 9)
+      for (let j = 0; j < list[i].length; ++j) {
+        this.writeItemStat(list[i][j])
+      }
+    }
+    this.writer.write(BigInt(0x1FF), 9)
+  }
+
+  writeString (string) {
+    for (let i = 0; i < string.length; ++i) {
+      this.writer.write(BigInt(string.charCodeAt(i)), 7)
+    }
+    this.writer.write(BigInt(0), 7)
+  }
+
+  writeItem (item) {
+    this.writer.write(item.header, 16)
+    this.writer.write(item.compact.flags, 32)
+    this.writer.write(item.compact.version, 10)
+    this.writer.write(item.compact.location, 3)
+    this.writer.write(item.compact.equipment, 4)
+    this.writer.write(item.compact.x, 4)
+    this.writer.write(item.compact.y, 4)
+    this.writer.write(item.compact.page, 3)
+    if (!SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.ear)) {
+      this.writer.write(item.compact.code, 32)
+      this.writer.write(item.compact.socketed, SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.compact) ? 1 : 3)      
+    } else {
+      this.writer.write(item.compact.ear.file, 3)
+      this.writer.write(item.compact.ear.level, 7)
+      this.writeString(item.compact.ear.name)
+    }
+    if (!SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.compact)) {
+      this.writer.write(item.extra.id, 32)
+      this.writer.write(item.extra.level, 7)
+      this.writer.write(item.extra.quality, 4)
+      this.writer.write(item.extra.graphics, 1)
+      if (item.extra.graphics !== BigInt(0)) {
+        this.writer.write(item.extra.graphicsId, 3)
+      }
+      this.writer.write(item.extra.auto, 1)
+      if (item.extra.auto !== BigInt(0)) {
+        this.writer.write(item.extra.autoId, 11)
+      }
+      switch (Number(item.extra.quality)) {
+        case SaveFileParser.ItemQuality.inferior:
+        case SaveFileParser.ItemQuality.superior: {
+          this.writer.write(item.extra.file, 3)
+          break
+        }
+        case SaveFileParser.ItemQuality.magic: {
+          this.writer.write(item.extra.prefix, 11)
+          this.writer.write(item.extra.suffix, 11)
+          break
+        }
+        case SaveFileParser.ItemQuality.rare:
+        case SaveFileParser.ItemQuality.crafted: {
+          this.writer.write(item.extra.rarePrefix, 8)
+          this.writer.write(item.extra.rareSuffix, 8)
+          for (let i = 0; i < 3; ++i) {
+            if (i < item.extra.prefix.length) {
+              this.writer.write(BigInt(1), 1)
+              this.writer.write(item.extra.prefix[i], 11)
+            } else {
+              this.writer.write(BigInt(0), 1)
+            }
+            if (i < item.extra.suffix.length) {
+              this.writer.write(BigInt(1), 1)
+              this.writer.write(item.extra.suffix[i], 11)
+            } else {
+              this.writer.write(BigInt(0), 1)
+            }
+          }
+          break
+        }
+        case SaveFileParser.ItemQuality.set: 
+        case SaveFileParser.ItemQuality.unique: {
+          this.writer.write(item.extra.file, 12)
+          break
+        }
+      }      
+      if (SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.runeword)) {
+        this.writer.write(item.extra.runeId, 12)
+        this.writer.write(item.extra.runeProperty, 4)
+      }      
+      if (SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.personalized)) {
+        this.writeString(item.extra.name)
+      }
+      if (item.compact.code === BigInt(0x206B6269) || item.compact.code === BigInt(0x206B6274)) {
+        this.writer.write(item.extra.suffix, 5)
+      }
+      this.writer.write(item.extra.realm, 1)
+      if (BigInt(item.extra.realm) !== BigInt(0)) {
+        this.writer.write(item.extra.realmData, 96)
+      }
+      if (item.code) {
+        const code = item.code
+        const entry = this.typeList.entry(code)
+        if (this.typeList.isArmor(code)) {
+          this.writer.write(item.extra.armor, 11)
+        }
+        if (this.typeList.isArmor(code) || this.typeList.isWeapon(code)) {
+          const bits = Number(this.costs.first('Stat', 'maxdurability')['Save Bits'])
+          this.writer.write(item.extra.durability.max, bits)
+          if (item.extra.durability.max > BigInt(0)) {
+            this.writer.write(item.extra.durability.current, bits)
+            this.writer.write(item.extra.durability.bit, 1)
+          }
+        }
+        if (entry['stackable'] === '1') {
+          this.writer.write(item.extra.quantity, 9)
+        }
+      }
+      if (SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.socketed)) {
+        this.writer.write(item.extra.sockets, 4)
+      }
+      if (Number(item.extra.quality) === SaveFileParser.ItemQuality.set) {
+        this.writer.write(item.extra.mask, 5)
+      }
+      this.writeItemStatList(item.extra.list)
+      if (item.extra.property) {
+        for (let i = 0; i < 7 && i < item.extra.property.length; ++i) {
+          this.writeItemStatList(item.extra.property[i])
+        }
+      }
+    }
+    this.writer.align()
+    if (item.compact.socketed > BigInt(0)) {
+      for (let i = 0; i < item.sockets.length; ++i) {
+        this.writeItem(item.sockets[i])
+      }
+    }
+  }
+
+  writeItems (items) {
+    this.writer.write(items.header, 16)
+    this.writer.write(BigInt(items.list.length), 16)
+    for (let i = 0; i < items.list.length; ++i) {
+      this.writeItem(items.list[i])
+    }
+  }
+
+  writeAttributes (attributes) {
+    if (this.writer.rem() !== 8) {
+      throw new Error('attributes should begin on a byte')
+    }
+    this.writer.write(attributes.header, 16)
+    for (const { id, value } of attributes.values) {
+      this.writer.write(id, 9)
+      const el = this.costs.first('ID', id.toString())
+      const n = Number(el['CSvBits'])
+      this.writer.write(value, n)
+    }
+    this.writer.write(BigInt(0x1FF), 9)
+  }
+
+  writeMercenary (mercenary) {
+    this.writer.write(mercenary.dead, 16)
+    this.writer.write(mercenary.id, 32)
+    this.writer.write(mercenary.name, 16)
+    this.writer.write(mercenary.type, 16)
+    this.writer.write(mercenary.experience, 32)
+  }
+
+  writeName (name) {
+    for (let i = 0; i < 16; ++i) {
+      if (i < name.length) {
+        this.writer.write(BigInt(name.charCodeAt(i)), 8)
+      } else {
+        this.writer.write(BigInt(0), 8)
+      }
+    }
   }
 }
 

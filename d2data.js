@@ -1173,7 +1173,7 @@ class MonsterMetrics {
   }
 }
 
-if (window.module && module.exports) {
+if (typeof window === 'undefined' && typeof self === 'undefined') {
   module.exports = {
     DataFrame,
     TypeList

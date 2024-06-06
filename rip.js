@@ -38,23 +38,31 @@
   const getProperties = el => {
     return [...el.querySelectorAll('.property')].map(getProperty)
   }
-  const getSocketProperties = el => {
-    return [...el.querySelectorAll('.property')].map(el => el.textContent)
+  const getSocket = el => {
+    return {
+      name: el.querySelector('.socket-name').textContent,
+      props: [...el.querySelectorAll('.property')].map(el => el.textContent)
+    }
   }
   const getName = el => {
     return (el.children[0].style.display !== 'none' ? el.textContent : el.firstElementChild.nextSibling.textContent).trim().replace(/\s\s+/g, ' ')
   }
   const getItem = el => {
+    const ancestor = el.parentElement.parentElement.parentElement
+    const box = ancestor.getClientRects()[0]
+    console.log(box)
     const name = getName(el.children[0].children[0])
     const type = getProperty(el.children[1])
     const props = getProperties(el.querySelector('.properties'))
-    const sockets = [...el.querySelectorAll('.socket > .properties')].map(getSocketProperties)
+    const sockets = [...el.querySelectorAll('.socket')].map(getSocket)
     return {
       name,
       type,
       props,
       sockets,
-      el
+      el,
+      x: box.x,
+      y: box.y
     }
   }
   const tabs = document.querySelectorAll('.tab')
@@ -66,12 +74,15 @@
   await waitFrames(2)
   tabs[4].click()
   await waitFrames(2)
-  const character = [...document.querySelectorAll('.popper .item .details')].map(getItem)
+  const character = {}
+  character.stats = [...document.querySelectorAll('.stat-box > div > div')].map(el => el.textContent)
+  character.equipment = [...document.querySelectorAll('.item-column .popper .item .details')].map(getItem)
+  character.inventory = [...document.querySelectorAll('.inventory .popper .item .details')].map(getItem)
   tabs[5].click()
   await waitFrames(2)
   character.swap = [...document.querySelectorAll('.item-box.weapon .popper .item .details')].map(getItem)
   tabs[1].click()
   await waitFrames(2)
   character.mercenary = [...document.querySelectorAll('.popper .item .details')].map(getItem)
-  console.log(character)
+  console.log(JSON.stringify(character))
 })()
