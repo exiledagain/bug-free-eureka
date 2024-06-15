@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&amp;display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <link rel="stylesheet" href="css/common.css">
+    <script src="d2data.js"></script>
+  </head>
+  <body>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            <input id="search" type="text">
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div id="content"></div>
+    <script>
+      const version = 's9'
+      const strings = new StringResolver([
+        `data/${version}/global/excel/patchstring.tbl`,
+        `data/${version}/global/excel/expansionstring.tbl`,
+        `data/${version}/global/excel/string.tbl`,
+      ])
+      class StringView {
+        constructor ({ inputEl, container, resolver }) {
+          this.resolver = resolver
+          this.inputEl = inputEl
+          this.container = container
+          this.setup()
+        }
+
+        setup () {
+          this.inputEl.onchange = e => {
+            this.regex = new RegExp(e.target.value, 'i')
+            this.set('regex', this.regex.source)
+            this.update()
+          }
+          if (this.get('regex').length > 0) {
+            this.regex = new RegExp(this.get('regex'), 'i')
+            this.update()
+          }
+        }
+
+        get (key) {
+          const params = new URLSearchParams(window.location.search)
+          return params.get(key)
+        }
+
+        set (key, value) {
+          const params = new URLSearchParams(window.location.search)
+          if (typeof value !== 'string' || value.length === 0) {
+            params.delete(key)
+          } else {
+            params.set(key, encodeURIComponent(value))
+          }
+          console.log(key, value, params)
+          window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}${window.location.hash}`)
+        }
+
+        update () {
+          const els = []
+          this.resolver.tables.forEach(table => {
+            for (const [k, v] of table.map) {
+              if (!this.regex || this.regex.test(k) || this.regex.test(v)) {
+                els.push([k, v])
+              }
+            }
+          })
+          this.container.innerHTML = ''
+          for (const [k, v] of els) {
+            const el = document.createElement('p')
+            el.textContent = `${k}: ${v}`
+            this.container.appendChild(el)
+          }
+        }
+      }
+      async function Load () {
+        await strings.load()
+        new StringView({
+          resolver: strings,
+          inputEl: document.querySelector('#search'),
+          container: document.querySelector('#content')
+        })
+      }
+      requestAnimationFrame(Load)
+    </script>
+  </body>
+</html>
