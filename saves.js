@@ -38,15 +38,6 @@ async function Main () {
   json.status = 0x20
   const data = new SaveFileWriter(typeList, costs).write(json)
 
-  for (let i = 0; i < data.length; ++i) {
-    if (data[i] !== raw[i]) {
-      // console.log(i)
-      // console.log(Buffer.from(data).slice(i - 8, i + 16))
-      // console.log(raw.slice(i - 8, i + 16))
-      // process.exit(-1)
-    }
-  }
-
   fs.writeFileSync(`${base}/${second}.d2s`, Buffer.from(data))
   console.log(new SaveFileParser({ typeList, reader: fs.readFileSync(`${base}/${second}.d2s`), costs, format }).json())
 }
