@@ -58,7 +58,6 @@
           } else {
             params.set(key, encodeURIComponent(value))
           }
-          console.log(key, value, params)
           window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}${window.location.hash}`)
         }
 
