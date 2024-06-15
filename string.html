@@ -40,8 +40,10 @@
             this.set('regex', this.regex.source)
             this.update()
           }
-          if (this.get('regex').length > 0) {
-            this.regex = new RegExp(this.get('regex'), 'i')
+          const regex = this.get('regex')
+          if (regex && regex.length > 0) {
+            this.inputEl.value = regex
+            this.regex = new RegExp(regex, 'i')
             this.update()
           }
         }

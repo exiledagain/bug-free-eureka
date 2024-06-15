@@ -1098,6 +1098,9 @@ class StringTable {
     const map = new Map()
     const view = new DataView(buffer)
     this.entries.forEach(entry => {
+      if (entry.length <= 0) {
+        return
+      }
       let length = 0
       for (let i = entry.keyIndex; i < view.byteLength; ++i, ++length) {
         if (view.getInt8(i) === 0) {
@@ -1328,9 +1331,8 @@ class StatFormat {
         const skill = this.data.skills().first('Id', skillId.toString())
         const desc = this.data.skillDesc().first('skilldesc', skill['skilldesc'])
         const name = this.resolver.get(desc['str name'])
-        console.log(skill, desc)
         const a = value & 0xFF
-        const b = value >> 0xFF
+        const b = value >> 8
         const charges = primary.replace('%d', a).replace('%d', b)
         return `Level ${skillLevel} ${name} ${charges}`
       }
