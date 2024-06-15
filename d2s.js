@@ -180,10 +180,11 @@ class SaveFileParser {
    * @param {BitReader} reader
    * @param {DataFrame} costs
    */
-  constructor (typeList, reader, costs) {
+  constructor ({ typeList, reader, costs, format }) {
     this.typeList = typeList
     this.reader = new BitReader(reader)
     this.costs = costs
+    this.format = format
   }
 
   read () {
@@ -444,6 +445,9 @@ class SaveFileParser {
     }
     res.value = this.reader.read(Number(entry['Save Bits']))
     res.real.raw = res.value - BigInt(entry['Save Add'])
+    if (this.format) {
+      res.real.tooltip = this.format.get(res.real.name, { value: Number(res.real.raw), param: Number(res.param) })
+    }
     switch (Number(entry['Encode'])) {
       case 3: {
         res.real.charges = (res.real.raw >> BigInt(8)) & BigInt(0xFF)

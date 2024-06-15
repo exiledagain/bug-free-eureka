@@ -1108,6 +1108,10 @@ class StringTable {
         }
       }
       const key = this.string(entry.keyIndex, length)
+      // is the first entry always the correct (key, value) pair?
+      if (map.has(key)) {
+        return
+      }
       const value = this.string(entry.stringIndex, entry.length - 1)
       map.set(key, value)
     })
@@ -1277,6 +1281,17 @@ class StatFormat {
           }
         }
       }
+      case 11: {
+        // from: D2Client.dll
+        const quotient = Math.floor(2500 / value)
+        if (quotient >= 30) {
+          // Repairs %d durability in %d seconds
+          const hardcoded = this.resolver.get('ModStre9u')
+          const rate = Math.floor((quotient + 12) / 25)
+          return hardcoded.replace('%d', '1').replace('%d', rate)
+        }
+        return primary.replace('%d', 1)
+      }
       case 12: {
         return primary
       }
@@ -1298,6 +1313,9 @@ class StatFormat {
         return `${primary.replace('%d', value)} ${clazzy}`
       }
       case 15: {
+        if (position === 0) {
+          return primary
+        }
         const skillId = param >> 6
         const skillLevel = param & 0x3F
         const skill = this.data.skills().first('Id', skillId.toString())
@@ -1310,6 +1328,11 @@ class StatFormat {
         const desc = this.data.skillDesc().first('skilldesc', skill['skilldesc'])
         const name = this.resolver.get(desc['str name'])
         return primary.replace('%d', value).replace('%s', name)
+      }
+      case 18:
+      case 17: {
+        // time-base affix
+        return ''
       }
       case 20: {
         return `-${value}% ${primary}`
@@ -1400,6 +1423,9 @@ class Diablo2Data {
 if (typeof window === 'undefined' && typeof self === 'undefined') {
   module.exports = {
     DataFrame,
-    TypeList
+    TypeList,
+    Diablo2Data,
+    StatFormat,
+    StringResolver
   }
 }

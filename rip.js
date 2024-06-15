@@ -49,8 +49,6 @@
   }
   const getItem = el => {
     const ancestor = el.parentElement.parentElement.parentElement
-    const box = ancestor.getClientRects()[0]
-    console.log(box)
     const name = getName(el.children[0].children[0])
     const type = getProperty(el.children[1])
     const props = getProperties(el.querySelector('.properties'))
@@ -61,8 +59,7 @@
       props,
       sockets,
       el,
-      x: box.x,
-      y: box.y
+      style: ancestor.parentElement.getAttribute('style')
     }
   }
   const tabs = document.querySelectorAll('.tab')
