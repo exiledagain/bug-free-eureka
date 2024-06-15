@@ -53,7 +53,7 @@ class BitReader {
     }
     return res
   }
-  
+
   all () {
     return this.string(this.count())
   }
@@ -176,9 +176,9 @@ class SaveFileParser {
   }
 
   /**
-   * 
-   * @param {BitReader} reader 
-   * @param {DataFrame} costs 
+   *
+   * @param {BitReader} reader
+   * @param {DataFrame} costs
    */
   constructor (typeList, reader, costs) {
     this.typeList = typeList
@@ -234,10 +234,20 @@ class SaveFileParser {
     this.data.dialog = this.reader.read(52 * 8)
     this.data.attributes = this.attributes()
     this.reader.align()
-    this.data.skills = this.reader.read(35 * 8)
+    this.data.skills = this.skills()
     this.data.items = this.items()
     this.data.corpses = this.corpses()
     this.data.mercenaryItems = this.mercenaryItems()
+  }
+
+  skills () {
+    const res = {}
+    res.header = this.reader.read(16)
+    res.list = []
+    for (let i = 0; i < 33; ++i) {
+      res.list.push(this.reader.read(8))
+    }
+    return res
   }
 
   mercenary () {
@@ -534,7 +544,7 @@ class SaveFileParser {
     BigInt.prototype.toJSON = function () {
       return `0x${this.toString(16)}`
     }
-    const res = JSON.stringify(this.data, null, 2)    
+    const res = JSON.stringify(this.data, null, 2)
     BigInt.prototype.toJSON = prev
     return res
   }
@@ -575,7 +585,7 @@ class SaveFileWriter {
       "0xffff",
       "0xffff",
       "0xffff"
-    ],    
+    ],
     "leftSkill": "0x0",
     "rightSkill": "0x0",
     "leftSkillAlt": "0x0",
@@ -690,7 +700,7 @@ class SaveFileWriter {
     writer.write(object.dialog, 52 * 8)
     this.writeAttributes(object.attributes)
     writer.align()
-    writer.write(object.skills, 35 * 8)
+    this.writeSkills(object.skills)
     this.writeItems(object.items)
     this.writeCorpses(object.corpses)
     this.writeMercenaryItems(object.mercenaryItems)
@@ -699,6 +709,13 @@ class SaveFileWriter {
     writer.write(writer.bytes.length, 32)
     writer.write(this.checksum(writer.bytes), 32)
     return writer.bytes
+  }
+
+  writeSkills (skills) {
+    this.writer.write(skills.header, 16)
+    for (let i = 0; i < 33; ++i) {
+      this.writer.write(skills.list[i], 8)
+    }
   }
 
   writeMercenaryItems (mercenaryItems) {
@@ -759,7 +776,7 @@ class SaveFileWriter {
     this.writer.write(item.compact.page, 3)
     if (!SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.ear)) {
       this.writer.write(item.compact.code, 32)
-      this.writer.write(item.compact.socketed, SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.compact) ? 1 : 3)      
+      this.writer.write(item.compact.socketed, SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.compact) ? 1 : 3)
     } else {
       this.writer.write(item.compact.ear.file, 3)
       this.writer.write(item.compact.ear.level, 7)
@@ -808,16 +825,16 @@ class SaveFileWriter {
           }
           break
         }
-        case SaveFileParser.ItemQuality.set: 
+        case SaveFileParser.ItemQuality.set:
         case SaveFileParser.ItemQuality.unique: {
           this.writer.write(item.extra.file, 12)
           break
         }
-      }      
+      }
       if (SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.runeword)) {
         this.writer.write(item.extra.runeId, 12)
         this.writer.write(item.extra.runeProperty, 4)
-      }      
+      }
       if (SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.personalized)) {
         this.writeString(item.extra.name)
       }

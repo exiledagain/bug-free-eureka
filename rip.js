@@ -75,6 +75,7 @@
   tabs[4].click()
   await waitFrames(2)
   const character = {}
+  character.name = document.querySelector('.xxl').textContent
   character.stats = [...document.querySelectorAll('.stat-box > div > div')].map(el => el.textContent)
   character.equipment = [...document.querySelectorAll('.item-column .popper .item .details')].map(getItem)
   character.inventory = [...document.querySelectorAll('.inventory .popper .item .details')].map(getItem)
@@ -83,6 +84,8 @@
   character.swap = [...document.querySelectorAll('.item-box.weapon .popper .item .details')].map(getItem)
   tabs[1].click()
   await waitFrames(2)
-  character.mercenary = [...document.querySelectorAll('.popper .item .details')].map(getItem)
+  character.mercenary = {}
+  character.mercenary.stats = [...document.querySelectorAll('.stat-box > div > div')].map(el => el.textContent)
+  character.mercenary.equipment = [...document.querySelectorAll('.popper .item .details')].map(getItem)
   console.log(JSON.stringify(character))
 })()

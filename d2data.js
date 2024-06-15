@@ -47,7 +47,7 @@ class DataFrame {
     this.parse(text)
   }
 
-  parse (text) {    
+  parse (text) {
     const lines = text.split(/\r?\n/)
     for (const line of lines) {
       const values = line.split('\t')
@@ -372,7 +372,7 @@ class AffixList {
     this.classSet = new Set(this.typeList.expand('clas'))
     this.classesMap = new Map()
     const clazzes = this.typeList.children('clas')
-    for (const clazz of clazzes) {      
+    for (const clazz of clazzes) {
       for (const child of this.typeList.expand(clazz)) {
         this.classesMap.set(child, clazz.substring(0, 3))
       }
@@ -901,7 +901,7 @@ class TreasureTree {
     while (stack.length > 0) {
       const { treasure, p } = stack.pop()
       const noDrop = this.noDrop(n, treasure)
-      if (treasure.picks > 0) { 
+      if (treasure.picks > 0) {
         let k = treasure.picks
         if (k > 6) {
           k = 6
@@ -931,7 +931,7 @@ class TreasureTree {
             val.id = childId
             walker.pre(val, pickP)
           }
-        } 
+        }
       }
     }
   }
@@ -1141,10 +1141,7 @@ class StringResolver {
     let res = key
     this.tables.some(table => {
       res = table.get(key)
-      if (!res || res.length === 0) {
-        throw new Error(`key=${key}`)
-      }
-      return res !== key  
+      return res !== key
     })
     return res
   }
@@ -1170,6 +1167,231 @@ class MonsterMetrics {
 
   hasBlockMode (id) {
     return this.extended.first('Id', id)['mBL'] === '1'
+  }
+}
+
+class StatFormat {
+  constructor (data, resolver) {
+    this.resolver = resolver
+    this.data = data
+  }
+
+  get (stat, value, group = false) {
+    const el = this.data.itemStatCost().first('Stat', stat)
+    return this.format(value, this.describe(el, group))
+  }
+
+  describe (row, group = false) {
+    const id = !group ? 'descfunc' : 'dgrpfunc'
+    const position = !group ? 'descval' : 'dgrpval'
+    const positive = !group ? 'descstrpos' : 'dgrpstrpos'
+    const negative = !group ? 'descstrneg' : 'dgrpstrneg'
+    const secondary = !group ? 'descstr2' : 'dgrpstr2'
+    return {
+      id: Number(row[id]),
+      position: Number(row[position]),
+      positive: this.resolver.get(row[positive]),
+      negative: this.resolver.get(row[negative]),
+      secondary: this.resolver.get(row[secondary])
+    }
+  }
+
+  format ({ value, param = 0 }, { id, position, positive, negative, secondary }) {
+    // positive (read: non-negative)
+    const primary = value >= 0 ? positive : negative
+    switch (id) {
+      case 0: {
+        return ''
+      }
+      case 6:
+      case 1: {
+        switch (position) {
+          case 1: {
+            return `+${value} ${primary}` + (id > 5 ? ` ${secondary}` : '')
+          }
+          case 2: {
+            return `${primary} +${value}` + (id > 5 ? ` ${secondary}` : '')
+          }
+          default: {
+            throw new Error(`unknown position: ${position}`)
+          }
+        }
+      }
+      case 7:
+      case 2: {
+        switch (position) {
+          case 1: {
+            return `${value}% ${primary}` + (id > 5 ? ` ${secondary}` : '')
+          }
+          case 2: {
+            return `${primary} ${value}%` + (id > 5 ? ` ${secondary}` : '')
+          }
+          default: {
+            throw new Error(`unknown position: ${position}`)
+          }
+        }
+      }
+      case 8:
+      case 3: {
+        switch (position) {
+          case 1: {
+            return `${value} ${primary}` + (id > 5 ? ` ${secondary}` : '')
+          }
+          case 2: {
+            return `${primary} ${value}` + (id > 5 ? ` ${secondary}` : '')
+          }
+          default: {
+            return primary
+          }
+        }
+      }
+      case 9:
+      case 4: {
+        switch (position) {
+          case 1: {
+            return `+${value}% ${primary}` + (id > 5 ? ` ${secondary}` : '')
+          }
+          case 2: {
+            return `${primary} +${value}%` + (id > 5 ? ` ${secondary}` : '')
+          }
+          default: {
+            throw new Error(`unknown position: ${position}`)
+          }
+        }
+      }
+      case 10:
+      case 5: {
+        value = (value * 100) >> 7
+        switch (position) {
+          case 1: {
+            return `+${value}% ${primary}` + (id > 5 ? ` ${secondary}` : '')
+          }
+          case 2: {
+            return `${primary} +${value}%` + (id > 5 ? ` ${secondary}` : '')
+          }
+          default: {
+            throw new Error(`unknown position: ${position}`)
+          }
+        }
+      }
+      case 12: {
+        return primary
+      }
+      case 13: {
+        switch (position) {
+          case 1: {
+            return `+${value} ${primary}`
+          }
+          default: {
+            throw new Error(`unknown position: ${position}`)
+          }
+        }
+      }
+      case 14: {
+        const skill = this.data.skills().first('Id', param.toString())
+        const clazz = skill['charclass'].substring(0, 1).toUpperCase() + skill['charclass'].substring(1).toLowerCase()
+        // PD2 only?
+        const clazzy = this.resolver.get(`${clazz}Only`)
+        return `${primary.replace('%d', value)} ${clazzy}`
+      }
+      case 15: {
+        const skillId = param >> 6
+        const skillLevel = param & 0x3F
+        const skill = this.data.skills().first('Id', skillId.toString())
+        const desc = this.data.skillDesc().first('skilldesc', skill['skilldesc'])
+        const name = this.resolver.get(desc['str name'])
+        return primary.replace('%d', value).replace('%%', '%').replace('%d', skillLevel).replace('%s', name)
+      }
+      case 16: {
+        const skill = this.data.skills().first('Id', param.toString())
+        const desc = this.data.skillDesc().first('skilldesc', skill['skilldesc'])
+        const name = this.resolver.get(desc['str name'])
+        return primary.replace('%d', value).replace('%s', name)
+      }
+      case 20: {
+        return `-${value}% ${primary}`
+      }
+      case 21: {
+        return `-${value} ${primary}`
+      }
+      case 22: {
+        // not implemented?
+        return `${value} ${primary}`
+      }
+      case 23: {
+        const name = this.resolver.get(this.data.monStats().first('hcIdx', param.toString())['NameStr'])
+        return `${value}% ${primary} ${name}`
+      }
+      case 24: {
+        const skillId = param >> 6
+        const skillLevel = param & 0x3F
+        const skill = this.data.skills().first('Id', skillId.toString())
+        const desc = this.data.skillDesc().first('skilldesc', skill['skilldesc'])
+        const name = this.resolver.get(desc['str name'])
+        console.log(skill, desc)
+        const a = value & 0xFF
+        const b = value >> 0xFF
+        const charges = primary.replace('%d', a).replace('%d', b)
+        return `Level ${skillLevel} ${name} ${charges}`
+      }
+      case 27: {
+        const skill = this.data.skills().first('Id', param.toString())
+        const clazz = skill['charclass'].substring(0, 1).toUpperCase() + skill['charclass'].substring(1).toLowerCase()
+        const desc = this.data.skillDesc().first('skilldesc', skill['skilldesc'])
+        const name = this.resolver.get(desc['str name'])
+        // PD2 only?
+        const clazzy = this.resolver.get(`${clazz}Only`)
+        return `+${value} to ${name} ${clazzy}`
+      }
+      case 28: {
+        const skill = this.data.skills().first('Id', param.toString())
+        const desc = this.data.skillDesc().first('skilldesc', skill['skilldesc'])
+        const name = this.resolver.get(desc['str name'])
+        return `+${value} to ${name}`
+      }
+      default: {
+        throw new Error(`unknown stat id: ${id}`)
+      }
+    }
+  }
+}
+
+class Diablo2Data {
+  static gameFiles = [
+    'CharStats.txt',
+    'ItemStatCost.txt',
+    'MonStats.txt',
+    'Skilldesc.txt',
+    'Skills.txt',
+  ]
+
+  constructor (version = 's9') {
+    this.version = version
+  }
+
+  async load () {
+    this.loader = new DataLoader()
+    await this.loader.preload(this.version, Diablo2Data.gameFiles)
+  }
+
+  charStats () {
+    return this.loader.get(this.version, 'CharStats.txt')
+  }
+
+  itemStatCost () {
+    return this.loader.get(this.version, 'ItemStatCost.txt')
+  }
+
+  skillDesc () {
+    return this.loader.get(this.version, 'Skilldesc.txt')
+  }
+
+  skills () {
+    return this.loader.get(this.version, 'Skills.txt')
+  }
+
+  monStats () {
+    return this.loader.get(this.version, 'MonStats.txt')
   }
 }
 
