@@ -1,0 +1,259 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&amp;display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <link rel="stylesheet" href="css/common.css">
+    <script src="item.js"></script>
+    <script src="d2data.js"></script>
+    <script src="igen.js"></script>
+  </head>
+  <body>
+    <p id="content">
+
+    </p>
+    <script>
+      'use strict'
+
+      class d2rng {
+        static constant = BigInt('0x6AC690C5')
+        static lower = ((BigInt(1) << BigInt(32)) - BigInt(1))
+
+        constructor (seed = BigInt(0)) {
+          this.lower(seed)
+        }
+
+        lower (seed) {
+          this.high = BigInt(666)
+          this.low = BigInt(seed)
+        }
+
+        next (reason = 'none') {
+          const seed = BigInt.asUintN(64, BigInt.asUintN(64, this.low * d2rng.constant) + this.high)
+          // console.log(reason, '=>', seed.toString(16), this.low.toString(16), this.high.toString(16))
+          return this.reset(seed)
+        }
+
+        max (n) {
+          n = BigInt(n)
+          if (n <= BigInt(0)) {
+            return 0
+          }
+          return Number(this.next() % n)
+        }
+
+        n (n) {
+          const res = []
+          for (let i = 0; i < n; ++i) {
+            res.push(this.next())
+          }
+          return res
+        }
+
+        skip (n) {
+          for (let i = 0; i < n; ++i) {
+            this.next()
+          }
+        }
+
+        reset (seed) {
+          seed = BigInt(seed)
+          this.low = seed & d2rng.lower
+          this.high = seed >> BigInt(32)
+          return this.low
+        }
+
+        set (low, high) {
+          this.high = BigInt(high)
+          this.low = BigInt(low)
+        }
+
+        toString () {
+          return `0x${this.low.toString(16)} 0x${this.high.toString(16)}`
+        }
+      }
+      class RollMap {
+        constructor ({ rng, prefixList, suffixList }) {
+          this.rng = rng
+          this.prefixList = this.fromList(prefixList)
+          this.suffixList = this.fromList(suffixList)
+        }
+
+        fromList (list) {
+          const res = []
+          list.each(el => {
+            el.frequency = Number(el.frequency)
+            res.push(el)
+          })
+          return res
+        }
+
+        simulate (skip = false) {
+          // rare name
+          if (!skip) {
+            this.rng.skip(2)
+          }
+          // roll prefix, suffix
+          const prefixes = []
+          const suffixes = []
+          for (let i = 0; i < 6; ++i) {
+            if (suffixes.length < 3 && (prefixes.length > 2 || Number(this.rng.next('prefix/suffix') & BigInt(1)) !== 0)) {
+              suffixes.push(this.nextAffix(this.suffixList, suffixes, prefixes))
+            } else {
+              prefixes.push(this.nextAffix(this.prefixList, prefixes, suffixes))
+            }
+          }
+          // roll mod values
+          const prefixRolls = []
+          const suffixRolls = []
+          for (let i = 0; i < 3; ++i) {
+            prefixRolls.push(this.properties(prefixes[i]))
+            suffixRolls.push(this.properties(suffixes[i]))
+          }
+          const summary = {}
+          const cb = mods => {
+            mods.forEach(({ code, value }) => {
+              summary[code] = summary[code] || 0
+              summary[code] += value
+            })
+          }
+          prefixRolls.forEach(cb)
+          suffixRolls.forEach(cb)
+          return summary
+        }
+
+        properties (affix) {
+          const res = []
+          affix.mods.forEach(({ code, min, max }) => {
+            if (code.length === 0) {
+              return
+            }
+            max = Number(max)
+            min = Number(min)
+            if (max !== min) {
+              if (min > 0 && max > 0) {
+                res.push({
+                  code,
+                  value: this.rng.max(max - min + 1) + min
+                })
+              } else if (min < 0 && max < 0) {
+                res.push({
+                  code,
+                  value: this.rng.max(max - min + 1) + min
+                })
+              } else {
+                throw new Error('...')
+              }
+            } else {
+              res.push({
+                code,
+                value: min
+              })
+            }
+          })
+          return res
+        }
+
+        nextAffix (list, previous, extra = []) {
+          this.rng.next('consume')
+          const banned = new Set([previous.map(el => el.row.group), extra.map(el => el.row.group)].flat())
+          let sum = 0
+          list.forEach(({ row: affix }) => {
+            if (banned.has(affix.group)) {
+              return
+            }
+            sum += Number(affix.frequency)
+          })
+          const roll = Number(this.rng.next('affix roll') % BigInt(sum + 1))
+          sum = 0
+          let res = -1
+          list.some(({ row: affix }, id) => {
+            if (banned.has(affix.group)) {
+              return
+            }
+            sum += Number(affix.frequency)
+            if (sum > roll) {
+              res = id
+              return true
+            }
+          })
+          return list.at(res)
+        }
+      }
+      async function Load () {
+        const version = 's9'
+        const files = ['Misc.txt', 'ItemTypes.txt', 'MagicPrefix.txt', 'MagicSuffix.txt']
+        const loader = new DataLoader()
+        await loader.preload(version, files)
+        const tl = new TypeList(loader.get(version, 'Misc.txt'), loader.get(version, 'ItemTypes.txt'))
+        let setup, meta, requirements
+        let prefixList, suffixList
+        const prefixData = loader.get(version, 'MagicPrefix.txt')
+        const suffixData = loader.get(version, 'MagicSuffix.txt')
+        function reload () {
+          const itemCode = 't3m'
+          const level = 99
+          const isRare = true
+          prefixList = new AffixList(tl, prefixData, itemCode, level, isRare)
+          suffixList = new AffixList(tl, suffixData, itemCode, level, isRare)
+          window.prefixes = prefixList
+          window.suffixList = suffixList
+          const rng = new d2rng('0xDD95FEC4')
+          // rng.reset('0x' + '4B874186A8978A9B')
+          // rng.set(...'3460463983 361285771'.split(' '))
+          // const item = new RollMap({ rng, prefixList, suffixList }).simulate()
+          // console.log(item)
+          SimulateAllPossibleMaps()
+        }
+        function WaitForFrame () {
+          return new Promise(resolve => {
+            requestAnimationFrame(resolve)
+          })
+        }
+        async function WaitForFrames (n) {
+          for (let i = 0; i < n; ++i) {
+            await WaitForFrame()
+          }
+        }
+        const WaitMs = ms => new Promise(resolve => setTimeout(resolve, ms))
+        async function SimulateAllPossibleMaps () {
+          const el = document.querySelector('#content')
+          const MAX = BigInt.asUintN(32, BigInt('0xFFFFFFFFFFFFFFFFFFFFF'))
+          const k = BigInt(1e5)
+          const rng = new d2rng('0x0')
+          const roller = new RollMap({ rng, prefixList, suffixList })
+          el.style.whiteSpace = 'pre'
+          el.textContent = `0 of ${MAX}`
+          await WaitForFrames(2)
+          const histogram = {}
+          const bests = []
+          for (let i = BigInt(0); i <= MAX;) {
+            const first = i
+            const start = performance.now()
+            for (let j = 0; j < k && i + BigInt(j) <= MAX; ++j, ++i) {
+              rng.lower(i + BigInt(j))
+              const item = roller.simulate()
+              const density = item['map-glob-density'] || 0
+              histogram[density] = histogram[density] || 0
+              histogram[density] += 1
+              if (density > BigInt(170)) {
+                bests.push({
+                  density,
+                  seed: i + BigInt(j)
+                })
+              }
+            }
+            const rem = Number((MAX - i + BigInt(k) - BigInt(1)) / BigInt(k)) * (performance.now() - start) / 1e3
+            el.textContent = `${i} of ${MAX}\n\nremaining time: ${rem}\n\n${JSON.stringify(histogram, null, 2)}`
+            await WaitForFrames(2)
+          }
+          el.textContent = `done.\n\n${JSON.stringify(histogram, null, 2)}\n\n${JSON.stringify(bests, null, 2)}`
+        }
+        reload()
+      }
+      requestAnimationFrame(Load)
+    </script>
+  </body>
+</html>
