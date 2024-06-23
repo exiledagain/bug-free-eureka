@@ -1381,6 +1381,36 @@ class StatFormat {
   }
 }
 
+class SkillData {
+  constructor ({ skills, skillDesc, resolver }) {
+    this.skills = skills
+    this.skillDesc = skillDesc
+    this.resolver = resolver
+    this.setup()
+  }
+
+  setup () {
+    this.skillz = {}
+    this.skills.each(skill => {
+      if (skill.charclass.length === 3) {
+        const desc = this.skillDesc.first('skilldesc', skill.skilldesc)
+        if (desc) {
+          const name = this.resolver.get(desc['str name'])
+          this.skillz[name] = {
+            class: skill.charclass,
+            skill: skill,
+            desc: desc
+          }
+        }
+      }
+    })
+  }
+
+  get (name) {
+    return this.skillz[name]
+  }
+}
+
 class Diablo2Data {
   static gameFiles = [
     'CharStats.txt',
@@ -1388,6 +1418,10 @@ class Diablo2Data {
     'MonStats.txt',
     'Skilldesc.txt',
     'Skills.txt',
+    'Misc.txt',
+    'ItemTypes.txt',
+    'Weapons.txt',
+    'Armor.txt',
   ]
 
   constructor (version = 's9') {
@@ -1418,14 +1452,40 @@ class Diablo2Data {
   monStats () {
     return this.loader.get(this.version, 'MonStats.txt')
   }
+
+  misc () {
+    return this.loader.get(this.version, 'Misc.txt')
+  }
+
+  weapons () {
+    return this.loader.get(this.version, 'Weapons.txt')
+  }
+
+  armor () {
+    return this.loader.get(this.version, 'Armor.txt')
+  }
+
+  itemTypes () {
+    return this.loader.get(this.version, 'ItemTypes.txt')
+  }
+
+  TypeList () {
+    return new TypeList(this.misc(), this.itemTypes(), this.weapons(), this.armor())
+  }
+
+  SkillData ({ resolver }) {
+    return new SkillData({ skills: this.skills(), skillDesc: this.skillDesc(), resolver })
+  }
 }
 
 if (typeof window === 'undefined' && typeof self === 'undefined') {
   module.exports = {
+    AffixList,
     DataFrame,
-    TypeList,
+    DataLoader,
     Diablo2Data,
     StatFormat,
-    StringResolver
+    StringResolver,
+    TypeList,
   }
 }

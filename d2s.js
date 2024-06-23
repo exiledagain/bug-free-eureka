@@ -649,7 +649,7 @@ class SaveFileWriter {
     }
   }
 
-  constructor (typeList, costs) {
+  constructor ({ typeList, costs }) {
     this.typeList = typeList
     this.costs = costs
   }
@@ -724,7 +724,7 @@ class SaveFileWriter {
 
   writeMercenaryItems (mercenaryItems) {
     this.writer.write(mercenaryItems.header, 16)
-    if (mercenaryItems.items) {
+    if (mercenaryItems.items && mercenaryItems.items.length > 0) {
       this.writeItems(mercenaryItems.items)
     }
   }
@@ -903,7 +903,7 @@ class SaveFileWriter {
     this.writer.write(attributes.header, 16)
     for (const { id, value } of attributes.values) {
       this.writer.write(id, 9)
-      const el = this.costs.first('ID', id.toString())
+      const el = this.costs.first('ID', BigInt(id).toString())
       const n = Number(el['CSvBits'])
       this.writer.write(value, n)
     }

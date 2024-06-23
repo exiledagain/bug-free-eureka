@@ -47,6 +47,16 @@
   const getName = el => {
     return (el.children[0].style.display !== 'none' ? el.textContent : el.firstElementChild.nextSibling.textContent).trim().replace(/\s\s+/g, ' ')
   }
+  const toPosition = style => {
+    if (!style || style.length === 0) {
+      return
+    }
+    const match = /left: calc\(\(var\(--item-block-size\) \+ 2px\) \* (\d+) \+ 2px\); top: calc\(\(var\(--item-block-size\) \+ 2px\) \* (\d+) \+ 2px\);/.exec(style)
+    return {
+      x: Number(match[1]),
+      y: Number(match[2])
+    }
+  }
   const getItem = el => {
     const ancestor = el.parentElement.parentElement.parentElement
     const name = getName(el.children[0].children[0])
@@ -59,7 +69,7 @@
       props,
       sockets,
       el,
-      style: ancestor.parentElement.getAttribute('style')
+      position: toPosition(ancestor.parentElement.getAttribute('style'))
     }
   }
   const tabs = document.querySelectorAll('.tab')
@@ -72,8 +82,8 @@
   tabs[4].click()
   await waitFrames(2)
   const character = {}
-  character.name = document.querySelector('.xxl').textContent
-  character.stats = [...document.querySelectorAll('.stat-box > div > div')].map(el => el.textContent)
+  character.name = document.querySelector('.xxl').textContent.trim()
+  character.stats = [...document.querySelectorAll('.stat-box > div > div')].map(el => el.textContent.split(': '))
   character.equipment = [...document.querySelectorAll('.item-column .popper .item .details')].map(getItem)
   character.inventory = [...document.querySelectorAll('.inventory .popper .item .details')].map(getItem)
   tabs[5].click()

@@ -22,8 +22,8 @@ async function Main () {
     `data/${version}/global/excel/expansionstring.tbl`,
     `data/${version}/global/excel/string.tbl`,
   ]
-  const d2data = new Diablo2Data(version)
   const resolver = new StringResolver(tables)
+  const d2data = new Diablo2Data(version)
   await resolver.load()
   await d2data.load()
   const format = new StatFormat(d2data, resolver)
@@ -36,10 +36,10 @@ async function Main () {
   const json = new SaveFileParser({ typeList, reader: raw, costs, format }).object()
   json.name = second
   json.status = 0x20
-  const data = new SaveFileWriter(typeList, costs).write(json)
+  const data = new SaveFileWriter({ typeList, costs }).write(json)
 
   fs.writeFileSync(`${base}/${second}.d2s`, Buffer.from(data))
-  console.log(new SaveFileParser({ typeList, reader: fs.readFileSync(`${base}/${second}.d2s`), costs, format }).json())
+  console.log(new SaveFileParser({ typeList, reader: fs.readFileSync(`${base}/${first}.d2s`), costs, format }).json())
 }
 
 Main()
