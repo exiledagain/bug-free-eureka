@@ -11,6 +11,7 @@
     <script src="igen.js"></script>
   </head>
   <body>
+    <button id="enumerate">enumerate</button>
     <p id="content">
 
     </p>
@@ -30,9 +31,8 @@
           this.low = BigInt(seed)
         }
 
-        next (reason = 'none') {
+        next () {
           const seed = BigInt.asUintN(64, BigInt.asUintN(64, this.low * d2rng.constant) + this.high)
-          // console.log(reason, '=>', seed.toString(16), this.low.toString(16), this.high.toString(16))
           return this.reset(seed)
         }
 
@@ -84,7 +84,6 @@
         fromList (list) {
           const res = []
           list.each(el => {
-            el.frequency = Number(el.frequency)
             res.push(el)
           })
           return res
@@ -132,7 +131,7 @@
             }
             max = Number(max)
             min = Number(min)
-            if (max !== min) {
+            if (min < max) {
               if (min > 0 && max > 0) {
                 res.push({
                   code,
@@ -174,14 +173,15 @@
               return
             }
             sum += Number(affix.frequency)
+            res = id
             if (sum > roll) {
-              res = id
               return true
             }
           })
-          return list.at(res)
+          return list[res]
         }
       }
+      let started = false
       async function Load () {
         const version = 's9'
         const files = ['Misc.txt', 'ItemTypes.txt', 'MagicPrefix.txt', 'MagicSuffix.txt']
@@ -200,12 +200,23 @@
           suffixList = new AffixList(tl, suffixData, itemCode, level, isRare)
           window.prefixes = prefixList
           window.suffixList = suffixList
-          const rng = new d2rng('0xDD95FEC4')
+          // const rng = new d2rng('0xDD95FEC4')
           // rng.reset('0x' + '4B874186A8978A9B')
           // rng.set(...'3460463983 361285771'.split(' '))
           // const item = new RollMap({ rng, prefixList, suffixList }).simulate()
           // console.log(item)
-          SimulateAllPossibleMaps()
+          // const rm = new RollMap({ rng, prefixList, suffixList })
+          // const dump = { prefix: rm.prefixList, suffix: rm.suffixList }
+          // console.log(JSON.stringify(dump, null, 2))
+          document.querySelector('#enumerate').onclick = e => {
+            started = !started
+            if (started) {
+              SimulateAllPossibleMaps()
+              e.target.textContent = 'stop (click once)'
+            } else {
+              e.target.textContent = 'enumerate'
+            }
+          }
         }
         function WaitForFrame () {
           return new Promise(resolve => {
@@ -220,7 +231,7 @@
         const WaitMs = ms => new Promise(resolve => setTimeout(resolve, ms))
         async function SimulateAllPossibleMaps () {
           const el = document.querySelector('#content')
-          const MAX = BigInt.asUintN(32, BigInt('0xFFFFFFFFFFFFFFFFFFFFF'))
+          const MAX = BigInt.asUintN(24, BigInt('0xFFFFFFFFFFFFFFFFFFFFF'))
           const k = BigInt(1e5)
           const rng = new d2rng('0x0')
           const roller = new RollMap({ rng, prefixList, suffixList })
@@ -232,8 +243,8 @@
           for (let i = BigInt(0); i <= MAX;) {
             const first = i
             const start = performance.now()
-            for (let j = 0; j < k && i + BigInt(j) <= MAX; ++j, ++i) {
-              rng.lower(i + BigInt(j))
+            for (let j = 0; j < k && i <= MAX; ++j, ++i) {
+              rng.lower(i)
               const item = roller.simulate()
               const density = item['map-glob-density'] || 0
               histogram[density] = histogram[density] || 0
@@ -241,12 +252,16 @@
               if (density > BigInt(170)) {
                 bests.push({
                   density,
-                  seed: i + BigInt(j)
+                  seed: i
                 })
               }
             }
             const rem = Number((MAX - i + BigInt(k) - BigInt(1)) / BigInt(k)) * (performance.now() - start) / 1e3
             el.textContent = `${i} of ${MAX}\n\nremaining time: ${rem}\n\n${JSON.stringify(histogram, null, 2)}`
+            if (!started) {
+              el.textContent = 'stopped\n' + el.textContent
+              return
+            }
             await WaitForFrames(2)
           }
           el.textContent = `done.\n\n${JSON.stringify(histogram, null, 2)}\n\n${JSON.stringify(bests, null, 2)}`
