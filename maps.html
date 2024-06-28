@@ -231,7 +231,7 @@
         const WaitMs = ms => new Promise(resolve => setTimeout(resolve, ms))
         async function SimulateAllPossibleMaps () {
           const el = document.querySelector('#content')
-          const MAX = BigInt.asUintN(24, BigInt('0xFFFFFFFFFFFFFFFFFFFFF'))
+          const MAX = BigInt.asUintN(32, BigInt('0xFFFFFFFFFFFFFFFFFFFFF'))
           const k = BigInt(1e5)
           const rng = new d2rng('0x0')
           const roller = new RollMap({ rng, prefixList, suffixList })
