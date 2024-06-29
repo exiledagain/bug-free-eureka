@@ -6,9 +6,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&amp;display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon"> 
     <link rel="stylesheet" href="css/common.css">
-    <script src="item.js"></script>
     <script src="d2data.js"></script>
-    <script src="igen.js"></script>
   </head>
   <body>
     <table>
@@ -708,6 +706,7 @@
           if (limit !== Infinity) {
             sources = sources.slice(0, limit)
           }
+          container.appendChild(head)
           sources.forEach(source => {
             const row = document.createElement('tr')
             if (last && last.source.id === source.source.id && last.source.level === source.source.level) {
@@ -750,7 +749,6 @@
             }
             container.appendChild(row)
           })
-          container.appendChild(head)
         }
 
         populateItems (container, rarity, preferred) {
