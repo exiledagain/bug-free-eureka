@@ -4,7 +4,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&amp;display=swap" rel="stylesheet">
-    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon"> 
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
     <link rel="stylesheet" href="css/common.css">
     <script src="d2data.js"></script>
   </head>
@@ -148,7 +148,7 @@
         constructor (version, dc = 1) {
           this.dc = dc
           this.version = version
-          this.loader = new DataLoader()          
+          this.loader = new DataLoader()
         }
 
         async load () {
@@ -562,7 +562,7 @@
             return []
           }
           const cased = rarity.toUpperCase()[0] + rarity.toLowerCase().substring(1)
-          rarity = rarity.toLowerCase() 
+          rarity = rarity.toLowerCase()
           const constant = DropAbacus.constants[rarity]
           const ratio = this.getItemRatio(code, cased)
           const res = []
