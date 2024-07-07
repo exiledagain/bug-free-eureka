@@ -875,8 +875,6 @@ class TreasureTree {
     if (!members) {
       return id
     }
-    let best = 0
-    let bestId = ''
     for (let i = 0; i < members.length; ++i) {
       if (members[i]['Treasure Class'] === id) {
         for (let j = i + 1; j < members.length; ++j) {
