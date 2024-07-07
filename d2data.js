@@ -1418,6 +1418,64 @@ class SkillData {
   }
 }
 
+class D2Random {
+  static constant = BigInt('0x6AC690C5')
+  static lower = ((BigInt(1) << BigInt(32)) - BigInt(1))
+
+  constructor (seed = BigInt(0)) {
+    this.lower(seed)
+  }
+
+  lower (seed) {
+    this.high = BigInt(666)
+    this.low = BigInt(seed)
+  }
+
+  next () {
+    const seed = BigInt.asUintN(64, BigInt.asUintN(64, this.low * D2Random.constant) + this.high)
+    return this.reset(seed)
+  }
+
+  max (n) {
+    n = BigInt(n)
+    if (n <= BigInt(0)) {
+      return 0
+    }
+    return Number(this.next() % n)
+  }
+
+  n (n) {
+    const res = []
+    for (let i = 0; i < n; ++i) {
+      res.push(this.next())
+    }
+    return res
+  }
+
+  skip (n) {
+    for (let i = 0; i < n; ++i) {
+      this.next()
+    }
+    return this
+  }
+
+  reset (seed) {
+    seed = BigInt(seed)
+    this.low = seed & D2Random.lower
+    this.high = seed >> BigInt(32)
+    return this.low
+  }
+
+  set (low, high) {
+    this.high = BigInt(high)
+    this.low = BigInt(low)
+  }
+
+  toString () {
+    return `0x${this.low.toString(16)} 0x${this.high.toString(16)}`
+  }
+}
+
 class Diablo2Data {
   static gameFiles = [
     'CharStats.txt',
