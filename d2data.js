@@ -577,7 +577,7 @@ class MonsterSourcer {
       }
       const monster = this.inverseMonsterMap.get(superUnique.Class)
       for (let difficulty = 0; difficulty < 3; ++difficulty) {
-        const monLevel = Number(monster.boss === '1' ? monster[MonsterSourcer.monBossLevelKeys[difficulty]] : 1)
+        const monLevel = Number(monster.boss === '1' ? monster[MonsterSourcer.monBossLevelKeys[difficulty]] : this.inferLevel(monster, difficulty))
         res.push({
           id: monster.Id,
           rarity: 2,
@@ -591,6 +591,13 @@ class MonsterSourcer {
       }
     })
     return res.flat(Infinity)
+  }
+
+  inferLevel (monster, difficulty) {
+    if (['councilmember1', 'councilmember2', 'councilmember3'].indexOf(monster.Id) >= 0) {
+      return [1, 1, 82][difficulty]
+    }
+    return 1
   }
 
   quests () {

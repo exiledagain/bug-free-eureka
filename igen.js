@@ -213,6 +213,9 @@ class IgSetup {
     if (code === 'hit-skill') {
       return 'hit skill (any)'
     }
+    if (code.startsWith('extra-')) {
+      return 'extra (any)'
+    }
   }
 
   static codeMap = {
@@ -249,7 +252,7 @@ class IgSetup {
     params.delete('')
     const array = [...codes]
     array.sort((a, b) => {
-      return a.localeCompare(b) 
+      return a.localeCompare(b)
     })
     this.codes = new Set(array)
     this.codeInverse = {}
