@@ -30,3 +30,8 @@ input:invalid {
 button:disabled {
   color: white
 }
+
+a, a:visited {
+  color: silver;
+  font-family: 'Noto Sans JP', sans-serif;
+}
