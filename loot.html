@@ -265,12 +265,16 @@
           this.weapons.each(weapon => {
             this.codeMap[weapon.code] = weapon
             this.wearMap[weapon.code] = weapon
-            this.eligible[weapon.code] = true
+            if (this.codeMap[weapon.code].spawnable === '1') {
+              this.eligible[weapon.code] = true
+            }
           })
           this.armors.each(armor => {
             this.codeMap[armor.code] = armor
             this.wearMap[armor.code] = armor
-            this.eligible[armor.code] = true
+            if (this.codeMap[armor.code].spawnable === '1') {
+              this.eligible[armor.code] = true
+            }
           })
           this.misc.each(misc => {
             this.codeMap[misc.type] = misc
@@ -279,7 +283,7 @@
           this.uniqueMap = {}
           const uniqueSums = {}
           this.uniques.each((unique, idx) => {
-            if (unique.enabled !== '1' || unique.rarity < 1) {
+            if (unique.enabled !== '1' || unique.rarity < 1 || !this.eligible[unique.code]) {
               return
             }
             uniqueSums[unique.code] = uniqueSums[unique.code] || 0
@@ -365,9 +369,6 @@
               break
             }
           }
-          res.sort((a, b) => {
-            return a.name.localeCompare(b.name)
-          })
           return res
         }
 
@@ -754,7 +755,14 @@
 
         populateItems (container, rarity, preferred) {
           container.innerHTML = ''
-          this.abacus.items(rarity).forEach(({ name, id }) => {
+          const items = this.abacus.items(rarity)
+          items.forEach(item => {
+            item.name = this.strings.get(item.name)
+          })
+          items.sort((a, b) => {
+            return a.name.localeCompare(b.name)
+          })
+          items.forEach(({ name, id }) => {
             const el = document.createElement('option')
             el.value = id
             if (item === preferred) {
