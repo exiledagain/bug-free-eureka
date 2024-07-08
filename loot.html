@@ -757,7 +757,8 @@
           container.innerHTML = ''
           const items = this.abacus.items(rarity)
           items.forEach(item => {
-            item.name = this.strings.get(item.name)
+            // 0xC3 is an escape code in d2 to change text color
+            item.name = this.strings.get(item.name).replace(/\xC3.../g, '')
           })
           items.sort((a, b) => {
             return a.name.localeCompare(b.name)
