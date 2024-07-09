@@ -129,19 +129,6 @@
           'rare': 600,
           'magic': 0
         }
-        static itemKeys = Array.from({ length: 10 }, (_, id) => `Item${id + 1}`)
-        static probKeys = Array.from({ length: 10 }, (_, id) => `Prob${id + 1}`)
-        static monLevelKeys = Array.from({ length: 3 }, (_, id) => `MonLvl${id + 1}Ex`)
-        static monNormalKeys = Array.from({ length: 25 }, (_ , id) => `mon${id + 1}`)
-        static monHellKeys = Array.from({ length: 25 }, (_ , id) => `nmon${id + 1}`)
-        static monUniqueKeys = Array.from({ length: 25 }, (_ , id) => `umon${id + 1}`)
-        static monBossLevelKeys = ['Level', 'Level(N)', 'Level(H)']
-        static monNormalTreasureKeys = Array.from({ length: 4 }, (_, id) => `TreasureClass${id + 1}`)
-        static monNightmareTreasureKeys = Array.from({ length: 4 }, (_, id) => `TreasureClass${id + 1}(N)`)
-        static monHellTreasureKeys = Array.from({ length: 4 }, (_, id) => `TreasureClass${id + 1}(H)`)
-        static monTreasureKeys = DropAbacus.monHellTreasureKeys.concat(DropAbacus.monNightmareTreasureKeys, DropAbacus.monNormalTreasureKeys)
-        static monMinionKeys = ['minion1', 'minion2']
-        static monKeys = DropAbacus.monNormalKeys.concat(DropAbacus.monHellKeys)
         static blacklist = {
           'BRArenaZombie': true,
           'willowispboss': true
@@ -758,8 +745,21 @@
           container.innerHTML = ''
           const items = this.abacus.items(rarity)
           items.forEach(item => {
+            const prev = item.name
             // 0xC3 is an escape code in d2 to change text color
             item.name = this.strings.get(item.name).replace(/\xC3.../g, '')
+            if (prev === item.name) {
+              const entry = this.abacus.misc.first('code', item.name)
+              if (entry) {
+                item.name = this.strings.get(entry['namestr']).replace(/\xC3.../g, '')
+              }
+            }
+            if (prev === item.name) {
+              const entry = this.abacus.weapons.first('code', item.name)
+              if (entry) {
+                item.name = this.strings.get(entry['namestr']).replace(/\xC3.../g, '')
+              }
+            }
           })
           items.sort((a, b) => {
             return a.name.localeCompare(b.name)
