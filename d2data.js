@@ -174,8 +174,7 @@ class DataFrameView {
     const values = this.data.values
     for (let i = 0; i < values.length; ++i) {
       const value = values[i]
-      const row = this.populateRow(bdy, 'td', value)
-      row.setAttribute('index', i)
+      this.populateRow(bdy, 'td', value)
     }
     container.appendChild(tbl)
   }
@@ -187,7 +186,6 @@ class DataFrameView {
       const val = list[i]
       const cell = document.createElement(type)
       cell.textContent = val
-      cell.setAttribute('index', i)
       row.appendChild(cell)
     }
     return row
