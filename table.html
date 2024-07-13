@@ -45,6 +45,19 @@
         'MonLvl.txt',
         'Experience.txt'
       ]
+      const getParameter = key => {
+        const params = new URLSearchParams(window.location.search)
+        return params.get(key)
+      }
+      const setParameter = (key, value) => {
+        const params = new URLSearchParams(window.location.search)
+        if (typeof value !== 'string' || value.length === 0) {
+          params.delete(key)
+        } else {
+          params.set(key, encodeURIComponent(value))
+        }
+        window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}${window.location.hash}`)
+      }
       const loader = new DataLoader()
       function populate (container) {
         const select = document.querySelector('#file')
@@ -55,16 +68,23 @@
           el.value = file
           select.appendChild(el)
         })
-        select.onchange = e => {
+        const filename = getParameter('filename')
+        if (files.includes(filename)) {
+          select.selectedIndex = files.indexOf(filename)
+        }
+        select.onchange = async e => {
+          const filename = select.value
           container.innerHTML = ''
-          const raw = loader.get(version, select.value)
-          new DataFrameView(raw).populate(container)
-          window.table = raw
+          const raw = await loader.load(version, filename)
+          if (filename === select.value) {
+            new DataFrameView(raw).populate(container)
+            window.table = raw
+            setParameter('filename', filename)
+          }
         }
         select.onchange()
       }
       async function Load () {
-        await loader.preload(version, files)
         populate(document.querySelector('#content'))
       }
       requestAnimationFrame(Load)
