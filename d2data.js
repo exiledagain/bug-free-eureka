@@ -637,6 +637,7 @@ class MonsterSourcer {
       }
       res.push(this.expand(level, 0, monsterId, new Set(), nestable))
     })
+    // nightmare, hell keys are the same
     MonsterSourcer.monHellKeys.forEach(key => {
       const monsterId = level[key]
       if (!monsterId || !this.inverseMonsterMap.has(monsterId)) {

@@ -307,6 +307,7 @@
               id: set.index,
               code: set.item,
               level: Number(set.lvl),
+              rarity: p,
               p
             })
           })
@@ -510,22 +511,14 @@
         unique (find, itemId) {
           const item = this.getUniqueItem(itemId)
           const drops = this.drop(find, item.code, 'unique')
-          const { code } = this.uniques.combineFromIndex(itemId)
+          const p = item.p
           const res = drops.filter(drop => {
             if (drop.source.level < item.level) {
               return false
             }
-            let sum = 0
-            this.uniqueMap[code].forEach(el => {
-              if (el.level <= drop.source.level)
-                sum += el.rarity
-            })
-            drop.explain.base = item.rarity / sum
-            drop.p *= item.rarity / sum
+            drop.explain.base = p
+            drop.p *= p
             return true
-          })
-          res.sort((a, b) => {
-            return b.p - a.p
           })
           return res
         }
@@ -538,6 +531,7 @@
             if (drop.source.level < item.level) {
               return false
             }
+            drop.explain.base = p
             drop.p *= p
             return true
           })
