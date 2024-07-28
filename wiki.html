@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&amp;display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <link rel="stylesheet" href="css/common.css">
+    <script src="d2data.js"></script>
+  </head>
+  <body>
+    <select id="generator" >
+      <option value="mapres" selected>Map Resistances</option>
+    </select>
+    <br/>
+    <br/>
+    <div id="content"></div>
+    <script>
+      class Wiki {
+        constructor () {
+          this.select = document.querySelector('#generator')
+          this.container = document.querySelector('#content')
+        }
+
+        async load () {
+          const version = 's9'
+          this.d2data = new Diablo2Data(version)
+          await this.d2data.load()
+          this.strings = new StringResolver([
+            `data/${version}/global/excel/patchstring.tbl`,
+            `data/${version}/global/excel/expansionstring.tbl`,
+            `data/${version}/global/excel/string.tbl`,
+          ])
+          await this.strings.load()
+          this.populate()
+        }
+
+        populate () {
+          this.container.innerHTML = ''
+          this[this.select.value]()
+        }
+
+        mapres () {
+          const maps = [
+            { boss: 'SiegeBoss', areas: [ "Arreat Battlefield" ] },
+            { boss: 'SewerBoss', areas: [ "Sewers of Harrogath" ] },
+            { boss: 'ArcaneBoss', areas: [ "Horazon's Memory" ] },
+            { boss: 'unravelerboss', areas: [ "Ruins of Viz-Jun" ], },
+            { boss: 'baalminionboss', areas: [ "River Of Blood" ], extra: ['griswoldmap'] },
+            { boss: 'megademonboss', areas: [ "Phlegethon" ] },
+            { boss: 'IceBoss', areas: [ "Ancestral Trial" ] },
+            { boss: 'MarketBoss', areas: [ "Kehjistan Marketplace" ] },
+            { boss: 'torajanBoss', areas: [ "Torajan Jungle" ], extra: ['torajanBossMaggot'] },
+            { boss: 'BastionBoss', areas: [ "Bastion Keep" ] },
+            { boss: 'ThroneBoss', areas: [ "Throne of Insanity" ] },
+            { boss: 'TombBoss', areas: [ "Tomb of Zoltun Kulle" ] },
+            { boss: 'CowBoss', areas: [ "Blood Moon" ] },
+            { boss: 'act2hireTraitorBoss', areas: [ "The Fall of Caldeum" ] },
+            { boss: 'archerBoss', areas: [ "The Pandemonium Citadel" ] },
+            { boss: 'spiderboss', areas: [ "The Lost Temple" ] },
+            { boss: 'CanyonBoss', areas: [ "The Canyon of Sescheron" ] },
+            { boss: 'doomknight3LibraryBoss', areas: [ "The Sanatorium" ] },
+            { boss: 'westmarchMapBoss', areas: [ "Shadows of Westmarch" ] },
+            { boss: 'leoricMapBoss', areas: [ "Royal Crypts" ] },
+            { boss: 'lernaeanhydra2', areas: [ "The Ruined Cistern" ], extra: ['lernaeanhydra1'] },
+            { boss: 'AshenBoss', areas: [ "The Ashen Plains" ] },
+            { boss: 'ZharTheMad', areas: [ "Zhar's Sanctum", "Counselor's Causeway", "Hidden Waterways", "Colonnades of Madness" ], extra: ['ZharMiniBossBaboon', 'ZharMiniBossCantor', 'ZharMiniBossBigHead'] },
+            { boss: 'WarlordOfBlood', areas: [ "Stygian Caverns", "Stronghold of Acheron" ], extra: ['WarlordMiniBossDefiler', 'WarlordMiniBossShaman'] },
+            { boss: 'Iskatu', areas: [ "The Fallen Gardens", "The Diamond Gate" ], extra: ['Rakanoth'] },
+            { boss: 'siegebeastMapBoss', areas: [ "Sanctuary of Sin", "Black Abyss" ], extra: ['siegebeastMapBossFallen'] },
+            // { boss: 'fingermageboss', areas: [ "Cathedral of Light", "Cathedral Basement" ], extra: ['willowispboss', 'willowispminion', 'willowisptotem'] },
+            { boss: 'KanemithBoss', areas: [ "Steppes of Daken-Shar", "The Tombs of Kanemith" ], extra: ['SharpToothBoss'] },
+            { boss: 'fingermageboss', areas: [ "The Plains Of Torment", "The Pit Of Despair" ], extra: ['willowispboss', 'willowispminion', 'willowisptotem'] },
+          ]
+          const levels = this.d2data.levels()
+          const res = []
+          const inverseMap = {}
+          levels.each(level => {
+            if (level['MonLvl3Ex'] >= 87) {
+              inverseMap[this.strings.get(level['LevelName'])] = level
+            }
+          })
+          maps.forEach(map => {
+            const levels = map.areas.map(el => inverseMap[el])
+            if (map.areas.length === 1) {
+              map.type = `Tier ${levels[0].MonLvl3Ex - '86'}`
+            } else if (levels[0].MonLvl3Ex < '92') {
+              map.type = 'Unique Maps'
+            } else {
+              map.type = 'Tier 4 (Dungeons)'
+            }
+          })
+          const stats = this.d2data.monStats()
+          const sourcer = new MonsterSourcer(this.d2data.levels(), stats, this.d2data.supers())
+          const mapToMonsters = map => {
+            const res = []
+            map.areas.forEach(area => {
+              res.push(...sourcer.monsters(inverseMap[area].Name).filter(monster => monster.difficulty === 2 && monster.rarity === 0))
+            })
+            if (map.extra) {
+              map.extra.forEach(monster => {
+                res.push(...sourcer.expand(map.areas.at(-1), 2, monster, new Set()))
+              })
+            }
+            // assume last area contains the boss
+            res.push(...sourcer.expand(map.areas.at(-1), 2, map.boss, new Set()))
+            return Array.from(res.flat(Infinity).reduce((summary, monster) => {
+              if (!summary.has(monster.id)) {
+                summary.set(monster.id, monster)
+              }
+              return summary
+            }, new Map()).values())
+          }
+          const formatRes = res => res > 0 ? Number(res) : ''
+          const monsterToColumns = monster => {
+            const stat = stats.first('Id', monster.id)
+            const name = this.strings.get(stat.NameStr).replace(/\xC3.../g, '')
+            const row = {
+              Monster: monster.treasure.length !== 0 ? name : `''${name}''`,
+              Phys: formatRes(stat['ResDm(H)']),
+              Magic: formatRes(stat['ResMa(H)']),
+              Fire: formatRes(stat['ResFi(H)']),
+              Light: formatRes(stat['ResLi(H)']),
+              Cold: formatRes(stat['ResCo(H)']),
+              Poison: formatRes(stat['ResPo(H)']),
+              Type: stat['lUndead'] === '1' || stat['hUndead'] === '1' ? 'Undead' : stat['demon'] === '1' ? 'Demon' : '',
+              Drain: Number(stat['Drain(H)']),
+            }
+            const res = []
+            for (const [k,v] of Object.entries(row)) {
+              res.push({ k, v })
+            }
+            return res
+          }
+          const montersToTable = monsters => {
+            const res = ['{| class="wikitable sortable"']
+            const emphasis = ['Phys', 'Magic', 'Fire', 'Light', 'Cold', 'Poison']
+            const fixEmphasis = ({k, v}, index) => {
+              if (emphasis.includes(k) && v >= 100) {
+                v = `<span class=emphasis>${v}</span>`
+              }
+              return v
+            }
+            res.push('! ' + monsters[0].map(({k}) => k).join(' !! '))
+            res.push('|-')
+            monsters.forEach(monster => {
+              res.push('| ' + monster.map(fixEmphasis).join(' || '))
+              res.push('|-')
+            })
+            res.push('|}')
+            return res.join('\n')
+          }
+          maps.forEach(map => {
+            const textarea = document.createElement('textarea')
+            const monsters = mapToMonsters(map)
+            const table = montersToTable(monsters.map(monsterToColumns))
+            textarea.textContent = table
+            const copy = document.createElement('button')
+            copy.textContent = 'copy'
+            copy.addEventListener('click', el => {
+              navigator.clipboard.writeText(table)
+            })
+            this.container.append(map.areas[0])
+            this.container.appendChild(copy)
+            this.container.appendChild(document.createElement('br'))
+            this.container.appendChild(textarea)
+            this.container.appendChild(document.createElement('br'))
+          })
+        }
+      }
+      new Wiki().load()
+    </script>
+  </body>
+</html>

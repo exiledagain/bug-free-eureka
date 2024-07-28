@@ -662,6 +662,9 @@ class MonsterSourcer {
     }
     set.add(monsterId)
     const monster = this.inverseMonsterMap.get(monsterId)
+    if (!monster) {
+      throw new Error(`unknown monster: ${monsterId}`)
+    }
     const monLevel = Number(monster.boss !== '1' ? level[MonsterSourcer.monLevelKeys[difficulty]] : monster[MonsterSourcer.monBossLevelKeys[difficulty]])
     if (nestable) {
       // maybe check min too?
@@ -669,20 +672,21 @@ class MonsterSourcer {
         MonsterSourcer.monMinionKeys.forEach(minion => {
           const minionId = monster[minion]
           if (minionId && this.inverseMonsterMap.has(minionId)) {
-            res.push(this.expand(level, difficulty, minionId, set))
+            res.push(...this.expand(level, difficulty, minionId, set))
           }
         })
       }
       if (monster.SplEndDeath === '1') {
         const minionId = monster[MonsterSourcer.monMinionKeys[0]]
         if (minionId && this.inverseMonsterMap.has(minionId)) {
-          res.push(this.expand(level, difficulty, minionId, set))
+          res.push(...this.expand(level, difficulty, minionId, set))
         }
       }
-      if (monster.placespawn === '1') {
+      // might need to check more than 1 skill or Minion Spawner
+      if (monster.placespawn === '1' || monster.Skill1 === 'Nest' || monster.Skill1 === 'MagottUp' || monster.Skill1 === 'MaggotEgg') {
         const minionId = monster.spawn
         if (minionId && this.inverseMonsterMap.has(minionId)) {
-          res.push(this.expand(level, difficulty, minionId, set))
+          res.push(...this.expand(level, difficulty, minionId, set))
         }
       }
     }
@@ -715,7 +719,7 @@ class MonsterSourcer {
     } else {
       for (let j = 0; j < 4; ++j) {
         const treasure = monster[MonsterSourcer.monTreasureKeys[difficulty][j]]
-        if (treasure.length > 0) {
+        if (treasure.length >= 0) {
           res.push({
             id: monsterId,
             rarity: j,
@@ -1484,6 +1488,8 @@ class Diablo2Data {
     'ItemTypes.txt',
     'Weapons.txt',
     'Armor.txt',
+    'Levels.txt',
+    'SuperUniques.txt'
   ]
 
   constructor (version = 's9') {
@@ -1537,6 +1543,14 @@ class Diablo2Data {
 
   SkillData ({ resolver }) {
     return new SkillData({ skills: this.skills(), skillDesc: this.skillDesc(), resolver })
+  }
+
+  levels () {
+    return this.loader.get(this.version, 'Levels.txt')
+  }
+
+  supers () {
+    return this.loader.get(this.version, 'SuperUniques.txt')
   }
 }
 
