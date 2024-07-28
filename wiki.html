@@ -132,7 +132,7 @@
             }
             return res
           }
-          const montersToTable = monsters => {
+          const monstersToTable = monsters => {
             const res = ['{| class="wikitable sortable"']
             const emphasis = ['Phys', 'Magic', 'Fire', 'Light', 'Cold', 'Poison']
             const fixEmphasis = ({k, v}, index) => {
@@ -153,7 +153,7 @@
           maps.forEach(map => {
             const textarea = document.createElement('textarea')
             const monsters = mapToMonsters(map)
-            const table = montersToTable(monsters.map(monsterToColumns))
+            const table = monstersToTable(monsters.map(monsterToColumns))
             textarea.textContent = table
             const copy = document.createElement('button')
             copy.textContent = 'copy'
