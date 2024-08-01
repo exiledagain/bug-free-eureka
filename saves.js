@@ -33,11 +33,13 @@ async function Main () {
   const second = process.argv[4]
 
   const raw = fs.readFileSync(`${base}/${first}.d2s`)
-  const json = new SaveFileParser({ typeList, reader: raw, costs, format }).object()
+  let json = new SaveFileParser({ typeList, reader: raw, costs, format }).object()
   json.name = second
   json.status = 0x20
+  json = JSON.parse(fs.readFileSync('save.json'))
   const data = new SaveFileWriter({ typeList, costs }).write(json)
 
+  // fs.writeFileSync('save.json', JSON.stringify(json, null, 2))
   fs.writeFileSync(`${base}/${second}.d2s`, Buffer.from(data))
   console.log(new SaveFileParser({ typeList, reader: fs.readFileSync(`${base}/${first}.d2s`), costs, format }).json())
 }

@@ -172,7 +172,7 @@ class SaveFileParser {
   }
 
   static isItemFlag (item, id) {
-    return (item.compact.flags & BigInt(1 << id)) != BigInt(0)
+    return (BigInt(item.compact.flags) & BigInt(1 << id)) != BigInt(0)
   }
 
   /**
@@ -743,7 +743,7 @@ class SaveFileWriter {
   }
 
   writeItemStat ({ id, param,  value }) {
-    const entry = this.costs.first('ID', id.toString())
+    const entry = this.costs.first('ID', BigInt(id).toString())
     const bits = Number(entry['Save Param Bits'])
     if (bits !== 0) {
       this.writer.write(param, bits)
@@ -791,11 +791,11 @@ class SaveFileWriter {
       this.writer.write(item.extra.level, 7)
       this.writer.write(item.extra.quality, 4)
       this.writer.write(item.extra.graphics, 1)
-      if (item.extra.graphics !== BigInt(0)) {
+      if (BigInt(item.extra.graphics) !== BigInt(0)) {
         this.writer.write(item.extra.graphicsId, 3)
       }
       this.writer.write(item.extra.auto, 1)
-      if (item.extra.auto !== BigInt(0)) {
+      if (BigInt(item.extra.auto) !== BigInt(0)) {
         this.writer.write(item.extra.autoId, 11)
       }
       switch (Number(item.extra.quality)) {
