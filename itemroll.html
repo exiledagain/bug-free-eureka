@@ -18,11 +18,18 @@
     <script>
       'use strict'
 
-      class RollMap {
-        constructor ({ rng, prefixList, suffixList }) {
+      const mustSkipRoll = {
+        'hit-skill': true,
+        'charged': true,
+      }
+
+      class RollItem {
+        constructor ({ rng, prefixList, suffixList, crafted = false, automod = false }) {
           this.rng = rng
           this.prefixList = this.fromList(prefixList)
           this.suffixList = this.fromList(suffixList)
+          this.crafted = crafted
+          this.automod = automod
         }
 
         fromList (list) {
@@ -38,14 +45,29 @@
           if (!skip) {
             this.rng.skip(2)
           }
+          // crafted roll number of affixes
+          if (this.crafted) {
+            this.rng.skip(1)
+          }
+          // assume we always roll max
+          const count = this.crafted ? 4 : 6
           // roll prefix, suffix
           const prefixes = []
           const suffixes = []
-          for (let i = 0; i < 6; ++i) {
-            if (suffixes.length < 3 && (prefixes.length > 2 || Number(this.rng.next('prefix/suffix') & BigInt(1)) !== 0)) {
-              suffixes.push(this.nextAffix(this.suffixList, suffixes, prefixes))
+          for (let i = 0; i < count; ++i) {
+            if (!this.crafted) {
+              if (suffixes.length < 3 && (prefixes.length > 2 || Number(this.rng.next('prefix/suffix') & BigInt(1)) !== 0)) {
+                suffixes.push(this.nextAffix(this.suffixList, suffixes, prefixes))
+              } else {
+                prefixes.push(this.nextAffix(this.prefixList, prefixes, suffixes))
+              }
             } else {
-              prefixes.push(this.nextAffix(this.prefixList, prefixes, suffixes))
+              const choice = Number(this.rng.next('prefix/suffix') & BigInt(1))
+              if (prefixes.length === 3 || (suffixes.length < 3 && choice !== 0)) {
+                suffixes.push(this.nextAffix(this.suffixList, suffixes, prefixes))
+              } else {
+                prefixes.push(this.nextAffix(this.prefixList, prefixes, suffixes))
+              }
             }
           }
           // roll mod values
@@ -55,43 +77,95 @@
             prefixRolls.push(this.properties(prefixes[i]))
             suffixRolls.push(this.properties(suffixes[i]))
           }
+          // note: pd2 automod doesn't use item seed rng
+          // automod for claws has 31 skills
+          if (this.automod) {
+            const chance = this.rng.max(100)
+            let count = 0
+            if (chance < 80) {
+              if (chance < 50) {
+                if (chance < 10) {
+                  count = 0
+                } else {
+                  count = 1
+                }
+              } else {
+                count = 2
+              }
+            } else {
+              count = 3
+            }
+            let max = 31
+            const chosen = {}
+            for (let i = 0; i < count; ++i) {
+              for (let j = 0; j < 4; ++j) {
+                // todo: can't put poison strike on necro heads
+                // todo: required level must be 1 or <= ilvl
+                const r = this.rng.max(max)
+                if (!chosen[r]) {
+                  chosen[r] = true
+                  break
+                }
+              }
+              // todo: skill level
+              // some condition here: s9+180d59
+            }
+          }
+          if (this.crafted && !this.automod) {
+            this.rng.skip(2)
+          }
+          const craftedRolls = []
+          if (this.crafted && !this.automod) {
+            // blood: lifesteal=[3,6], hp=[10,20] dmg%=[50,80]
+            craftedRolls.push([{ code: 'lifesteal', value: this.rng.max(6 - 3 + 1) + 3 }])
+            craftedRolls.push([{ code: 'hp', value: this.rng.max(20 - 10 + 1) + 10 }])
+            craftedRolls.push([{ code: 'dmg%', value: this.rng.max(80 - 50 + 1) + 50 }])
+          }
           const summary = {}
           const cb = mods => {
-            mods.forEach(({ code, value }) => {
-              summary[code] = summary[code] || 0
-              summary[code] += value
+            mods.forEach(({ code, value, param }) => {
+              summary[code] = summary[code] || { value: 0, param: param || '' }
+              summary[code].value += value
             })
           }
           prefixRolls.forEach(cb)
           suffixRolls.forEach(cb)
+          craftedRolls.forEach(cb)
           return summary
         }
 
         properties (affix) {
+          if (!affix) {
+            return []
+          }
           const res = []
-          affix.mods.forEach(({ code, min, max }) => {
+          affix.mods.forEach(({ code, min, max, param }) => {
             if (code.length === 0) {
               return
             }
             max = Number(max)
             min = Number(min)
-            if (min < max) {
+            if (min < max && !mustSkipRoll[code]) {
               if (min > 0 && max > 0) {
                 res.push({
                   code,
+                  param,
                   value: this.rng.max(max - min + 1) + min
                 })
               } else if (min < 0 && max < 0) {
                 res.push({
                   code,
+                  param,
                   value: this.rng.max(max - min + 1) + min
                 })
               } else {
+                console.error(code, param, min, max)
                 throw new Error('...')
               }
             } else {
               res.push({
                 code,
+                param,
                 value: min
               })
             }
@@ -137,19 +211,21 @@
         const prefixData = loader.get(version, 'MagicPrefix.txt')
         const suffixData = loader.get(version, 'MagicSuffix.txt')
         function reload () {
-          const itemCode = 't3m'
+          const itemCode = 'h2h'
           const level = 99
           const isRare = true
           prefixList = new AffixList(tl, prefixData, itemCode, level, isRare)
           suffixList = new AffixList(tl, suffixData, itemCode, level, isRare)
           window.prefixes = prefixList
           window.suffixList = suffixList
-          // const rng = new D2Random('0xDD95FEC4')
+          const rng = new D2Random('0x' + 'fafd02e8')
           // rng.reset('0x' + '4B874186A8978A9B')
           // rng.set(...'3460463983 361285771'.split(' '))
-          // const item = new RollMap({ rng, prefixList, suffixList }).simulate()
+          // const crafted = true
+          // const automod = true
+          // const item = new RollItem({ rng, prefixList, suffixList, crafted, automod }).simulate()
           // console.log(item)
-          // const rm = new RollMap({ rng, prefixList, suffixList })
+          // const rm = new RollItem({ rng, prefixList, suffixList })
           // const dump = { prefix: rm.prefixList, suffix: rm.suffixList }
           // console.log(JSON.stringify(dump, null, 2))
           document.querySelector('#enumerate').onclick = e => {
@@ -174,11 +250,15 @@
         }
         const WaitMs = ms => new Promise(resolve => setTimeout(resolve, ms))
         async function SimulateAllPossibleMaps () {
+          const targets = [
+            { code: 'dmg%', threshold: 400 },
+            { code: 'hit-skill', param: '442' }
+          ]
           const el = document.querySelector('#content')
           const MAX = BigInt.asUintN(32, BigInt('0xFFFFFFFFFFFFFFFFFFFFF'))
           const k = BigInt(1e5)
           const rng = new D2Random('0x0')
-          const roller = new RollMap({ rng, prefixList, suffixList })
+          const roller = new RollItem({ rng, prefixList, suffixList, crafted: true, automod: true })
           el.style.whiteSpace = 'pre'
           el.textContent = `0 of ${MAX}`
           await WaitForFrames(2)
@@ -190,25 +270,36 @@
             for (let j = 0; j < k && i <= MAX; ++j, ++i) {
               rng.lower(i)
               const item = roller.simulate()
-              const density = item['map-glob-density'] || 0
-              histogram[density] = histogram[density] || 0
-              histogram[density] += 1
-              if (density > BigInt(170)) {
+              if (targets.every(target => {
+                if (!item[target.code]) {
+                  return false
+                }
+                if (target.param && target.param !== item[target.code].param) {
+                  return false
+                }
+                return !target.threshold || target.threshold <= item[target.code].value
+              })) {
                 bests.push({
-                  density,
-                  seed: i
+                  value: item[targets[0].code].value,
+                  seed: i.toString(16)
                 })
               }
+              const value = (item[targets[0].code] || { value: 0 }).value
+              histogram[value] = histogram[value] || 0
+              histogram[value] += 1
             }
             const rem = Number((MAX - i + BigInt(k) - BigInt(1)) / BigInt(k)) * (performance.now() - start) / 1e3
-            el.textContent = `${i} of ${MAX}\n\nremaining time: ${rem}\n\n${JSON.stringify(histogram, null, 2)}`
+            el.textContent = `${i} of ${MAX}\n\nremaining time: ${rem}\n\n${JSON.stringify(bests, null, 2)}\n\n${JSON.stringify(histogram, null, 2)}`
             if (!started) {
               el.textContent = 'stopped\n' + el.textContent
               return
             }
             await WaitForFrames(2)
           }
-          el.textContent = `done.\n\n${JSON.stringify(histogram, null, 2)}\n\n${JSON.stringify(bests, null, 2)}`
+          bests.sort((a, b) => b.value - a.value)
+          console.log(histogram, bests)
+          el.textContent = `done.\n\n${JSON.stringify(bests, null, 2)}\n\n${JSON.stringify(histogram, null, 2)}\n\n`
+          document.querySelector('#enumerate').textContent = 'enumerate'
         }
         reload()
       }
