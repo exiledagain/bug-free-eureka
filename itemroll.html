@@ -222,10 +222,10 @@
           const rng = new D2Random('0x' + '783c')
           // rng.reset('0x' + '4B874186A8978A9B')
           // rng.set(...'3460463983 361285771'.split(' '))
-          const crafted = true
-          const automod = true
-          const item = new RollItem({ rng, prefixList, suffixList, crafted, automod }).simulate()
-          console.log(item)
+          // const crafted = true
+          // const automod = true
+          // const item = new RollItem({ rng, prefixList, suffixList, crafted, automod }).simulate()
+          // console.log(item)
           // const rm = new RollItem({ rng, prefixList, suffixList })
           // const dump = { prefix: rm.prefixList, suffix: rm.suffixList }
           // console.log(JSON.stringify(dump, null, 2))
@@ -298,7 +298,7 @@
             await WaitForFrames(2)
           }
           bests.sort((a, b) => b.value - a.value)
-          console.log(histogram, bests)
+          // console.log(histogram, bests)
           el.textContent = `done.\n\n${JSON.stringify(bests, null, 2)}\n\n${JSON.stringify(histogram, null, 2)}\n\n`
           document.querySelector('#enumerate').textContent = 'enumerate'
         }
