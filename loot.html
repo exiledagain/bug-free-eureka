@@ -723,6 +723,10 @@
               from: source.source.from,
               type: source.source.rarity
             }
+            const level = this.abacus.levels.first('Name', entry.from)
+            if (level) {
+              entry.from = this.strings.get(level['LevelName'])
+            }
             if (entry.name.codePointAt(0) == 195) {
               entry.name = entry.name.substring(4)
             }
