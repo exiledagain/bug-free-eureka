@@ -95,15 +95,16 @@
             } else {
               count = 3
             }
-            let max = 31
+            let max = this.automod
             const chosen = {}
-            for (let i = 0; i < count; ++i) {
+            for (let i = 0; i < count && max > 0; ++i) {
               for (let j = 0; j < 4; ++j) {
                 // todo: can't put poison strike on necro heads
                 // todo: required level must be 1 or <= ilvl
                 const r = this.rng.max(max)
                 if (!chosen[r]) {
                   chosen[r] = true
+                  max -= 1
                   break
                 }
               }
@@ -218,13 +219,13 @@
           suffixList = new AffixList(tl, suffixData, itemCode, level, isRare)
           window.prefixes = prefixList
           window.suffixList = suffixList
-          const rng = new D2Random('0x' + 'fafd02e8')
+          const rng = new D2Random('0x' + '783c')
           // rng.reset('0x' + '4B874186A8978A9B')
           // rng.set(...'3460463983 361285771'.split(' '))
-          // const crafted = true
-          // const automod = true
-          // const item = new RollItem({ rng, prefixList, suffixList, crafted, automod }).simulate()
-          // console.log(item)
+          const crafted = true
+          const automod = true
+          const item = new RollItem({ rng, prefixList, suffixList, crafted, automod }).simulate()
+          console.log(item)
           // const rm = new RollItem({ rng, prefixList, suffixList })
           // const dump = { prefix: rm.prefixList, suffix: rm.suffixList }
           // console.log(JSON.stringify(dump, null, 2))
@@ -251,14 +252,14 @@
         const WaitMs = ms => new Promise(resolve => setTimeout(resolve, ms))
         async function SimulateAllPossibleMaps () {
           const targets = [
-            { code: 'dmg%', threshold: 400 },
+            { code: 'dmg%', threshold: 420 },
             { code: 'hit-skill', param: '442' }
           ]
           const el = document.querySelector('#content')
-          const MAX = BigInt.asUintN(32, BigInt('0xFFFFFFFFFFFFFFFFFFFFF'))
+          const MAX = BigInt.asUintN(16, BigInt('0xFFFFFFFFFFFFFFFFFFFFF'))
           const k = BigInt(1e5)
           const rng = new D2Random('0x0')
-          const roller = new RollItem({ rng, prefixList, suffixList, crafted: true, automod: true })
+          const roller = new RollItem({ rng, prefixList, suffixList, crafted: true, automod: 31 })
           el.style.whiteSpace = 'pre'
           el.textContent = `0 of ${MAX}`
           await WaitForFrames(2)
@@ -283,10 +284,10 @@
                   value: item[targets[0].code].value,
                   seed: i.toString(16)
                 })
+                const value = (item[targets[0].code] || { value: 0 }).value
+                histogram[value] = histogram[value] || 0
+                histogram[value] += 1
               }
-              const value = (item[targets[0].code] || { value: 0 }).value
-              histogram[value] = histogram[value] || 0
-              histogram[value] += 1
             }
             const rem = Number((MAX - i + BigInt(k) - BigInt(1)) / BigInt(k)) * (performance.now() - start) / 1e3
             el.textContent = `${i} of ${MAX}\n\nremaining time: ${rem}\n\n${JSON.stringify(bests, null, 2)}\n\n${JSON.stringify(histogram, null, 2)}`
