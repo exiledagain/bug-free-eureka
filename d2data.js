@@ -1489,7 +1489,10 @@ class Diablo2Data {
     'Weapons.txt',
     'Armor.txt',
     'Levels.txt',
-    'SuperUniques.txt'
+    'SuperUniques.txt',
+    'MagicPrefix.txt',
+    'MagicSuffix.txt',
+    'AutoMagic.txt'
   ]
 
   constructor (version = 's9') {
@@ -1551,6 +1554,18 @@ class Diablo2Data {
 
   supers () {
     return this.loader.get(this.version, 'SuperUniques.txt')
+  }
+
+  prefix () {
+    return this.loader.get(this.version, 'MagicPrefix.txt')
+  }
+
+  suffix () {
+    return this.loader.get(this.version, 'MagicSuffix.txt')
+  }
+
+  automagic () {
+    return this.loader.get(this.version, 'AutoMagic.txt')
   }
 }
 
