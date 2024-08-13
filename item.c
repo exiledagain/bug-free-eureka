@@ -38,7 +38,7 @@ static const ig_int ERR_NON5 = -18;
 #define IG_FN inline static
 
 /**
-In Diablo 2, affixes (e.g. "of Strength") are assigned to group.
+In Diablo 2, affixes (e.g. "of Strength") are assigned to a group.
 Affixes in the same group are mutually exclusive.
 Each affix can have up to 3 effects with 4 parameters:
   'min', 'max', code ('aff'), param ('par').
@@ -296,7 +296,7 @@ EMSCRIPTEN_KEEPALIVE ig_int ig_generate(ig_int amount, ig_int* counts, struct gr
   }
 
   ig_int length3 = 0;
-  
+
   for (int32_t i = 0; i < length1; ++i) {
     if (lengths[i] <= 0 || counts[i] <= 0 || !groups[i]) {
       return ERR_NON5;
