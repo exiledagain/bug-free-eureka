@@ -944,35 +944,6 @@ class TreasureTree {
     }
   }
 
-  table (n) {
-    const varys = new Map()
-    const graph = new Graph()
-    this.treasure.each(raw => {
-      const treasure = this.eval(raw['Treasure Class'])
-      const noDrop = this.noDrop(n, treasure)
-      if (treasure.picks > 0 && (noDrop > 0 || (treasure.picks > 1 || treasure.picks < 0))) {
-        varys.set(treasure.id, treasure)
-      }
-      treasure.children.forEach(child => {
-        graph.edge(child.id, treasure.id)
-      })
-    })
-    const cv = new Map()
-    graph.top(node => {
-      if (varys.has(node.name)) {
-        node.children.forEach(child => {
-          if (!varys.has(child)) {
-            varys.set(child, this.eval(child))
-          }
-          if (!cv.has(child)) {
-            cv.set(child, [])
-          }
-          cv.get(child).push(this.eval(node.name))
-        })
-      }
-    })
-  }
-
   merge (a, b) {
     a = Object.assign({}, a)
     TreasureTree.mergeKeys.forEach(key => {
