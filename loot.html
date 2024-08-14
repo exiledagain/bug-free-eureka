@@ -710,9 +710,6 @@
           container.appendChild(head)
           sources.forEach(source => {
             const row = document.createElement('tr')
-            if (last && last.source.id === source.source.id && last.source.level === source.source.level) {
-              return
-            }
             last = source
             const entry = {
               name: this.strings.get(source.source.string),
