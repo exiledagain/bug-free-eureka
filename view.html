@@ -89,7 +89,6 @@
                 console.log(ret)
               })
               if (k >= 0) {
-                // i18n?
                 const nth = k > 0 ? `1 every ${(m / k).toFixed(2)}` : 'never'
                 simResults.textContent = `${k} / ${m}: ${(k / m * 100).toFixed(4)}% or ${nth}`
               } else {
@@ -103,7 +102,7 @@
         sim.setAttribute('disabled', 'true')
         par.appendChild(sim)
         const simInput = document.createElement('select')
-        for (let i = 0; i <= 6; ++i) {
+        for (let i = 0; i <= 8; ++i) {
           const opt = document.createElement('option')
           opt.value = 1e6 * (1 << i)
           opt.textContent = `${(opt.value / 1e6).toFixed(0)}M`
