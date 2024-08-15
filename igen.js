@@ -516,7 +516,7 @@ class IgMetaForm {
       }
     }
     const updateRequired = rarityInput.children.length !== rarity.length || Array.from(rarityInput.children).some((opt, idx) => {
-      return opt !== rarity[idx]
+      return opt.value !== rarity[idx]
     })
     if (updateRequired) {
       Array.from(rarityInput.children).forEach(child => child.remove())
