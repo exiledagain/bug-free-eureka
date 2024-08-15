@@ -11,7 +11,6 @@
     <script src="igen.js"></script>
   </head>
   <body>
-    <a href="https://github.com/exiledagain/bug-free-eureka" target="_blank" rel="noopener noreferrer">source</a>
     <script>
       async function Load () {
         const version = 's9'
@@ -95,7 +94,7 @@
                 simResults.textContent = `${k} / ${m}: ${(k / m * 100).toFixed(4)}% or ${nth}`
               } else {
                 console.log(k)
-                simResults.textContent = `error: ${k}`
+                simResults.textContent = `error: ${k.n}`
               }
               sim.removeAttribute('disabled')
             })
@@ -104,11 +103,10 @@
         sim.setAttribute('disabled', 'true')
         par.appendChild(sim)
         const simInput = document.createElement('select')
-        for (let i = 0; i <= 3; ++i) {
+        for (let i = 0; i <= 6; ++i) {
           const opt = document.createElement('option')
-          // i18n?
-          opt.textContent = `1${''.padEnd(i, '0')}M`
-          opt.value = Math.pow(10, 6 + i)
+          opt.value = 1e6 * (1 << i)
+          opt.textContent = `${(opt.value / 1e6).toFixed(0)}M`
           simInput.appendChild(opt)
         }
         simInput.value = simInput.firstElementChild.value
@@ -150,6 +148,7 @@
           new AffixView(prefixList).populate(document.body)
           new AffixView(suffixList).populate(document.body)
         }
+        div.id = 'spec'
         div.onchange = reload
         reload()
       }

@@ -225,6 +225,12 @@ class IgSetup {
     'move1': 'move',
     'move2': 'move',
     'move3': 'move',
+    'cast1': 'cast',
+    'cast2': 'cast',
+    'cast3': 'cast',
+    'balance1': 'balance',
+    'balance2': 'balance',
+    'balance3': 'balance'
   }
 
   constructor (lists) {
@@ -450,19 +456,10 @@ class IgMetaForm {
     })
     const rarityInput = document.createElement('select')
     rarityInput.id = 'rarity-input'
-    const rarity = ['Magic', 'Rare']
-    const crafts = ['Blood', 'Diamond']
-    crafts.forEach(craft => {
-      rarity.push(`Crafted - ${craft}`)
-    })
-    rarity.forEach(type => {
-      const opt = document.createElement('option')
-      opt.value = type
-      opt.textContent = type
-      rarityInput.appendChild(opt)
-    })
+    const defaultType = '2hsw'
+    this.populateRarity(rarityInput, defaultType)
     levelInput.value = '94'
-    typeInput.value = '2hsw'
+    typeInput.value = defaultType
     rarityInput.value = 'Rare'
     const prefixInput = document.createElement('select')
     this.populateAffixCount(rarityInput.value, prefixInput)
@@ -475,19 +472,23 @@ class IgMetaForm {
       prefix: prefixInput,
       suffix: suffixInput
     }
+    typeInput.onchange = e => {
+      this.populateRarity(rarityInput, this.inputs.type.value)
+    }
     rarityInput.onchange = e => {
       Array.from(prefixInput.children).forEach(child => child.remove())
       Array.from(suffixInput.children).forEach(child => child.remove())
       this.populateAffixCount(rarityInput.value, prefixInput)
       this.populateAffixCount(rarityInput.value, suffixInput)
+      this.populateRarity(rarityInput, this.inputs.type.value)
     }
     prefixInput.onchange = suffixInput.onchange = e => {
       e.stopPropagation()
       return false
     }
-    container.appendChild(levelInput)
     container.appendChild(typeInput)
     container.appendChild(rarityInput)
+    container.appendChild(levelInput)
     container.appendChild(prefixInput)
     container.appendChild(suffixInput)
   }
@@ -499,6 +500,33 @@ class IgMetaForm {
       input.appendChild(opt)
     }
     input.value = input.firstElementChild.value
+  }
+
+  populateRarity (rarityInput, selectedType) {
+    const rarity = ['Magic', 'Rare']
+    const crafts = {
+      'weap': ['Blood', 'Diamond']
+    }
+    for (const type in crafts) {
+      if (this.typeList.expand(type).includes(selectedType)) {
+        crafts[type].forEach(craftedType => {
+          rarity.push(`Crafted - ${craftedType}`)
+        })
+        break
+      }
+    }
+    const updateRequired = rarityInput.children.length !== rarity.length || Array.from(rarityInput.children).some((opt, idx) => {
+      return opt !== rarity[idx]
+    })
+    if (updateRequired) {
+      Array.from(rarityInput.children).forEach(child => child.remove())
+      rarity.forEach(type => {
+        const opt = document.createElement('option')
+        opt.value = type
+        opt.textContent = type
+        rarityInput.appendChild(opt)
+      })
+    }
   }
 
   values () {
