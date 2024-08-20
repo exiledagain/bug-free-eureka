@@ -109,12 +109,7 @@ class DataFrame {
   }
 
   keyIndex (needle) {
-    for (let i = 0; i < this.keys.length; ++i) {
-      if (this.keys[i] === needle) {
-        return i
-      }
-    }
-    return -1
+    return this.keys.indexOf(needle)
   }
 
   filter (rowFilter, colFilter) {
@@ -343,6 +338,13 @@ class AffixList {
   static eTypes = [1,2,3,4,5,6,7].map(id => `etype${id}`)
   static cellSet = new Set()
 
+  // all weapons/armors have magic level > 0
+  static magicMap = {
+    'circ': true,
+    'orb': true,
+    'staf': true
+  }
+
   static isCellIncluded (name) {
     if (AffixList.cellSet.size === 0) {
       const cellSet = AffixList.cellSet
@@ -365,7 +367,8 @@ class AffixList {
     return AffixList.isCellIncluded(name)
   }
 
-  constructor (typeList, data, type, level, isRare) {
+  constructor (item, typeList, data, type, level, isRare) {
+    this.item = item
     this.typeList = typeList
     this.classSet = new Set(this.typeList.expand('clas'))
     this.classesMap = new Map()
@@ -379,6 +382,13 @@ class AffixList {
     this.level = level
     this.isRare = isRare
     this.data = data.filter(this.rowFilter.bind(this), AffixList.cellFilter)
+    if (item.override || AffixList.magicMap[item.code]) {
+      const fIdx = this.data.keyIndex('frequency')
+      const lIdx = this.data.keyIndex('level')
+      this.data.values.forEach(value => {
+        value[fIdx] *= value[lIdx]
+      })
+    }
   }
 
   getTypes (aff) {

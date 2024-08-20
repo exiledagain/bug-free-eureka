@@ -446,6 +446,14 @@ class IgMetaForm {
     levelInput.setAttribute('list', 'levels')
     levelInput.setAttribute('pattern', /\d\d?/.source)
     levelInput.setAttribute('required', true)
+    const magicInput = document.createElement('input')
+    magicInput.type = 'checkbox'
+    magicInput.id = 'magic-input'
+    const magicLabel = document.createElement('label')
+    magicLabel.setAttribute('for', 'magic-input')
+    magicLabel.textContent = 'Magic Level > 0?'
+    magicLabel.title = 'wands have magic level for most bases but not all'
+    magicLabel.style.userSelect = 'none'
     const typeInput = document.createElement('select')
     typeInput.id = 'type-input'
     this.typeList.all().forEach(type => {
@@ -486,6 +494,8 @@ class IgMetaForm {
       e.stopPropagation()
       return false
     }
+    container.appendChild(magicInput)
+    container.appendChild(magicLabel)
     container.appendChild(typeInput)
     container.appendChild(rarityInput)
     container.appendChild(levelInput)
