@@ -942,10 +942,9 @@ class TreasureTree {
         }
       } else {
         for (const { id: childId, p: childP } of treasure.children) {
-          const pickP = p * childP / (noDrop + treasure.sum)
           if (this.has(childId)) {
             const child = this.eval(childId)
-            stack.push({ treasure: this.merge(child, treasure), p: pickP })
+            stack.push({ treasure: this.merge(child, treasure), p: 1 })
           } else {
             const val = Object.assign({}, treasure)
             val.id = childId
