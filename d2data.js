@@ -818,6 +818,8 @@ class TreasureTree {
           list = []
           this.groupMap.set(group, list)
         }
+        // might need to stable sort by level
+        // tcs are usually sorted by level but not guaranteed
         list.push(treasure)
       }
     })

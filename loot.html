@@ -189,6 +189,25 @@
           })
           monsters = monsters.flat(Infinity)
 
+          const metaMap = {
+            'Chipped Gem': ["gcv", "gcy", "gcb", "gcg", "gcr", "gcw", "skc"],
+            'Flawed Gem': ["gfv", "gfy", "gfb", "gfg", "gfr", "gfw", "skf"],
+            'Normal Gem': ["gsv", "gsy", "gsb", "gsg", "gsr", "gsw", "sku"],
+            'Flawless Gem': ["gzvs", "glys", "glbs", "glgs", "glrs", "glws", "skls"],
+            'Perfect Gem': ["gpvs", "gpys", "gpbs", "gpgs", "gprs", "gpws", "skzs"]
+          }
+          metaMap['Rune'] = []
+          for (let i = 1; i <= 33; ++i) {
+            const id = `r${i.toFixed(0).padStart(2, '0')}s`
+            metaMap['Rune'].push(id)
+          }
+          const metaLookup = {}
+          for (const k in metaMap) {
+            for (const id of metaMap[k]) {
+              metaLookup[id] = `*Any ${k}`
+            }
+          }
+
           this.sourceMap = {}
           const dropMap = new Map()
           monsters.forEach(monster => {
@@ -203,29 +222,37 @@
               walked[monster.treasure] = true
               this.tree.walk(monster.treasure, this.dc, {
                 pre: (treasure, p) => {
-                  this.eligible[treasure.id] = true
-                  let ret = treasures.get(treasure.id)
-                  if (!ret) {
-                    ret = []
-                    treasures.set(treasure.id, ret)
-                  }
-                  const keys = [
-                    'unique',
-                    'set',
-                    'rare',
-                    'magic'
-                  ]
-                  const entry = ret.find(e => {
-                    return keys.every(k => e.treasure[k] === treasure[k])
-                  })
-                  if (entry) {
-                    entry.p += p
-                  } else {
-                    ret.push({
-                      p,
-                      treasure,
-                      monster
+                  const append = (treasure) => {
+                    this.eligible[treasure.id] = true
+                    let ret = treasures.get(treasure.id)
+                    if (!ret) {
+                      ret = []
+                      treasures.set(treasure.id, ret)
+                    }
+                    const keys = [
+                      'unique',
+                      'set',
+                      'rare',
+                      'magic'
+                    ]
+                    const entry = ret.find(e => {
+                      return keys.every(k => e.treasure[k] === treasure[k])
                     })
+                    if (entry) {
+                      entry.p += p
+                    } else {
+                      ret.push({
+                        p,
+                        treasure,
+                        monster
+                      })
+                    }
+                  }
+                  append(treasure, p)
+                  if (metaLookup[treasure.id]) {
+                    const copy = Object.assign({}, treasure)
+                    copy.id = metaLookup[treasure.id]
+                    append(copy, p)
                   }
                 },
                 post: () => {
@@ -249,17 +276,14 @@
           this.dropMap = dropMap
 
           this.codeMap = {}
-          this.wearMap = {}
           this.weapons.each(weapon => {
             this.codeMap[weapon.code] = weapon
-            this.wearMap[weapon.code] = weapon
             if (this.codeMap[weapon.code].spawnable === '1') {
               this.eligible[weapon.code] = true
             }
           })
           this.armors.each(armor => {
             this.codeMap[armor.code] = armor
-            this.wearMap[armor.code] = armor
             if (this.codeMap[armor.code].spawnable === '1') {
               this.eligible[armor.code] = true
             }
@@ -451,12 +475,12 @@
 
         mustBeNormal (code) {
           const type = this.getType(code)
-          return type.Normal === '1'
+          return type && type.Normal === '1'
         }
 
         mustBeMagic (code) {
           const type = this.getType(code)
-          return type.Magic === '1'
+          return type && type.Magic === '1'
         }
 
         mustBeUnique (code) {
@@ -486,7 +510,7 @@
             }
             case 'rare': {
               const type = this.getType(code)
-              return !this.mustBeNormal(code) && !this.mustBeUnique(code) && type.Rare === '1'
+              return type && !this.mustBeNormal(code) && !this.mustBeUnique(code) && type.Rare === '1'
             }
             case 'magic': {
               return !this.mustBeNormal(code) && !this.mustBeUnique(code)
@@ -565,11 +589,11 @@
           const cased = rarity.toUpperCase()[0] + rarity.toLowerCase().substring(1)
           rarity = rarity.toLowerCase()
           const constant = DropAbacus.constants[rarity]
-          const ratio = this.getItemRatio(code, cased)
+          const ratio = rarity !== 'normal' ? this.getItemRatio(code, cased) : undefined
           const res = []
           sources.forEach(first => {
             this.sourceMap[first.monster.treasure].forEach(source => {
-              const rarityP = this.p(ratio, constant, rarity === 'magic', find, source.level, first.treasure[rarity], code)
+              const rarityP = rarity !== 'normal' ? this.p(ratio, constant, rarity === 'magic', find, source.level, first.treasure[rarity], code) : 1
               const p = first.p * rarityP
               const explain = {
                 rarity: rarityP,
