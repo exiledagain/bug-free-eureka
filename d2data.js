@@ -941,14 +941,20 @@ class TreasureTree {
           }
         }
       } else {
+        // picks should add up to abs(picks) but it doesn't always
+        let picks = Math.abs(treasure.picks)
         for (const { id: childId, p: childP } of treasure.children) {
           if (this.has(childId)) {
             const child = this.eval(childId)
-            stack.push({ treasure: this.merge(child, treasure), p: p * childP })
+            stack.push({ treasure: this.merge(child, treasure), p: p * Math.min(picks, childP) })
           } else {
             const val = Object.assign({}, treasure)
             val.id = childId
             walker.pre(val, pickP)
+          }
+          picks -= childP
+          if (picks < 0) {
+            break
           }
         }
       }
