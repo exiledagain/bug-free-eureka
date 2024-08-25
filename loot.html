@@ -177,6 +177,11 @@
           this.sourcer = new MonsterSourcer(this.levels, this.monsters, this.supers)
           this.tree = new TreasureTree(this.treasure, this.typeList, this.weapons, this.armors)
 
+          this.clazzMap = {}
+          this.typeList.expand('clas').forEach(clazz => {
+            this.clazzMap[clazz] = true
+          })
+
           const walked = {}
           let monsters = []
           monsters.push(this.sourcer.bosses())
@@ -388,9 +393,12 @@
 
         isClassSpecific (item) {
           if (!this.typeList.has(item)) {
+            if (!this.codeMap[item]) {
+              return false
+            }
             item = this.codeMap[item].type
           }
-          return this.typeList.expand('clas').includes(item)
+          return this.clazzMap[item]
         }
 
         entry (code) {
