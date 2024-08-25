@@ -1018,6 +1018,61 @@ class TreasureTree {
   pseudo (id) {
     return  this.typeMap[id]
   }
+
+  simulate (id, rem = 6) {
+    const stack = []
+    const get = id => Object.assign({}, this.eval(id))
+    stack.push(get(id))
+    let limit = 4096
+    const res = []
+    while (--limit > 0 && res.length < rem && stack.length > 0) {
+      let top = stack.pop()
+      if (top.picks > 0) {
+        if (top.picks > 1) {
+          top.picks -= 1
+          stack.push(top)
+        }
+        const tc = top
+        // assume nodrop=0
+        let random = ~~(Math.random() * tc.sum)
+        const pick = tc.children.find(child => {
+          random -= child.p
+          if (random < 0) {
+            return true
+          }
+          return false
+        })
+        if (!this.has(pick.id)) {
+          res.push(pick.id)
+          continue
+        }
+        stack.push(get(pick.id))
+      } else if (top.picks < 0) {
+        top.index = top.index || top.picks
+        const index = top.index - top.picks
+        if (index < -top.picks) {
+          stack.push(top)
+        }
+        const tc = top
+        // assume nodrop=0
+        let random = index
+        const pick = tc.children.find(child => {
+          random -= child.p
+          if (random < 0) {
+            return true
+          }
+          return false
+        })
+        if (!this.has(pick.id)) {
+          res.push(pick.id)
+          continue
+        }
+        top.index += 1
+        stack.push(get(pick.id))
+      }
+    }
+    return res
+  }
 }
 
 class StringTable {
