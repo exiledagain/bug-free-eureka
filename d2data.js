@@ -952,7 +952,7 @@ class TreasureTree {
           } else {
             const val = Object.assign({}, treasure)
             val.id = childId
-            walker.pre(val, p * childP)
+            walker.pre(val, p * Math.min(picks, childP))
           }
           picks -= childP
           if (picks < 0) {
