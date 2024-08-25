@@ -865,7 +865,9 @@ class TreasureTree {
           magic: 0,
           children: []
         }
-        const p = Number(el.rarity)
+        // rarity is from item type, not rarity in armor/weapon text files
+        // use type
+        const p = Number(this.typeList.typesTxt.first('Code', el.type).Rarity)
         pseudo.sum += p
         pseudo.children.push({ id: el.code, p })
       })
