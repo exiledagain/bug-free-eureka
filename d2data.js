@@ -526,7 +526,7 @@ class MonsterSourcer {
   static monNormalTreasureKeys = Array.from({ length: 4 }, (_, id) => `TreasureClass${id + 1}`)
   static monNightmareTreasureKeys = Array.from({ length: 4 }, (_, id) => `TreasureClass${id + 1}(N)`)
   static monHellTreasureKeys = Array.from({ length: 4 }, (_, id) => `TreasureClass${id + 1}(H)`)
-  static monExpKey = 'Exp'
+  static monExpKeys = ['Exp', 'Exp(N)', 'Exp(H)']
   static monTreasureKeys = [
     MonsterSourcer.monNormalTreasureKeys,
     MonsterSourcer.monNightmareTreasureKeys,
@@ -592,7 +592,7 @@ class MonsterSourcer {
           difficulty,
           level: monLevel + 3,
           treasure: superUnique[MonsterSourcer.superTreasureKeys[difficulty]],
-          xp: Number(monster[MonsterSourcer.monExpKey]),
+          xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
           from: 'superunique (beta)',
           string: monster['NameStr']
         })
@@ -709,7 +709,7 @@ class MonsterSourcer {
         difficulty,
         level: monLevel + (this.super(monsterId) ? 3 : 0),
         treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][2]],
-        xp: Number(monster[MonsterSourcer.monExpKey]),
+        xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
         from: level.Name,
         string: monster['NameStr']
       })
@@ -721,7 +721,7 @@ class MonsterSourcer {
           difficulty,
           level: monLevel + (this.super(monsterId) ? 3 : 0),
           treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][3]],
-          xp: Number(monster[MonsterSourcer.monExpKey]),
+          xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
           from: level.Name,
           string: monster['NameStr']
         })
@@ -736,7 +736,7 @@ class MonsterSourcer {
             difficulty,
             level: monLevel + levelTable[j < 4 ? j : 3],
             treasure,
-            xp: Number(monster[MonsterSourcer.monExpKey]),
+            xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
             from: level.Name,
             string: monster['NameStr']
           })
@@ -747,7 +747,7 @@ class MonsterSourcer {
               difficulty,
               level: monLevel + 3,
               treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][0]],
-              xp: Number(monster[MonsterSourcer.monExpKey]),
+              xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
               from: level.Name,
               string: monster['NameStr']
             })
