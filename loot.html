@@ -614,7 +614,8 @@
               const p = first.p * rarityP * reduceP
               const explain = {
                 rarity: rarityP,
-                drop: first.p
+                drop: first.p,
+                reduce: reduceP
               }
               res.push({
                 p,
@@ -770,6 +771,9 @@
             const { explain } = this.values()
             if (explain) {
               entry.drop = (1 / source.explain.drop).toFixed(3)
+              if (source.explain.reduce && source.explain.reduce !== 1.0) {
+                entry.reduce = (1 / source.explain.reduce).toFixed(3)
+              }
               entry.rarity = (1 / source.explain.rarity).toFixed(3)
               if (source.explain.base) {
                 entry.base = (1 / source.explain.base).toFixed(3)
