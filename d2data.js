@@ -663,7 +663,7 @@ class MonsterSourcer {
       }
       res.push(this.expand(level, 2, monsterId, new Set(), nestable))
     })
-    return this.filter(res.flat(Infinity))
+    return this.deduplicate(res.flat(Infinity))
   }
 
   expand (level, difficulty, monsterId, set, nestable = true) {
@@ -759,7 +759,7 @@ class MonsterSourcer {
     return res
   }
 
-  filter (monsters) {
+  deduplicate (monsters) {
     const cmp = (a, b) => {
       let c
       c = a.difficulty - b.difficulty
