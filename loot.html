@@ -598,12 +598,18 @@
           const cased = rarity.toUpperCase()[0] + rarity.toLowerCase().substring(1)
           rarity = rarity.toLowerCase()
           const constant = DropAbacus.constants[rarity]
+          const uniqueConstant = DropAbacus.constants['unique']
+          const uniqueRatio = rarity === 'set' ? this.getItemRatio(code, 'Unique') : undefined
           const ratio = rarity !== 'normal' ? this.getItemRatio(code, cased) : undefined
           const res = []
           sources.forEach(first => {
             this.sourceMap[first.monster.treasure].forEach(source => {
               const rarityP = rarity !== 'normal' ? this.p(ratio, constant, rarity === 'magic', find, source.level, first.treasure[rarity], code) : 1
-              const p = first.p * rarityP
+              // unique/set will be almost 100% accurate
+              // unique -> rare if dropped before/not allowed -> magic -> ...
+              // set -> magic -> ...
+              const reduceP = rarity !== 'normal' && rarity === 'set' ? 1 - this.p(uniqueRatio, uniqueConstant, false, find, source.level, first.treasure['unique'], code) : 1
+              const p = first.p * rarityP * reduceP
               const explain = {
                 rarity: rarityP,
                 drop: first.p
