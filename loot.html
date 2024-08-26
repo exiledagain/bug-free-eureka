@@ -26,6 +26,7 @@
                     <select id="version" name="version">
                       <option value="s9" selected>S9</option>
                       <option value="s8">S8</option>
+                      <!-- missing lod string tables -->
                       <option value="lod">1.13c</option>
                     </select>
                   </td>
@@ -661,9 +662,9 @@
         async setup () {
           const initialValues = this.values()
           const strings = new StringResolver([
-          `data/${initialValues.version}/global/excel/patchstring.tbl`,
-          `data/${initialValues.version}/global/excel/expansionstring.tbl`,
-          `data/${initialValues.version}/global/excel/string.tbl`,
+            `data/${initialValues.version}/global/excel/patchstring.tbl`,
+            `data/${initialValues.version}/global/excel/expansionstring.tbl`,
+            `data/${initialValues.version}/global/excel/string.tbl`,
           ])
           await strings.load()
           this.strings = strings
