@@ -646,7 +646,7 @@ class MonsterSourcer {
       const monster = this.inverseMonsterMap.get(superUnique.Class)
       for (let difficulty = 0; difficulty < 3; ++difficulty) {
         const monLevel = Number(monster.boss === '1' ? monster[MonsterSourcer.monBossLevelKeys[difficulty]] : this.inferLevel(superUnique.Superunique, difficulty))
-        const from = MonsterSourcer.staticMonsters[superUnique.Superunique] ? MonsterSourcer.staticMonsters[superUnique.Superunique].area : 'superunique (beta'
+        const from = MonsterSourcer.staticMonsters[superUnique.Superunique] ? MonsterSourcer.staticMonsters[superUnique.Superunique].area : 'superunique (beta)'
         res.push({
           id: monster.Id,
           rarity: 2,
