@@ -16,9 +16,11 @@ class DataLoader {
   }
 
   async preload (version, files) {
+    const promises = []
     for (const file of files) {
-      await this.load(version, file)
+      promises.push(this.load(version, file))
     }
+    await Promise.all(promises)
   }
 
   get (version, file) {
