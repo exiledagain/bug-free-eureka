@@ -533,6 +533,64 @@ class MonsterSourcer {
     MonsterSourcer.monHellTreasureKeys
   ]
   static superTreasureKeys = ['TC', 'TC(N)', 'TC(H)']
+  static staticMonsters = {
+    'Bishibosh': { area: 'Act 1 - Wilderness 2' },
+    'Bonebreak': { area: 'Act 1 - Crypt 1 A' },
+    'Coldcrow': { area: 'Act 1 - Cave 2' },
+    'Rakanishu': { area: 'Act 1 - Wilderness 3' },
+    'Treehead WoodFist': { area: 'Act 1 - Wilderness 4' },
+    'Griswold': { area: 'Act 1 - Tristram' },
+    'The Countess': { area: 'Act 1 - Crypt 3 E' },
+    'Pitspawn Fouldog': { area: 'Act 1 - Jail 2' },
+    'Boneash': { area: 'Act 1 - Cathedral' },
+    'Radament': { area: 'Act 2 - Sewer 1 C' },
+    'Bloodwitch the Wild': { area: 'Act 2 - Tomb 2 Treasure' },
+    'Fangskin': { area: 'Act 2 - Tomb 3 Treasure' },
+    'Beetleburst': { area: 'Act 2 - Desert 3' },
+    'Leatherarm': { area: 'Act 2 - Tomb 1 Treasure' },
+    'Coldworm the Burrower': { area: 'Act 2 - Lair 1 Treasure' },
+    'Fire Eye': { area: 'Act 2 - Basement 3' },
+    'Dark Elder': { area: 'Act 2 - Desert 4' },
+    'The Summoner': { area: 'Act 2 - Arcane' },
+    'Ancient Kaa the Soulless': { area: 'Act 2 - Tomb Tal 1' },
+    'The Smith': { area: 'Act 1 - Barracks' },
+    'Web Mage the Burning': { area: 'Act 3 - Spider 2' },
+    'Witch Doctor Endugu': { area: 'Act 3 - Dungeon 2 Treasure' },
+    'Stormtree': { area: 'Act 3 - Kurast 1' },
+    'Sarina the Battlemaid': { area: 'Act 3 - Temple 1' },
+    'Icehawk Riftwing': { area: 'Act 3 - Sewer 1' },
+    'Ismail Vilehand': { area: 'Act 3 - Travincal' },
+    'Geleb Flamefinger': { area: 'Act 3 - Travincal' },
+    'Bremm Sparkfist': { area: 'Act 3 - Mephisto 3' },
+    'Toorc Icefist': { area: 'Act 3 - Travincal' },
+    'Wyand Voidfinger': { area: 'Act 3 - Mephisto 3' },
+    'Maffer Dragonhand': { area: 'Act 3 - Mephisto 3' },
+    'Infector of Souls': { area: 'Act 4 - Diablo 1' },
+    'Lord De Seis': { area: 'Act 4 - Diablo 1' },
+    'Grand Vizier of Chaos': { area: 'Act 4 - Diablo 1' },
+    'The Cow King': { area: 'Act 1 - Moo Moo Farm' },
+    'Corpsefire': { area: 'Act 1 - Cave 1' },
+    'The Feature Creep': { area: 'Act 4 - Lava 1' },
+    'Siege Boss': { area: 'Act 5 - Siege 1' },
+    'Ancient Barbarian 1': { area: 'Act 5 - Mountain Top' },
+    'Ancient Barbarian 2': { area: 'Act 5 - Mountain Top' },
+    'Ancient Barbarian 3': { area: 'Act 5 - Mountain Top' },
+    'Bonesaw Breaker': { area: 'Act 5 - Ice Cave 2' },
+    'Dac Farren': { area: 'Act 5 - Siege 1' },
+    'Megaflow Rectifier': { area: 'Act 5 - Barricade 1' },
+    'Eyeback Unleashed': { area: 'Act 5 - Barricade 1' },
+    'Threash Socket': { area: 'Act 5 - Barricade 2' },
+    'Pindleskin': { area: 'Act 5 - Temple Entrance' },
+    'Snapchip Shatter': { area: 'Act 5 - Ice Cave 3A' },
+    'Sharp Tooth Sayer': { area: 'Act 5 - Barricade 1' },
+    'Frozenstein': { area: 'Act 5 - Ice Cave 1A' },
+    'Nihlathak Boss': { area: 'Act 5 - Temple Boss' },
+    'Baal Subject 1': { area: 'Act 5 - Throne Room' },
+    'Baal Subject 2': { area: 'Act 5 - Throne Room' },
+    'Baal Subject 3': { area: 'Act 5 - Throne Room' },
+    'Baal Subject 4': { area: 'Act 5 - Throne Room' },
+    'Baal Subject 5': { area: 'Act 5 - Throne Room' },
+  }
 
   constructor (levels, monsters, supers) {
     this.levelData = levels
@@ -585,7 +643,8 @@ class MonsterSourcer {
       }
       const monster = this.inverseMonsterMap.get(superUnique.Class)
       for (let difficulty = 0; difficulty < 3; ++difficulty) {
-        const monLevel = Number(monster.boss === '1' ? monster[MonsterSourcer.monBossLevelKeys[difficulty]] : this.inferLevel(monster, difficulty))
+        const monLevel = Number(monster.boss === '1' ? monster[MonsterSourcer.monBossLevelKeys[difficulty]] : this.inferLevel(superUnique.Superunique, difficulty))
+        const from = MonsterSourcer.staticMonsters[superUnique.Superunique] ? MonsterSourcer.staticMonsters[superUnique.Superunique].area : 'superunique (beta'
         res.push({
           id: monster.Id,
           rarity: 2,
@@ -593,17 +652,18 @@ class MonsterSourcer {
           level: monLevel + 3,
           treasure: superUnique[MonsterSourcer.superTreasureKeys[difficulty]],
           xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
-          from: 'superunique (beta)',
-          string: monster['NameStr']
+          from,
+          string: superUnique['Name']
         })
       }
     })
     return res.flat(Infinity)
   }
 
-  inferLevel (monster, difficulty) {
-    if (['councilmember1', 'councilmember2', 'councilmember3'].indexOf(monster.Id) >= 0) {
-      return [1, 1, 82][difficulty]
+  inferLevel (id, difficulty) {
+    if (MonsterSourcer.staticMonsters[id]) {
+      const area = MonsterSourcer.staticMonsters[id].area
+      return this.levelData.first('Name', area)[MonsterSourcer.monLevelKeys[difficulty]]
     }
     return 1
   }
