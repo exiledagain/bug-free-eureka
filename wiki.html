@@ -275,6 +275,10 @@
             const avg = table.reduce((sum, el) => {
               return sum + el[4].v
             }, 0) / table.length
+            const tablee1 = table.filter(el => el[4].v > 1)
+            const avge1 = tablee1.reduce((sum, el) => {
+              return sum + el[4].v
+            }, 0) / tablee1.length
             if (avg <= avgmin) {
               avgmin = avg
               console.log(map, table)
@@ -284,7 +288,8 @@
               name: map.areas[0],
               min,
               max,
-              avg
+              avg,
+              avge1
             })
           })
           tbl.sort((a, b) => {
