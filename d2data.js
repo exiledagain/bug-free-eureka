@@ -1591,6 +1591,7 @@ class Diablo2Data {
     'CharStats.txt',
     'ItemStatCost.txt',
     'MonStats.txt',
+    'MonStats2.txt',
     'Skilldesc.txt',
     'Skills.txt',
     'Misc.txt',
@@ -1631,6 +1632,10 @@ class Diablo2Data {
 
   monStats () {
     return this.loader.get(this.version, 'MonStats.txt')
+  }
+
+  monStats2 () {
+    return this.loader.get(this.version, 'MonStats2.txt')
   }
 
   misc () {

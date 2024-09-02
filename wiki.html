@@ -11,6 +11,7 @@
   <body>
     <select id="generator" >
       <option value="mapres" selected>Map Resistances</option>
+      <option value="dp">DP Analysis</option>
     </select>
     <br/>
     <br/>
@@ -32,6 +33,9 @@
             `data/${version}/global/excel/string.tbl`,
           ])
           await this.strings.load()
+          this.select.onchange = e => {
+            this.populate()
+          }
           this.populate()
         }
 
@@ -166,6 +170,132 @@
             this.container.appendChild(textarea)
             this.container.appendChild(document.createElement('br'))
           })
+        }
+
+        dp () {
+          const maps = [
+            { boss: 'SiegeBoss', areas: [ "Arreat Battlefield" ] },
+            { boss: 'SewerBoss', areas: [ "Sewers of Harrogath" ] },
+            { boss: 'ArcaneBoss', areas: [ "Horazon's Memory" ] },
+            { boss: 'unravelerboss', areas: [ "Ruins of Viz-Jun" ], },
+            { boss: 'baalminionboss', areas: [ "River Of Blood" ], extra: ['griswoldmap'] },
+            { boss: 'megademonboss', areas: [ "Phlegethon" ] },
+            { boss: 'IceBoss', areas: [ "Ancestral Trial" ] },
+            { boss: 'MarketBoss', areas: [ "Kehjistan Marketplace" ] },
+            { boss: 'torajanBoss', areas: [ "Torajan Jungle" ], extra: ['torajanBossMaggot'] },
+            { boss: 'BastionBoss', areas: [ "Bastion Keep" ] },
+            { boss: 'ThroneBoss', areas: [ "Throne of Insanity" ] },
+            { boss: 'TombBoss', areas: [ "Tomb of Zoltun Kulle" ] },
+            { boss: 'CowBoss', areas: [ "Blood Moon" ] },
+            { boss: 'act2hireTraitorBoss', areas: [ "The Fall of Caldeum" ] },
+            { boss: 'archerBoss', areas: [ "The Pandemonium Citadel" ] },
+            { boss: 'spiderboss', areas: [ "The Lost Temple" ] },
+            { boss: 'CanyonBoss', areas: [ "The Canyon of Sescheron" ] },
+            { boss: 'doomknight3LibraryBoss', areas: [ "The Sanatorium" ] },
+            { boss: 'westmarchMapBoss', areas: [ "Shadows of Westmarch" ] },
+            { boss: 'leoricMapBoss', areas: [ "Royal Crypts" ] },
+            { boss: 'lernaeanhydra2', areas: [ "The Ruined Cistern" ], extra: ['lernaeanhydra1'] },
+            { boss: 'AshenBoss', areas: [ "The Ashen Plains" ] },
+            { boss: 'ZharTheMad', areas: [ "Zhar's Sanctum", "Counselor's Causeway", "Hidden Waterways", "Colonnades of Madness" ], extra: ['ZharMiniBossBaboon', 'ZharMiniBossCantor', 'ZharMiniBossBigHead'] },
+            { boss: 'WarlordOfBlood', areas: [ "Stygian Caverns", "Stronghold of Acheron" ], extra: ['WarlordMiniBossDefiler', 'WarlordMiniBossShaman'] },
+            { boss: 'Iskatu', areas: [ "The Fallen Gardens", "The Diamond Gate" ], extra: ['Rakanoth'] },
+            { boss: 'siegebeastMapBoss', areas: [ "Sanctuary of Sin", "Black Abyss" ], extra: ['siegebeastMapBossFallen'] },
+            // { boss: 'fingermageboss', areas: [ "Cathedral of Light", "Cathedral Basement" ], extra: ['willowispboss', 'willowispminion', 'willowisptotem'] },
+            { boss: 'KanemithBoss', areas: [ "Steppes of Daken-Shar", "The Tombs of Kanemith" ], extra: ['SharpToothBoss'] },
+            { boss: 'fingermageboss', areas: [ "The Plains Of Torment", "The Pit Of Despair" ], extra: ['willowispboss', 'willowispminion', 'willowisptotem'] },
+          ]
+          const levels = this.d2data.levels()
+          const res = []
+          const inverseMap = {}
+          levels.each(level => {
+            if (level['MonLvl3Ex'] >= 87) {
+              inverseMap[this.strings.get(level['LevelName'])] = level
+            }
+          })
+          maps.forEach(map => {
+            const levels = map.areas.map(el => inverseMap[el])
+            if (map.areas.length === 1) {
+              map.type = `Tier ${levels[0].MonLvl3Ex - '86'}`
+            } else if (levels[0].MonLvl3Ex < '92') {
+              map.type = 'Unique Maps'
+            } else {
+              map.type = 'Tier 4 (Dungeons)'
+            }
+          })
+          const stats = this.d2data.monStats()
+          const sourcer = new MonsterSourcer(this.d2data.levels(), stats, this.d2data.supers())
+          const mapToMonsters = map => {
+            const res = []
+            map.areas.forEach(area => {
+              res.push(...sourcer.monsters(inverseMap[area].Name).filter(monster => monster.difficulty === 2 && monster.rarity === 0))
+            })
+            if (map.extra) {
+              map.extra.forEach(monster => {
+                res.push(...sourcer.expand(map.areas.at(-1), 2, monster, new Set()))
+              })
+            }
+            // assume last area contains the boss
+            res.push(...sourcer.expand(map.areas.at(-1), 2, map.boss, new Set()))
+            return Array.from(res.flat(Infinity).reduce((summary, monster) => {
+              if (!summary.has(monster.id)) {
+                summary.set(monster.id, monster)
+              }
+              return summary
+            }, new Map()).values())
+          }
+          const formatRes = res => res > 0 ? Number(res) : ''
+          let max = 0, min = 1000
+          const monsterToColumns = monster => {
+            const stat = stats.first('Id', monster.id)
+            const extended = this.d2data.monStats2().first('Id', stat.MonStatsEx)
+            const name = this.strings.get(stat.NameStr).replace(/\xC3.../g, '')
+            const area = extended['SizeY'] * extended['SizeX']
+            max = Math.max(max, area)
+            min = Math.min(min, area)
+            const row = {
+              Monster: monster.treasure.length !== 0 ? name : `''${name}''`,
+              Magic: formatRes(stat['ResMa(H)']),
+              X: extended['SizeX'],
+              Y: extended['SizeY'],
+              area
+            }
+            const res = []
+            for (const [k,v] of Object.entries(row)) {
+              res.push({ k, v })
+            }
+            return res
+          }
+          let tbl = []
+          let avgmin = 1000
+          maps.forEach(map => {
+            max = 0
+            min = 1000
+            const monsters = mapToMonsters(map)
+            const table = monsters.map(monsterToColumns)
+            const avg = table.reduce((sum, el) => {
+              return sum + el[4].v
+            }, 0) / table.length
+            if (avg <= avgmin) {
+              avgmin = avg
+              console.log(map, table)
+              console.log(min, max, avg)
+            }
+            tbl.push({
+              name: map.areas[0],
+              min,
+              max,
+              avg
+            })
+          })
+          tbl.sort((a, b) => {
+            return a.avg - b.avg
+          })
+          console.log(tbl)
+          const txt = document.createElement('textarea')
+          txt.textContent = Object.keys(tbl[0]).join(',') + '\n' + tbl.reduce((text, el) => {
+            return text + Object.values(el).join(',') + '\n'
+          }, '')
+          this.container.appendChild(txt)
         }
       }
       new Wiki().load()
