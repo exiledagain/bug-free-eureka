@@ -14,11 +14,11 @@
     <script>
       async function Load () {
         const version = 's9'
-        const files = ['Misc.txt', 'ItemTypes.txt', 'MagicPrefix.txt', 'MagicSuffix.txt']
+        const files = ['Misc.txt', 'ItemTypes.txt', 'MagicPrefix.txt', 'MagicSuffix.txt', 'Weapons.txt', 'Armor.txt']
         const loader = new DataLoader()
         await loader.preload(version, files)
         const ig = await new ItemGeneratorModule()
-        const tl = new TypeList(loader.get(version, 'Misc.txt'), loader.get(version, 'ItemTypes.txt'))
+        const tl = new TypeList(loader.get(version, 'Misc.txt'), loader.get(version, 'ItemTypes.txt'), loader.get(version, 'Weapons.txt'), loader.get(version, 'Armor.txt'))
         let setup, meta, requirements
         let prefixList, suffixList
         function populate (container) {

@@ -456,7 +456,7 @@ class IgMetaForm {
     magicLabel.style.userSelect = 'none'
     const typeInput = document.createElement('select')
     typeInput.id = 'type-input'
-    this.typeList.all().forEach(type => {
+    this.typeList.types().forEach(type => {
       const opt = document.createElement('option')
       opt.value = type
       opt.textContent = type

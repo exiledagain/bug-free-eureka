@@ -196,12 +196,35 @@ class TypeList {
     this.typesTxt = typesTxt
     this.weaponsTxt = weaponsTxt
     this.armorsTxt = armorsTxt
+    this.cache = {}
+    this.ancestorCache = {}
   }
 
   all () {
     const res = Object.keys(this.set)
     res.sort()
     return res
+  }
+
+  types () {
+    return this.all().filter(el => !this.entry(el))
+  }
+
+  items () {
+    return this.all().filter(el => this.entry(el))
+  }
+
+  same (a, b) {
+    if (a === b) {
+      return true
+    }
+    return this.equivalent(a, b)
+  }
+
+  equivalent (a, b) {
+    const res = this.ancestors(a).has(b)
+    this.cache[a] = this.cache[a] || {}
+    return this.cache[a][b] = res
   }
 
   has (type) {
@@ -277,6 +300,9 @@ class TypeList {
   }
 
   ancestors (type) {
+    if (this.ancestorCache[type]) {
+      return new Set(this.ancestorCache[type])
+    }
     const set = {}
     const stack = [type]
     const res = new Set()
@@ -291,7 +317,8 @@ class TypeList {
         }
       }
     }
-    return res
+    this.ancestorCache[type] = res
+    return new Set(res)
   }
 
   build (miscTxt, typesTxt, weaponsTxt, armorsTxt) {
@@ -393,16 +420,11 @@ class AffixList {
     }
   }
 
-  getTypes (aff) {
-    const ins = this.typeList.merge(AffixList.iTypes.map(i => aff[i]).filter(el => el))
-    const outs = this.typeList.merge(AffixList.eTypes.map(i => aff[i]).filter(el => el))
-    const res = new Set()
-    for (const el of ins) {
-      if (!outs.has(el)) {
-        res.add(el)
-      }
-    }
-    return res
+  matchingType (aff) {
+    const ins = AffixList.iTypes.map(i => aff[i]).filter(el => el)
+    const outs = AffixList.eTypes.map(i => aff[i]).filter(el => el)
+    const fn = el => this.typeList.same(this.type, el)
+    return ins.some(fn) && !outs.some(fn)
   }
 
   rowFilter (aff) {
@@ -410,7 +432,7 @@ class AffixList {
     const matchingClass = !isTypeClassy || aff.classspecific === '' || aff.classspecific === this.classesMap.get(this.type)
     const withinLevel = aff.level <= this.level && (aff.maxlevel === '' || this.level <= aff.maxlevel)
     const matchingRarity = !this.isRare || aff.rare === '1'
-    const matchingType = this.getTypes(aff).has(this.type)
+    const matchingType = this.matchingType(aff)
     const hasFrequency = aff.frequency > 0
     const isSpawnable = aff.spawnable === '1'
     return matchingClass && matchingType && withinLevel && matchingRarity && hasFrequency && isSpawnable
