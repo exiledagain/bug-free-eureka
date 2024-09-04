@@ -774,7 +774,8 @@ class MonsterSourcer {
         treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][2]],
         xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
         from: level.Name,
-        string: monster['NameStr']
+        string: monster['NameStr'],
+        weight: Number(monster.Rarity)
       })
       // quest tc
       if (monster[MonsterSourcer.monTreasureKeys[difficulty][3]]) {
@@ -786,7 +787,8 @@ class MonsterSourcer {
           treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][3]],
           xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
           from: level.Name,
-          string: monster['NameStr']
+          string: monster['NameStr'],
+          weight: Number(monster.Rarity)
         })
       }
     } else {
@@ -801,7 +803,8 @@ class MonsterSourcer {
             treasure,
             xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
             from: level.Name,
-            string: monster['NameStr']
+            string: monster['NameStr'],
+            weight: Number(monster.Rarity)
           })
           if (j === 2) {
             res.push({
@@ -812,7 +815,8 @@ class MonsterSourcer {
               treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][0]],
               xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
               from: level.Name,
-              string: monster['NameStr']
+              string: monster['NameStr'],
+              weight: Number(monster.Rarity)
             })
           }
         }
