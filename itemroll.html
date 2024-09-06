@@ -79,7 +79,7 @@
             suffixRolls.push(this.properties(suffixes[i]))
           }
           // auto prefix
-          this.rng.skip(2)
+          // this.rng.skip(2)
           // note: pd2 automod doesn't use item seed rng
           // automod for claws has 31 skills
           if (this.automod) {
@@ -116,14 +116,14 @@
             }
           }
           if (this.crafted && !this.automod) {
-            this.rng.skip(2)
+            // this.rng.skip(2)
           }
           const craftedRolls = []
           if (this.crafted && !this.automod) {
             // blood: lifesteal=[3,6], hp=[10,20] dmg%=[50,80]
-            craftedRolls.push([{ code: 'lifesteal', value: this.rng.max(6 - 3 + 1) + 3 }])
-            craftedRolls.push([{ code: 'hp', value: this.rng.max(20 - 10 + 1) + 10 }])
-            craftedRolls.push([{ code: 'dmg%', value: this.rng.max(80 - 50 + 1) + 50 }])
+            // craftedRolls.push([{ code: 'lifesteal', value: this.rng.max(6 - 3 + 1) + 3 }])
+            // craftedRolls.push([{ code: 'hp', value: this.rng.max(20 - 10 + 1) + 10 }])
+            // craftedRolls.push([{ code: 'dmg%', value: this.rng.max(80 - 50 + 1) + 50 }])
           }
           const summary = {}
           const cb = mods => {
@@ -215,25 +215,25 @@
         const suffixData = d2data.suffix()
         const autoData = d2data.automagic()
         function reload () {
-          const itemCode = 'orb'
+          const itemCode = 'h2h'
           const level = 99
           const isRare = true
-          prefixList = new AffixList(tl, prefixData, itemCode, level, isRare)
-          suffixList = new AffixList(tl, suffixData, itemCode, level, isRare)
-          autoList = new AffixList(tl, autoData, itemCode, level, isRare)
+          prefixList = new AffixList(itemCode, tl, prefixData, itemCode, level, isRare)
+          suffixList = new AffixList(itemCode, tl, suffixData, itemCode, level, isRare)
+          autoList = new AffixList(itemCode, tl, autoData, itemCode, level, isRare)
           autoList.data = autoList.data.filter(el => el['group'] === '303')
           window.prefixes = prefixList
           window.suffixList = suffixList
           window.autoList = autoList
           // console.log(prefixList, suffixList, autoList)
-          // const rng = new D2Random('458876031')
-          // rng.reset('0x' + '4B874186A8978A9B')
+          const rng = new D2Random('0xb40943')
+          rng.reset('0x' + '63320')
           // rng.set(...'3460463983 361285771'.split(' '))
-          // const crafted = true
-          // const automod = true
-          // const magicLevel = 1
-          // const item = new RollItem({ rng, prefixList, suffixList, crafted, automod, autoList, magicLevel }).simulate()
-          // console.log(item)
+          const crafted = true
+          const automod = true
+          const magicLevel = 0
+          const item = new RollItem({ rng, prefixList, suffixList, crafted, automod, autoList, magicLevel }).simulate()
+          console.log(item)
           // const rm = new RollItem({ rng, prefixList, suffixList })
           // const dump = { prefix: rm.prefixList, suffix: rm.suffixList }
           // console.log(JSON.stringify(dump, null, 2))
@@ -260,9 +260,9 @@
         const WaitMs = ms => new Promise(resolve => setTimeout(resolve, ms))
         async function SimulateAllPossibleMaps () {
           const targets = [
-            [{ code: 'sor', threshold: 2 }, { code: 'skilltab', param: '5', threshold: 2 }],
-            // [{ code: 'dmg%', threshold: 420 }],
-            // [{ code: 'hit-skill', param: '442' }],
+            // [{ code: 'sor', threshold: 2 }, { code: 'skilltab', param: '5', threshold: 2 }],
+            [{ code: 'dmg%', threshold: 450 }],
+            [{ code: 'hit-skill', param: '442' }],
             // [{ code: 'cast3', threshold: 20 }],
             // [{ code: 'heal-kill', threshold: 5 }],
             // [{ code: 'mana-kill', threshold: 5 }],
@@ -271,7 +271,7 @@
           const MAX = BigInt.asUintN(16, BigInt('0xFFFFFFFFFFFFFFFFFFFFF'))
           const k = BigInt(1e5)
           const rng = new D2Random('0x0')
-          const roller = new RollItem({ rng, prefixList, suffixList, crafted: true, automod: 31, magicLevel: 1 })
+          const roller = new RollItem({ rng, prefixList, suffixList, crafted: true, automod: 31, magicLevel: 0 })
           el.style.whiteSpace = 'pre'
           el.textContent = `0 of ${MAX}`
           await WaitForFrames(2)
@@ -325,7 +325,6 @@
                 histogram[value] += 1
               }
             }
-            console.log(bests.length)
             const rem = Number((MAX - i + BigInt(k) - BigInt(1)) / BigInt(k)) * (performance.now() - start) / 1e3
             el.textContent = `${i} of ${MAX}\n\nremaining time: ${rem}\n\n${JSON.stringify(bests, null, 2)}\n\n${JSON.stringify(histogram, null, 2)}`
             if (!started) {
