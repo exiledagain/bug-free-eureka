@@ -1108,7 +1108,7 @@ class TreasureTree {
     return  this.typeMap[id]
   }
 
-  simulate (id, rem = 6) {
+  simulate ({ id, rem = 6, rng = n => ~~(Math.random() * n), cb, dc = 1 }) {
     const stack = []
     const get = id => Object.assign({}, this.eval(id))
     stack.push(get(id))
@@ -1122,8 +1122,19 @@ class TreasureTree {
           stack.push(top)
         }
         const tc = top
-        // assume nodrop=0
-        let random = ~~(Math.random() * tc.sum)
+        // assume n=0
+        const noDrop = this.noDrop(dc, tc)
+        let roll
+        if (noDrop > 0) {
+          roll = rng(tc.sum + noDrop)
+          if (roll < noDrop) {
+            continue
+          }
+          roll -= noDrop
+        } else {
+          roll = rng(tc.sum)
+        }
+        let random = roll
         const pick = tc.children.find(child => {
           random -= child.p
           if (random < 0) {
@@ -1133,6 +1144,9 @@ class TreasureTree {
         })
         if (!this.has(pick.id)) {
           res.push(pick.id)
+          if (cb) {
+            cb(pick, tc)
+          }
           continue
         }
         stack.push(get(pick.id))
@@ -1628,7 +1642,9 @@ class Diablo2Data {
     'SuperUniques.txt',
     'MagicPrefix.txt',
     'MagicSuffix.txt',
-    'AutoMagic.txt'
+    'AutoMagic.txt',
+    'TreasureClassEx.txt',
+    'ItemRatio.txt',
   ]
 
   constructor (version = 's9') {
@@ -1680,14 +1696,6 @@ class Diablo2Data {
     return this.loader.get(this.version, 'ItemTypes.txt')
   }
 
-  TypeList () {
-    return new TypeList(this.misc(), this.itemTypes(), this.weapons(), this.armor())
-  }
-
-  SkillData ({ resolver }) {
-    return new SkillData({ skills: this.skills(), skillDesc: this.skillDesc(), resolver })
-  }
-
   levels () {
     return this.loader.get(this.version, 'Levels.txt')
   }
@@ -1706,6 +1714,22 @@ class Diablo2Data {
 
   automagic () {
     return this.loader.get(this.version, 'AutoMagic.txt')
+  }
+
+  treasureClassEx () {
+    return this.loader.get(this.version, 'TreasureClassEx.txt')
+  }
+
+  itemRatio () {
+    return this.loader.get(this.version, 'ItemRatio.txt')
+  }
+
+  TypeList () {
+    return new TypeList(this.misc(), this.itemTypes(), this.weapons(), this.armor())
+  }
+
+  SkillData ({ resolver }) {
+    return new SkillData({ skills: this.skills(), skillDesc: this.skillDesc(), resolver })
   }
 }
 
