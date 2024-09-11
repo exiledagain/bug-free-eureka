@@ -9,6 +9,101 @@
     <script src="d2data.js"></script>
   </head>
   <body>
+    <a href="https://github.com/exiledagain/bug-free-eureka" target="_blank" rel="noopener noreferrer">source</a>
+    <table>
+      <tr>
+        <td style="vertical-align: baseline;">
+          <form id="configForm" autocomplete="off">
+            <fieldset>
+              <legend>Config</legend>
+              <table>
+                <tr>
+                  <td>
+                    <label for="difficulty">Difficulty</label>
+                  </td>
+                  <td>
+                    <select id="difficulty" name="difficulty">
+                      <option value="2" selected>Hell</option>
+                      <option value="1">Nightmare</option>
+                      <option value="0">Normal</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="players">Party</label>
+                  </td>
+                  <td>
+                    <select id="players" name="players">
+                      <option value="1" selected>1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="chest">Chest Type</label>
+                  </td>
+                  <td>
+                    <select id="chestType" name="chestType">
+                      <option value="normal" selected>Normal</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="chestOpt">Chest Opt</label>
+                  </td>
+                  <td>
+                    <select id="chestOpt" name="chestOpt">
+                      <option value="0" selected>Unlocked</option>
+                      <option value="1">Locked</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="act">Act</label>
+                  </td>
+                  <td>
+                    <select id="act" name="act">
+                      <option value="4" selected>Act 5</option>
+                      <option value="3">Act 4</option>
+                      <option value="2">Act 3</option>
+                      <option value="1">Act 2</option>
+                      <option value="0">Act 1</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="Zone">Zone</label>
+                  </td>
+                  <td>
+                    <select id="zone" name="zone">
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="magicFind">Magic Find</label>
+                  </td>
+                  <td>
+                    <input id="magicFind" name="magicFind" type="text" value="0" pattern="\d+" maxlength="4" style="width: 5em;">
+                  </td>
+                </tr>
+              </table>
+            </fieldset>
+          </form>
+        </td>
+      </tr>
+    </table>
     <script>
       class ChestDropper {
         static constants = {
@@ -27,25 +122,65 @@
           await d2data.load()
           const typeList = d2data.TypeList()
           const tree = new TreasureTree(d2data.treasureClassEx(), typeList, d2data.weapons(), d2data.armor())
-          const random = new D2Random()
-          const oldmax = random.max
-          random.max = n => {
-            let res = oldmax.call(random, n)
-            // console.log('random', n, res)
-            return res
-          }
-          const forcedQuality = 0
-          const chestDropLevel = 0
-          const magicFind = 30
+          this.tree = tree
           this.clazzes = new Set(typeList.expand('clas'))
-          const simulate = (tc, seed, locked) => {
+          // very cool blizzard, thank you
+          const diffs = ['', ' (N)', ' (H)']
+          const acts = [1, 2, 3, 4, 5]
+          const abcs = ['A', 'B', 'C']
+          this.chestTcs = []
+          diffs.forEach(diff => {
+            acts.forEach(act => {
+              abcs.forEach(abc => {
+                this.chestTcs.push(`Act ${act}${diff} Chest ${abc}`)
+              })
+            })
+          })
+          let tcs = [
+            'Act 5 (H) Chest C',
+            // 'Act 5 (H) Chest B',
+            // 'Act 5 (H) Chest A',
+            // 'Act 4 (H) Chest C',
+            // 'Act 4 (H) Chest B',
+            // 'Act 4 (H) Chest A',
+            // 'Act 3 (H) Chest C',
+            // 'Act 3 (H) Chest B',
+            // 'Act 3 (H) Chest A',
+          ]
+          const byId = (a, b) => a.id.localeCompare(b.id)
+          const needle = [
+            'gld', 'gld', 'gld', 'zmb'
+          ]
+          // for (let i = 0x3; i < 0x3 + 1; ++i) {
+          tcs.forEach(tc => {
+            for (let i = 0; i < (1 << 16) - 2; ++i) {
+              const drops = typeof simulate !== 'undefined' ? simulate(tc, i, false) : []
+              // console.log(drops)
+              // if (drops.some(el => el.id === 'r33s')) {
+              // zmb, 3x gold
+              // drops.sort(byId)
+              // if (needle.length === drops.length && needle.every((el, idx) => drops[idx].id === el)) {
+              //   console.log(drops)
+              // }
+              if (drops.some(el => el.id === 'r33s')) {
+                console.log(drops)
+              }
+            }
+          })
+          const magicFind = 135
+          console.log('done')
+        }
+
+        simulateRegular ({ treasureClass, seed, chestDropLevel, locked = 0, magicFind = 0, forcedQuality = 0 }) {
+          const simulate = () => {
+            const random = new D2Random()
             random.lower(seed)
             const drops = []
             let i = 1 + locked
             while (i-- > 0) {
-              tree.simulate({
+              this.tree.simulate({
                 dc: 1,
-                id: tc,
+                id: treasureClass,
                 rng: n => random.max(n),
                 cb: ({ id }, tc) => {
                   let dropRarity = forcedQuality
@@ -53,14 +188,11 @@
                     const item = this.findItem(id)
                     const itemType = this.findItemType(id)
                     if (itemType.Normal === '1') {
-                      // must be normal
                       dropRarity = 'normal'
                     }
                     if (item.unique === '1' || (itemType.Magic === '1' && item.quest === '1')) {
-                      // must be unique
                       dropRarity = 'unique'
                     }
-
                     if (!dropRarity) {
                       dropRarity = Object.keys(ChestDropper.constants).find(rarity => {
                         const p = this.p(id, rarity, magicFind, chestDropLevel, tc[rarity])
@@ -97,34 +229,7 @@
             }
             return drops
           }
-          let tcs = [
-            'Act 5 (H) Chest C',
-            // 'Act 5 (H) Chest B',
-            // 'Act 5 (H) Chest A',
-            // 'Act 4 (H) Chest C',
-            // 'Act 4 (H) Chest B',
-            // 'Act 4 (H) Chest A',
-            // 'Act 3 (H) Chest C',
-            // 'Act 3 (H) Chest B',
-            // 'Act 3 (H) Chest A',
-          ]
-          // for (let i = 0x3; i < 0x3 + 1; ++i) {
-          tcs.forEach(tc => {
-            for (let i = 0; i < (1 << 16) - 2; ++i) {
-              const drops = simulate(tc, i, false)
-              // console.log(drops)
-              // if (drops.some(el => el.id === 'r33s')) {
-              // zmb, 3x gold
-              if (drops.length === 2) {
-                if (drops[0].id === 'gld' || drops[1].id === 'gld') {
-                  if (drops[0].id === 'isc' || drops[1].id === 'isc') {
-                    console.log(i, drops)
-                  }
-                }
-              }
-            }
-          })
-          console.log('done')
+          return simulate()
         }
 
         p (id, rarity, magicFind, level, extra) {
@@ -183,8 +288,161 @@
         findItemType (id) {
           return this.d2data.itemTypes().first('Code', this.findItem(id).type)
         }
-      }      
-      new ChestDropper().setup()
+      }
+      class ChestPU {
+        static actZones = [
+          'Act 1 - Town',
+          'Act 2 - Town',
+          'Act 3 - Town',
+          'Act 4 - Town',
+          'Act 5 - Town'
+        ]
+        // https://github.com/ThePhrozenKeep/D2MOO/blob/559def2d8fd94e1d2f959fa6e4f907a0f221795f/source/D2Game/src/OBJECTS/ObjMode.cpp#L3909
+        static levelIds = ['2', '37', '41', '73', '76', '102', '104', '108', '109', '132']
+
+        constructor () {
+          document.querySelectorAll('form').forEach(form => {
+            form.onsubmit = e => {
+              e.preventDefault()
+            }
+          })
+        }
+
+        async setup () {
+          this.dropper = new ChestDropper()
+          await this.dropper.setup()
+          this.d2data = this.dropper.d2data
+          const version = this.dropper.d2data.version
+          this.strings = new StringResolver([
+            `data/${version}/global/excel/patchstring.tbl`,
+            `data/${version}/global/excel/expansionstring.tbl`,
+            `data/${version}/global/excel/string.tbl`,
+          ])
+          await this.strings.load()
+          this.zones = [[]]
+          const levels = this.d2data.levels()
+          this.levels = levels
+          let i = 0
+          levels.each(level => {
+            if (!level.Id) {
+              return
+            }
+            // act exists in levels.txt but the game does this?
+            if (i < 5 && level.Id === levels.first('Name', ChestPU.actZones[i]).Id) {
+              this.zones.at(-1).set = new Set(this.zones.at(-1))
+              this.zones.push([])
+              i += 1
+            } else {
+              this.zones.at(-1).push(level)
+            }
+          })
+          this.zones.shift()
+          this.config()
+          document.getElementById('configForm').onchange = e => {
+            this.config()
+            this.simulate()
+          }
+          this.simulate()
+        }
+
+        values () {
+          return Object.fromEntries(new FormData(document.getElementById('configForm')))
+        }
+
+        config () {
+          const previous = this.lastValues || {}
+          const values = this.values()
+          const valuesKey = JSON.stringify(values)
+          if (valuesKey === this.lastValues) {
+            return
+          }
+          this.lastValues = values
+          this.lastValuesKey = valuesKey
+          if (previous.chestType !== values.chestType) {
+            this.configChestOpt(values)
+          }
+          if (previous.act !== values.act) {
+            this.configAct(values)
+          }
+        }
+
+        configChestOpt (values) {
+          const opt = document.getElementById('chestOpt')
+          opt.innerHTML = ''
+          const frag = document.createDocumentFragment()
+          switch (values.chestType) {
+            case 'normal': {
+              const types = ['Unlocked', 'Locked']
+              types.forEach((type, idx) => {
+                const el = document.createElement('option')
+                el.value = idx
+                el.textContent = type
+                frag.appendChild(el)
+              })
+              frag.firstElementChild.setAttribute('selected', true)
+              break
+            }
+            default: {
+              throw new Error(`unknown chest type: ${values.chestType}`)
+            }
+          }
+          opt.appendChild(frag)
+        }
+
+        configAct (values) {
+          const zone = document.getElementById('zone')
+          zone.innerHTML = ''
+          const frag = document.createDocumentFragment()
+          this.zones[values.act].forEach(zone => {
+            const el = document.createElement('option')
+            el.value = zone.Id
+            el.textContent = this.strings.get(zone.LevelName)
+            frag.appendChild(el)
+          })
+          frag.lastElementChild.setAttribute('selected', true)
+          zone.appendChild(frag)
+        }
+
+        simulate () {
+          const values = this.values()
+          const zone = this.levels.first('Id', values.zone)
+          const act = Number(values.act)
+          const difficulty = Number(values.difficulty)
+          const levelKey = `MonLvl${difficulty}Ex`
+          const level = Number(zone[levelKey])
+          const minLevel = Number(this.levels.first('Id', ChestPU.levelIds[act * 2])[levelKey])
+          const maxLevel = Number(this.levels.first('Id', ChestPU.levelIds[act * 2 + 1])[levelKey])
+          // extra chest tc for each 1/3 of an act
+          const offset = ~~((Math.abs(maxLevel - minLevel) + 1) / 3)
+          let idx = 0
+          if (level > minLevel + offset) {
+            idx = 1
+            idx += level >= minLevel + 2 * offset
+          }
+          const magicFind = Number(values.magicFind)
+          const locked = Number(values.chestOpt)
+          const tcIdx = 3 * (difficulty * 5 + act) + idx
+          const treasureClass = this.dropper.chestTcs[tcIdx]
+          console.log(idx, tcIdx, treasureClass)
+          for (let j = 0; j < 1; ++j) {
+            console.log(j)
+            for (let i = 0; i < (1 << 16) - 2; ++i) {
+              const res = this.dropper.simulateRegular({
+                treasureClass,
+                seed: i,
+                chestDropLevel: idx,
+                magicFind: magicFind + j,
+                locked
+              })
+              if (res.some(el => el.id === 'r33s')) {
+                console.log(i, res)
+                return
+              }
+            }
+          }
+        }
+      }
+      new ChestPU().setup()
     </script>
   </body>
 </html>
