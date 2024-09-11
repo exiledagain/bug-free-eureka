@@ -102,8 +102,53 @@
             </fieldset>
           </form>
         </td>
+        <td style="vertical-align: baseline;">
+          <form id="filterForm" autocomplete="off">
+            <fieldset>
+              <legend>Filter</legend>
+              <table>
+                <tr>
+                  <td>
+                    <label for="low">Low</label>
+                  </td>
+                  <td>
+                    <select id="low" name="low">
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="high">High</label>
+                  </td>
+                  <td>
+                    <select id="high" name="high">
+                    </select>
+                  </td>
+                </tr>
+              </table>
+            </fieldset>
+          </form>
+        </td>
+        <td style="vertical-align: baseline;">
+          <form id="filterForm" autocomplete="off">
+            <fieldset>
+              <legend>Action</legend>
+              <table>
+                <tr>
+                  <td>
+                    <label for="click">Click</label>
+                  </td>
+                  <td>
+                    <button id="click" name="click">Drops</button>
+                  </td>
+                </tr>
+              </table>
+            </fieldset>
+          </form>
+        </td>
       </tr>
     </table>
+    <table id="result" style="vertical-align: top;"></table>
     <script>
       class ChestDropper {
         static constants = {
@@ -111,9 +156,6 @@
           'set': 500,
           'rare': 600,
           'magic': 0
-        }
-
-        constructor () {
         }
 
         async setup () {
@@ -136,42 +178,9 @@
               })
             })
           })
-          let tcs = [
-            'Act 5 (H) Chest C',
-            // 'Act 5 (H) Chest B',
-            // 'Act 5 (H) Chest A',
-            // 'Act 4 (H) Chest C',
-            // 'Act 4 (H) Chest B',
-            // 'Act 4 (H) Chest A',
-            // 'Act 3 (H) Chest C',
-            // 'Act 3 (H) Chest B',
-            // 'Act 3 (H) Chest A',
-          ]
-          const byId = (a, b) => a.id.localeCompare(b.id)
-          const needle = [
-            'gld', 'gld', 'gld', 'zmb'
-          ]
-          // for (let i = 0x3; i < 0x3 + 1; ++i) {
-          tcs.forEach(tc => {
-            for (let i = 0; i < (1 << 16) - 2; ++i) {
-              const drops = typeof simulate !== 'undefined' ? simulate(tc, i, false) : []
-              // console.log(drops)
-              // if (drops.some(el => el.id === 'r33s')) {
-              // zmb, 3x gold
-              // drops.sort(byId)
-              // if (needle.length === drops.length && needle.every((el, idx) => drops[idx].id === el)) {
-              //   console.log(drops)
-              // }
-              if (drops.some(el => el.id === 'r33s')) {
-                console.log(drops)
-              }
-            }
-          })
-          const magicFind = 135
-          console.log('done')
         }
 
-        simulateRegular ({ treasureClass, seed, chestDropLevel, locked = 0, magicFind = 0, forcedQuality = 0 }) {
+        simulateRegular ({ treasureClass, seed, chestDropLevel, locked = 0, magicFind = 0, forcedQuality = 0, dropClass = 1 }) {
           const simulate = () => {
             const random = new D2Random()
             random.lower(seed)
@@ -179,7 +188,7 @@
             let i = 1 + locked
             while (i-- > 0) {
               this.tree.simulate({
-                dc: 1,
+                dc: dropClass,
                 id: treasureClass,
                 rng: n => random.max(n),
                 cb: ({ id }, tc) => {
@@ -239,7 +248,7 @@
         }
 
         chance (magicFind, extra, difference, isMagic, rarityBase, divisor, min, constant) {
-          const effectiveMF = !isMagic ? ~~(magicFind * constant / (magicFind + constant)) : magicFind
+          const effectiveMF = !isMagic && magicFind > 10 ? ~~(magicFind * constant / (magicFind + constant)) : magicFind
           const div = ~~(difference / divisor)
           const chance = Math.max(min, ~~((rarityBase - div) * 12800 / (100 + effectiveMF)))
           const final = chance - ~~((chance * extra) / 1024)
@@ -319,6 +328,14 @@
             `data/${version}/global/excel/string.tbl`,
           ])
           await this.strings.load()
+          this.runes = []          
+          for (let i = 1; i <= 33; ++i) {
+            const rune = `r${i.toString().padStart(2, '0')}`
+            this.runes.push({
+              id: `${rune}s`,
+              name: this.strings.get(rune).substring(4)
+            })
+          }
           this.zones = [[]]
           const levels = this.d2data.levels()
           this.levels = levels
@@ -338,15 +355,21 @@
           })
           this.zones.shift()
           this.config()
+          this.configRunes()
           document.getElementById('configForm').onchange = e => {
             this.config()
+          }
+          document.getElementById('click').onclick = e => {
             this.simulate()
           }
-          this.simulate()
         }
 
         values () {
           return Object.fromEntries(new FormData(document.getElementById('configForm')))
+        }
+
+        filters () {
+          return Object.fromEntries(new FormData(document.getElementById('filterForm')))
         }
 
         config () {
@@ -403,6 +426,23 @@
           zone.appendChild(frag)
         }
 
+        configRunes () {
+          const frag = document.createDocumentFragment()
+          this.runes.forEach(({ id, name }) => {
+            const el = document.createElement('option')
+            el.value = id
+            el.textContent = name
+            frag.appendChild(el)
+          })
+          frag.lastElementChild.setAttribute('selected', true)
+          const low = document.getElementById('low')
+          low.innerHTML = ''
+          low.appendChild(frag.cloneNode(true))
+          const high = document.getElementById('high')
+          high.innerHTML = ''
+          high.appendChild(frag)
+        }
+
         simulate () {
           const values = this.values()
           const zone = this.levels.first('Id', values.zone)
@@ -423,23 +463,58 @@
           const locked = Number(values.chestOpt)
           const tcIdx = 3 * (difficulty * 5 + act) + idx
           const treasureClass = this.dropper.chestTcs[tcIdx]
-          console.log(idx, tcIdx, treasureClass)
-          for (let j = 0; j < 1; ++j) {
-            console.log(j)
-            for (let i = 0; i < (1 << 16) - 2; ++i) {
-              const res = this.dropper.simulateRegular({
-                treasureClass,
-                seed: i,
-                chestDropLevel: idx,
-                magicFind: magicFind + j,
-                locked
-              })
-              if (res.some(el => el.id === 'r33s')) {
-                console.log(i, res)
-                return
-              }
+          const dropClass = Number(values.players)
+          const seedLimit = (1 << 16) - 2
+          const filters = this.filters()
+          const lowIdx = this.runes.findIndex(rune => rune.id === filters.low)
+          const set = {}
+          for (let i = lowIdx; i < this.runes.length; ++i) {
+            set[this.runes[i].id] = true
+            if (this.runes[i].id === filters.high) {
+              break
             }
           }
+          let found = []
+          for (let i = 0; i < seedLimit; ++i) {
+            const res = this.dropper.simulateRegular({
+              treasureClass,
+              seed: i,
+              chestDropLevel: idx,
+              magicFind,
+              locked,
+              dropClass
+            })
+            if (res.some(drop => set[drop.id])) {
+              found.push({
+                seed: i,
+                drops: res
+              })
+            }
+          }
+          this.result({
+            config: {
+              values,
+              filters
+            },
+            computed: {
+              treasureClass
+            },
+            drops: found
+          })
+        }
+
+        result (output) {
+          const query = document.createElement('td')
+          query.style.whiteSpace = 'pre'
+          query.textContent = JSON.stringify(output.config, null, 2)
+          const result = document.createElement('td')
+          result.style.whiteSpace = 'pre'
+          result.textContent = JSON.stringify(output.drops, null, 2)
+          const tr = document.createElement('tr')
+          tr.appendChild(query)
+          tr.appendChild(result)
+          const tbl = document.getElementById('result')
+          tbl.prepend(tr)
         }
       }
       new ChestPU().setup()
