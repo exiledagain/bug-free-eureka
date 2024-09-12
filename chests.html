@@ -387,6 +387,9 @@
               })
             }
           }
+          if (this.dropper.debugList) {
+            console.log(JSON.stringify(this.dropper.debugList))
+          }
           this.result({
             config: {
               values,
