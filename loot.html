@@ -477,7 +477,7 @@
         }
 
         chance (magicFind, extra, difference, isMagic, rarityBase, divisor, min, constant) {
-          const effectiveMF = !isMagic ? Math.floor(magicFind * constant / (magicFind + constant)) : magicFind
+          const effectiveMF = !isMagic && magicFind > 10 ? Math.floor(magicFind * constant / (magicFind + constant)) : magicFind
           const div = Math.floor(difference / divisor)
           const chance = Math.max(min, Math.floor((rarityBase - div) * 12800 / (100 + effectiveMF)))
           const final = chance - Math.floor((chance * extra) / 1024)

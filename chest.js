@@ -111,6 +111,9 @@ class ChestDropper {
   simulateRegular (opts) {
     opts.confirmRarity = true
     const random = new D2Random()
+    if (opts.debug) {
+      this.debugRandom(random)
+    }
     random.lower(opts.seed)
     const drops = []
     let i = 1 + opts.locked
@@ -127,8 +130,11 @@ class ChestDropper {
   simulateSuper (opts) {
     opts.confirmRarity = true
     const random = new D2Random()
-    opts.forcedQuality = 'magic'
+    if (opts.debug) {
+      this.debugRandom(random)
+    }
     random.lower(opts.seed)
+    opts.forcedQuality = 'magic'
     const drops = []
     let chestCount = 1 + opts.locked
     let magicCount = 0
@@ -155,6 +161,9 @@ class ChestDropper {
   simulateSparkly (opts) {
     opts.confirmRarity = true
     const random = new D2Random()
+    if (opts.debug) {
+      this.debugRandom(random)
+    }
     random.lower(opts.seed)
     const type = opts.locked
     const res = []

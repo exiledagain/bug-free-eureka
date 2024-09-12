@@ -377,7 +377,13 @@
             dropClass
           }
           let found = []
-          for (let i = 0; i < seedLimit; ++i) {
+          const forceSeed = -1
+          const minSeed = forceSeed < 0 ? 0 : forceSeed
+          const maxSeed = forceSeed < 0 ? seedLimit : forceSeed + 1
+          if (forceSeed >= 0) {
+            opts.debug = true
+          }
+          for (let i = minSeed; i < maxSeed; ++i) {
             opts.seed = i
             const res = this.dropper[sim](opts)
             if (res.some(drop => set[drop.id])) {
