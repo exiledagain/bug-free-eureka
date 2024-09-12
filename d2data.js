@@ -1666,9 +1666,12 @@ class Diablo2Data {
     'TreasureClassEx.txt',
     'ItemRatio.txt',
     'UniqueItems.txt',
+    'SetItems.txt',
   ]
 
-  constructor (version = 's9') {
+  static defaultVersion = 's9'
+
+  constructor (version = defaultVersion) {
     this.version = version
   }
 
@@ -1747,6 +1750,10 @@ class Diablo2Data {
 
   uniqueItems () {
     return this.loader.get(this.version, 'UniqueItems.txt')
+  }
+
+  setItems () {
+    return this.loader.get(this.version, 'SetItems.txt')
   }
 
   TypeList () {

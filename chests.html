@@ -7,6 +7,7 @@
     <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
     <link rel="stylesheet" href="css/common.css">
     <script src="d2data.js"></script>
+    <script src="chest.js"></script>
   </head>
   <body>
     <a href="https://github.com/exiledagain/bug-free-eureka" target="_blank" rel="noopener noreferrer">source</a>
@@ -17,6 +18,17 @@
             <fieldset>
               <legend>Config</legend>
               <table>
+                <tr>
+                  <td>
+                    <label for="version">Version</label>
+                  </td>
+                  <td>
+                    <select id="version" name="version">
+                      <option value="s9" selected>S9</option>
+                      <option value="lod">LOD</option>
+                    </select>
+                  </td>
+                </tr>
                 <tr>
                   <td>
                     <label for="difficulty">Difficulty</label>
@@ -53,6 +65,8 @@
                   <td>
                     <select id="chestType" name="chestType">
                       <option value="normal" selected>Normal</option>
+                      <option value="super">Super</option>
+                      <option value="sparkly">Sparkly</option>
                     </select>
                   </td>
                 </tr>
@@ -150,216 +164,8 @@
     </table>
     <table id="result" style="vertical-align: top;"></table>
     <script>
-      class ChestDropper {
-        static constants = {
-          'unique': 250,
-          'set': 500,
-          'rare': 600,
-          'magic': 0
-        }
+      'use strict'
 
-        async setup () {
-          const d2data = new Diablo2Data()
-          this.d2data = d2data
-          await d2data.load()
-          const typeList = d2data.TypeList()
-          const tree = new TreasureTree(d2data.treasureClassEx(), typeList, d2data.weapons(), d2data.armor())
-          this.tree = tree
-          this.clazzes = new Set(typeList.expand('clas'))
-          // very cool blizzard, thank you
-          const diffs = ['', ' (N)', ' (H)']
-          const acts = [1, 2, 3, 4, 5]
-          const abcs = ['A', 'B', 'C']
-          this.chestTcs = []
-          diffs.forEach(diff => {
-            acts.forEach(act => {
-              abcs.forEach(abc => {
-                this.chestTcs.push(`Act ${act}${diff} Chest ${abc}`)
-              })
-            })
-          })
-          this.misc = this.d2data.misc()
-          this.weapons = this.d2data.weapons()
-          this.armor = this.d2data.armor()
-          this.itemTypes = this.d2data.itemTypes()
-          this.itemRatio = this.d2data.itemRatio()
-          this.uniques = this.d2data.uniqueItems()
-        }
-
-        simulateRegular ({ treasureClass, itemLevel, seed, chestDropLevel, locked = 0, magicFind = 0, forcedQuality = 0, dropClass = 1, confirmRarity = false }) {
-          const random = new D2Random()
-          random.lower(seed)
-          const drops = []
-          let i = 1 + locked
-          while (i-- > 0) {
-            this.tree.simulate({
-              dc: dropClass,
-              id: treasureClass,
-              rng: n => random.max(n),
-              cb: ({ id }, tc) => {
-                let dropRarity = forcedQuality
-                const item = this.findItem(id)
-                const itemType = this.findItemType(id)
-                if (!forcedQuality) {
-                  if (itemType.Normal === '1') {
-                    dropRarity = 'normal'
-                  }
-                  if (item.unique === '1' || (itemType.Magic === '1' && item.quest === '1')) {
-                    dropRarity = 'unique'
-                  }
-                  if (!dropRarity) {
-                    const passedRarity = rarity => {
-                      const p = this.p(id, rarity, magicFind, chestDropLevel, tc[rarity])
-                      if (p <= 0 || random.max(p) < 128) {
-                        return true
-                      }
-                      return false
-                    }
-                    dropRarity = ['unique', 'set'].find(passedRarity)
-                    if (!dropRarity) {
-                      if (itemType.Rare === '1' && passedRarity('rare')) {
-                        dropRarity = 'rare'
-                      }
-                      if (!dropRarity && (itemType.Magic === '1' || passedRarity('magic'))) {
-                        dropRarity = 'magic'
-                      }
-                    }
-                    if (!dropRarity) {
-                      const highQualityRatio = this.findRatio(id, 'HiQuality')
-                      let p = (highQualityRatio.base - ~~((chestDropLevel - item.level) / highQualityRatio.divisor)) << 7
-                      if (p <= 0 || random.max(p) < 128) {
-                        dropRarity = 'high'
-                      }
-                      if (!dropRarity) {
-                        const normalRatio = this.findRatio(id, 'Normal')
-                        p = (normalRatio.base - ~~((chestDropLevel - item.level) / normalRatio.divisor)) << 7
-                        if (p <= 0 || random.max(p) < 128) {
-                          dropRarity = 'normal'
-                        } else {
-                          dropRarity = 'low'
-                        }
-                      }
-                    }
-                  }
-                }
-                drops.push({
-                  id,
-                  rarity: dropRarity
-                })
-                if (confirmRarity) {
-                  dropRarity = this.getRealRarity(id, itemLevel, dropRarity, item, itemType)
-                  const last = drops.at(-1)
-                  last.downgrade = last.rarity
-                  last.rarity = dropRarity
-                }
-              },
-            })
-          }
-          return drops
-        }
-
-        getRealRarity (id, level, rarity, item, type) {
-          // we only care about magic+
-          // a superior/low/normal doesn't affect chest drops
-          // unique
-          // rare -> magic w/ prefix & suffix -> superior? -> normal
-          // magic w/o prefix & suffix -> normal
-          // low/high non-armor/weapon -> normal
-          switch (rarity) {
-            case 'unique': {
-              if (type.unique === '1') {
-                break
-              }
-              const eligible = this.uniques.all('code', id)
-              if (eligible.length === 0) {
-                return this.getRealRarity(id, level, 'rare', item, type)
-              }
-              if (!eligible.some(unique => unique.lvl <= level)) {
-                return this.getRealRarity(id, level, 'rare', item, type)
-              }
-            }
-            case 'set': {
-              if (type.unique === '1') {
-                break
-              }
-              const eligible = this.uniques.all('code', id)
-              if (eligible.length === 0) {
-                return this.getRealRarity(id, level, 'magic', item, type)
-              }
-              if (!eligible.some(set => set.lvl <= level)) {
-                return this.getRealRarity(id, level, 'magic', item, type)
-              }
-            }
-            case 'rare': {
-              if (type.Rare !== '1') {
-                return this.getRealRarity(id, level, 'magic', item, type)
-              }
-            }
-            // for magic, if an item has no prefix/suffix, it cannot be magic...
-            case 'magic': {
-              break
-            }
-          }
-          return rarity
-        }
-
-        p (id, rarity, magicFind, level, extra) {
-          const item = this.findItem(id)
-          const ratio = this.findRatio(id, rarity.substring(0, 1).toUpperCase() + rarity.substring(1).toLowerCase())
-          return this.chance(magicFind, extra, level - item.level, rarity === 'magic', ratio.base, ratio.divisor, ratio.min, ChestDropper.constants[rarity])          
-        }
-
-        chance (magicFind, extra, difference, isMagic, rarityBase, divisor, min, constant) {
-          const effectiveMF = !isMagic && magicFind > 10 ? ~~(magicFind * constant / (magicFind + constant)) : magicFind
-          const div = ~~(difference / divisor)
-          const chance = Math.max(min, ~~((rarityBase - div) * 12800 / (100 + effectiveMF)))
-          const final = chance - ~~((chance * extra) / 1024)
-          return final
-        }
-
-        findRatio (id, rarity) {
-          const item = this.findItem(id)
-          const clazzy = this.clazzes.has(id)
-          const uber = item.szFlavorText !== undefined && (item.ubercode === id || item.ultracode === id) && item.type !== 'tpot' && !item.quest
-          // assume version is ascending
-          let ratio
-          this.itemRatio.each(el => {
-            const isClazzy = el['Class Specific'] === '1'
-            const isUber = el['Uber'] === '1'
-            if (clazzy === isClazzy && uber === isUber) {
-              ratio = el
-            }
-          })
-          return {
-            base: Number(ratio[rarity]),
-            divisor: Number(ratio[`${rarity}Divisor`]),
-            min: Number(ratio[`${rarity}Min`]),
-            class: clazzy,
-            raw: ratio
-          }
-        }
-
-        findItem (id) {
-          let ret
-          ret = this.misc.first('code', id)
-          if (ret) {
-            return ret
-          }
-          ret = this.weapons.first('code', id)
-          if (ret) {
-            return ret
-          }
-          ret = this.armor.first('code', id)
-          if (ret) {
-            return ret
-          }
-          throw new Error(`unknown item for id: ${id}`)
-        }
-
-        findItemType (id) {
-          return this.itemTypes.first('Code', this.findItem(id).type)
-        }
-      }
       class ChestPU {
         static actZones = [
           'Act 1 - Town',
@@ -379,22 +185,21 @@
           })
         }
 
-        async setup () {
+        async setup (version = Diablo2Data.defaultVersion) {
           this.dropper = new ChestDropper()
-          await this.dropper.setup()
+          await this.dropper.setup(version)
           this.d2data = this.dropper.d2data
-          const version = this.dropper.d2data.version
           this.strings = new StringResolver([
-            `data/${version}/global/excel/patchstring.tbl`,
-            `data/${version}/global/excel/expansionstring.tbl`,
-            `data/${version}/global/excel/string.tbl`,
+            `data/${Diablo2Data.defaultVersion}/global/excel/patchstring.tbl`,
+            `data/${Diablo2Data.defaultVersion}/global/excel/expansionstring.tbl`,
+            `data/${Diablo2Data.defaultVersion}/global/excel/string.tbl`,
           ])
           await this.strings.load()
-          this.runes = []          
+          this.runes = []
           for (let i = 1; i <= 33; ++i) {
             const rune = `r${i.toString().padStart(2, '0')}`
             this.runes.push({
-              id: `${rune}s`,
+              id: version !== 'lod' ? `${rune}s` : rune,
               name: this.strings.get(rune).substring(4)
             })
           }
@@ -426,6 +231,12 @@
           }
         }
 
+        reload (version) {
+          document.getElementById('click').onclick = undefined
+          document.getElementById('configForm').onchange = undefined
+          this.setup(version)
+        }
+
         values () {
           return Object.fromEntries(new FormData(document.getElementById('configForm')))
         }
@@ -439,6 +250,12 @@
           const values = this.values()
           const valuesKey = JSON.stringify(values)
           if (valuesKey === this.lastValues) {
+            return
+          }
+          if (previous.version && previous.version !== values.version) {
+            this.lastValues = undefined
+            this.lastValuesKey = undefined
+            this.reload(values.version)
             return
           }
           this.lastValues = values
@@ -455,22 +272,28 @@
           const opt = document.getElementById('chestOpt')
           opt.innerHTML = ''
           const frag = document.createDocumentFragment()
+          let types
           switch (values.chestType) {
+            case 'super':
             case 'normal': {
-              const types = ['Unlocked', 'Locked']
-              types.forEach((type, idx) => {
-                const el = document.createElement('option')
-                el.value = idx
-                el.textContent = type
-                frag.appendChild(el)
-              })
-              frag.firstElementChild.setAttribute('selected', true)
+              types = ['Unlocked', 'Locked']
+              break
+            }
+            case 'sparkly': {
+              types = ['Unique', 'Set', 'Rare', 'Magic (3)', 'Magic (2)', 'Magic (1)']
               break
             }
             default: {
               throw new Error(`unknown chest type: ${values.chestType}`)
             }
           }
+          types.forEach((type, idx) => {
+            const el = document.createElement('option')
+            el.value = idx
+            el.textContent = type
+            frag.appendChild(el)
+          })
+          frag.firstElementChild.setAttribute('selected', true)
           opt.appendChild(frag)
         }
 
@@ -537,16 +360,26 @@
               break
             }
           }
+          const chestType = values.chestType
+          let sim = 'simulateRegular'
+          if (chestType === 'super') {
+            sim = 'simulateSuper'
+          } else if (chestType === 'sparkly') {
+            sim = 'simulateSparkly'
+          }
+          const opts = {
+            treasureClass,
+            itemLevel: level,
+            seed: -1,
+            chestDropLevel: idx,
+            magicFind,
+            locked,
+            dropClass
+          }
           let found = []
           for (let i = 0; i < seedLimit; ++i) {
-            const res = this.dropper.simulateRegular({
-              treasureClass,
-              seed: i,
-              chestDropLevel: idx,
-              magicFind,
-              locked,
-              dropClass
-            })
+            opts.seed = i
+            const res = this.dropper[sim](opts)
             if (res.some(drop => set[drop.id])) {
               found.push({
                 seed: i,
@@ -590,10 +423,14 @@
           const difficulty = ['Normal', 'Nightmare', 'Hell'][config.values.difficulty]
           const players = config.values.players
           const chestType = ({
-            normal: 'Normal'
+            normal: 'Normal',
+            super: 'Super',
+            sparkly: 'Sparkly'
           })[config.values.chestType]
           const chestOpt = ({
-            normal: ['Unlocked', 'Locked']
+            normal: ['Unlocked', 'Locked'],
+            super: ['Unlocked', 'Locked'],
+            sparkly: ['Unique', 'Set', 'Rare', 'Magic (3)', 'Magic (2)', 'Magic (1)']
           })[config.values.chestType][config.values.chestOpt]
           const act = `Act ${config.values.act + 1}`
           const magicFind = config.values.magicFind
@@ -601,7 +438,7 @@
           const high = this.runes.find(rune => rune.id === config.filters.high).name
           const zone = computed.zone
           const treasureClass = computed.treasureClass
-          query.appendChild(p(`${difficulty} "${zone}" P:${players} MF:${magicFind}`))
+          query.appendChild(p(`"${zone}" P:${players} MF:${magicFind}`))
           query.appendChild(p(`Treasure: ${treasureClass}`))
           query.appendChild(p(`${chestType} ${chestOpt}`))
           query.appendChild(p(`${low} to ${high}`))
@@ -621,7 +458,7 @@
           result.appendChild(txt(`${drops.length} of ${max} ~ ${(drops.length / max * 100).toFixed(6)}%`))
           drops.forEach((drop, idx) => {
             const el = document.createElement('p')
-            el.appendChild(txt(`${idx + 1}.`, 'span'))
+            el.appendChild(txt(`${idx + 1}. 0x${drop.seed.toString(16).toUpperCase().padStart(4, '0')}`, 'span'))
             el.append(' ')
             drop.drops.forEach(({ id, rarity }) => {
               const name = this.getItemName(id)
