@@ -178,67 +178,129 @@
               })
             })
           })
+          this.misc = this.d2data.misc()
+          this.weapons = this.d2data.weapons()
+          this.armor = this.d2data.armor()
+          this.itemTypes = this.d2data.itemTypes()
+          this.itemRatio = this.d2data.itemRatio()
+          this.uniques = this.d2data.uniqueItems()
         }
 
-        simulateRegular ({ treasureClass, seed, chestDropLevel, locked = 0, magicFind = 0, forcedQuality = 0, dropClass = 1 }) {
-          const simulate = () => {
-            const random = new D2Random()
-            random.lower(seed)
-            const drops = []
-            let i = 1 + locked
-            while (i-- > 0) {
-              this.tree.simulate({
-                dc: dropClass,
-                id: treasureClass,
-                rng: n => random.max(n),
-                cb: ({ id }, tc) => {
-                  let dropRarity = forcedQuality
-                  if (!forcedQuality) {
-                    const item = this.findItem(id)
-                    const itemType = this.findItemType(id)
-                    if (itemType.Normal === '1') {
-                      dropRarity = 'normal'
+        simulateRegular ({ treasureClass, itemLevel, seed, chestDropLevel, locked = 0, magicFind = 0, forcedQuality = 0, dropClass = 1, confirmRarity = false }) {
+          const random = new D2Random()
+          random.lower(seed)
+          const drops = []
+          let i = 1 + locked
+          while (i-- > 0) {
+            this.tree.simulate({
+              dc: dropClass,
+              id: treasureClass,
+              rng: n => random.max(n),
+              cb: ({ id }, tc) => {
+                let dropRarity = forcedQuality
+                const item = this.findItem(id)
+                const itemType = this.findItemType(id)
+                if (!forcedQuality) {
+                  if (itemType.Normal === '1') {
+                    dropRarity = 'normal'
+                  }
+                  if (item.unique === '1' || (itemType.Magic === '1' && item.quest === '1')) {
+                    dropRarity = 'unique'
+                  }
+                  if (!dropRarity) {
+                    const passedRarity = rarity => {
+                      const p = this.p(id, rarity, magicFind, chestDropLevel, tc[rarity])
+                      if (p <= 0 || random.max(p) < 128) {
+                        return true
+                      }
+                      return false
                     }
-                    if (item.unique === '1' || (itemType.Magic === '1' && item.quest === '1')) {
-                      dropRarity = 'unique'
+                    dropRarity = ['unique', 'set'].find(passedRarity)
+                    if (!dropRarity) {
+                      if (itemType.Rare === '1' && passedRarity('rare')) {
+                        dropRarity = 'rare'
+                      }
+                      if (!dropRarity && (itemType.Magic === '1' || passedRarity('magic'))) {
+                        dropRarity = 'magic'
+                      }
                     }
                     if (!dropRarity) {
-                      dropRarity = Object.keys(ChestDropper.constants).find(rarity => {
-                        const p = this.p(id, rarity, magicFind, chestDropLevel, tc[rarity])
-                        if (p <= 0 || random.max(p) < 128) {
-                          return true
-                        }
-                        return false
-                      })
+                      const highQualityRatio = this.findRatio(id, 'HiQuality')
+                      let p = (highQualityRatio.base - ~~((chestDropLevel - item.level) / highQualityRatio.divisor)) << 7
+                      if (p <= 0 || random.max(p) < 128) {
+                        dropRarity = 'high'
+                      }
                       if (!dropRarity) {
-                        const item = this.findItem(id)
-                        const highQualityRatio = this.findRatio(id, 'HiQuality')
-                        let p = (highQualityRatio.base - ~~((chestDropLevel - item.level) / highQualityRatio.divisor)) << 7
+                        const normalRatio = this.findRatio(id, 'Normal')
+                        p = (normalRatio.base - ~~((chestDropLevel - item.level) / normalRatio.divisor)) << 7
                         if (p <= 0 || random.max(p) < 128) {
-                          dropRarity = 'high'
-                        }
-                        if (!dropRarity) {
-                          const normalRatio = this.findRatio(id, 'Normal')
-                          p = (normalRatio.base - ~~((chestDropLevel - item.level) / normalRatio.divisor)) << 7
-                          if (p <= 0 || random.max(p) < 128) {
-                            dropRarity = 'normal'
-                          } else {
-                            dropRarity = 'low'
-                          }
+                          dropRarity = 'normal'
+                        } else {
+                          dropRarity = 'low'
                         }
                       }
                     }
                   }
-                  drops.push({
-                    id,
-                    rarity: dropRarity
-                  })
-                },
-              })
-            }
-            return drops
+                }
+                drops.push({
+                  id,
+                  rarity: dropRarity
+                })
+                if (confirmRarity) {
+                  dropRarity = this.getRealRarity(id, itemLevel, dropRarity, item, itemType)
+                  const last = drops.at(-1)
+                  last.downgrade = last.rarity
+                  last.rarity = dropRarity
+                }
+              },
+            })
           }
-          return simulate()
+          return drops
+        }
+
+        getRealRarity (id, level, rarity, item, type) {
+          // we only care about magic+
+          // a superior/low/normal doesn't affect chest drops
+          // unique
+          // rare -> magic w/ prefix & suffix -> superior? -> normal
+          // magic w/o prefix & suffix -> normal
+          // low/high non-armor/weapon -> normal
+          switch (rarity) {
+            case 'unique': {
+              if (type.unique === '1') {
+                break
+              }
+              const eligible = this.uniques.all('code', id)
+              if (eligible.length === 0) {
+                return this.getRealRarity(id, level, 'rare', item, type)
+              }
+              if (!eligible.some(unique => unique.lvl <= level)) {
+                return this.getRealRarity(id, level, 'rare', item, type)
+              }
+            }
+            case 'set': {
+              if (type.unique === '1') {
+                break
+              }
+              const eligible = this.uniques.all('code', id)
+              if (eligible.length === 0) {
+                return this.getRealRarity(id, level, 'magic', item, type)
+              }
+              if (!eligible.some(set => set.lvl <= level)) {
+                return this.getRealRarity(id, level, 'magic', item, type)
+              }
+            }
+            case 'rare': {
+              if (type.Rare !== '1') {
+                return this.getRealRarity(id, level, 'magic', item, type)
+              }
+            }
+            // for magic, if an item has no prefix/suffix, it cannot be magic...
+            case 'magic': {
+              break
+            }
+          }
+          return rarity
         }
 
         p (id, rarity, magicFind, level, extra) {
@@ -261,7 +323,7 @@
           const uber = item.szFlavorText !== undefined && (item.ubercode === id || item.ultracode === id) && item.type !== 'tpot' && !item.quest
           // assume version is ascending
           let ratio
-          this.d2data.itemRatio().each(el => {
+          this.itemRatio.each(el => {
             const isClazzy = el['Class Specific'] === '1'
             const isUber = el['Uber'] === '1'
             if (clazzy === isClazzy && uber === isUber) {
@@ -279,15 +341,15 @@
 
         findItem (id) {
           let ret
-          ret = this.d2data.misc().first('code', id)
+          ret = this.misc.first('code', id)
           if (ret) {
             return ret
           }
-          ret = this.d2data.weapons().first('code', id)
+          ret = this.weapons.first('code', id)
           if (ret) {
             return ret
           }
-          ret = this.d2data.armor().first('code', id)
+          ret = this.armor.first('code', id)
           if (ret) {
             return ret
           }
@@ -295,7 +357,7 @@
         }
 
         findItemType (id) {
-          return this.d2data.itemTypes().first('Code', this.findItem(id).type)
+          return this.itemTypes.first('Code', this.findItem(id).type)
         }
       }
       class ChestPU {
@@ -446,6 +508,7 @@
         simulate () {
           const values = this.values()
           const zone = this.levels.first('Id', values.zone)
+          const zoneName = this.strings.get(zone.LevelName)
           const act = Number(values.act)
           const difficulty = Number(values.difficulty)
           const levelKey = `MonLvl${difficulty}Ex`
@@ -497,7 +560,8 @@
               filters
             },
             computed: {
-              treasureClass
+              treasureClass,
+              zone: zoneName
             },
             drops: found
           })
@@ -505,16 +569,73 @@
 
         result (output) {
           const query = document.createElement('td')
-          query.style.whiteSpace = 'pre'
-          query.textContent = JSON.stringify(output.config, null, 2)
+          query.style.verticalAlign = 'top'
+          this.populateQuery(output, query)
           const result = document.createElement('td')
-          result.style.whiteSpace = 'pre'
-          result.textContent = JSON.stringify(output.drops, null, 2)
+          result.style.verticalAlign = 'top'
+          this.populateResult(output, result)
           const tr = document.createElement('tr')
           tr.appendChild(query)
           tr.appendChild(result)
           const tbl = document.getElementById('result')
           tbl.prepend(tr)
+        }
+
+        populateQuery ({ config, computed }, query) {
+          const p = text => {
+            const el = document.createElement('p')
+            el.textContent = text
+            return el
+          }
+          const difficulty = ['Normal', 'Nightmare', 'Hell'][config.values.difficulty]
+          const players = config.values.players
+          const chestType = ({
+            normal: 'Normal'
+          })[config.values.chestType]
+          const chestOpt = ({
+            normal: ['Unlocked', 'Locked']
+          })[config.values.chestType][config.values.chestOpt]
+          const act = `Act ${config.values.act + 1}`
+          const magicFind = config.values.magicFind
+          const low = this.runes.find(rune => rune.id === config.filters.low).name
+          const high = this.runes.find(rune => rune.id === config.filters.high).name
+          const zone = computed.zone
+          const treasureClass = computed.treasureClass
+          query.appendChild(p(`${difficulty} "${zone}" P:${players} MF:${magicFind}`))
+          query.appendChild(p(`Treasure: ${treasureClass}`))
+          query.appendChild(p(`${chestType} ${chestOpt}`))
+          query.appendChild(p(`${low} to ${high}`))
+        }
+
+        populateResult ({ drops }, result) {
+          const txt = (text, type = 'p') => {
+            const el = document.createElement(type)
+            el.textContent = text
+            return el
+          }
+          const style = getComputedStyle(document.documentElement)
+          const color = rarity => {
+            return style.getPropertyValue(`--d2-color-${rarity}`)
+          }
+          const max = (1 << 16) - 2
+          result.appendChild(txt(`${drops.length} of ${max} ~ ${(drops.length / max * 100).toFixed(6)}%`))
+          drops.forEach((drop, idx) => {
+            const el = document.createElement('p')
+            el.appendChild(txt(`${idx + 1}.`, 'span'))
+            el.append(' ')
+            drop.drops.forEach(({ id, rarity }) => {
+              const name = this.getItemName(id)
+              el.appendChild(txt(`[${name}]`, 'span'))
+              el.append(' ')
+              el.lastElementChild.style.color = !name.endsWith('Rune') ? color(rarity) : color('rune')
+            })
+            result.appendChild(el)
+          })
+        }
+
+        getItemName (id) {
+          const name = this.strings.get(this.dropper.findItem(id).namestr)
+          return name.replace(/\xC3.../g, '')
         }
       }
       new ChestPU().setup()

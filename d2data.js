@@ -38,6 +38,7 @@ class DataFrame {
     this.uri = uri
     this.values = []
     this.firsts = new Map()
+    this.alls = new Map()
   }
 
   async load () {
@@ -90,6 +91,25 @@ class DataFrame {
       }
     })
     return this.firsts.get(key).get(val)
+  }
+
+  all (key, val) {
+    if (this.alls.has(key)) {
+      return this.alls.get(key).get(val) || []
+    }
+    const k = this.keys.indexOf(key)
+    if (k < 0) {
+      throw new Error(`unknown key: ${key}`)
+    }
+    const map = new Map()
+    this.alls.set(key, map)
+    this.each(value => {
+      if (!map.has(value[key])) {
+        map.set(value[key], [])
+      }
+      map.get(value[key]).push(value)
+    })
+    return this.alls.get(key).get(val) || []
   }
 
   combine (values) {
@@ -1645,6 +1665,7 @@ class Diablo2Data {
     'AutoMagic.txt',
     'TreasureClassEx.txt',
     'ItemRatio.txt',
+    'UniqueItems.txt',
   ]
 
   constructor (version = 's9') {
@@ -1722,6 +1743,10 @@ class Diablo2Data {
 
   itemRatio () {
     return this.loader.get(this.version, 'ItemRatio.txt')
+  }
+
+  uniqueItems () {
+    return this.loader.get(this.version, 'UniqueItems.txt')
   }
 
   TypeList () {

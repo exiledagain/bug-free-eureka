@@ -1,5 +1,15 @@
 :root {
   --commong-bg-color: rgb(23, 39, 63);
+  /* https://d2mods.info/forum/viewtopic.php?p=128000&sid=336cbdabff46c3ee9b38bdfd8bd2c00f#p128000 */
+  --d2-color-unique: rgb(177, 141, 98);
+  --d2-color-set: rgb(0, 255, 0);
+  --d2-color-rare: rgb(255, 255, 100);
+  --d2-color-magic: rgb(105, 105, 255);
+  --d2-color-normal: rgb(255, 255, 255);
+  --d2-color-high: rgb(255, 255, 255);
+  --d2-color-low: rgb(105, 105, 105);
+  --d2-color-server: rgb(255, 77, 77);
+  --d2-color-rune: rgb(255, 168, 0)
 }
 
 body {

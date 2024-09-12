@@ -328,11 +328,11 @@
           this.setMap = {}
           const setSums = {}
           this.sets.each(set => {
-            if (set.rarity < 1) {
+            if (set.item.length === 0) {
               return
             }
             setSums[set.item] = setSums[set.item] || 0
-            const p = Number(set.rarity)
+            const p = Number(set.rarity) || 1
             setSums[set.item] += p
             this.setMap[set.item] = this.setMap[set.item] || new Map()
             this.setMap[set.item].set(set.index, {
