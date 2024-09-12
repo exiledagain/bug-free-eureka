@@ -1736,11 +1736,13 @@ class Diablo2Data {
 if (typeof window === 'undefined' && typeof self === 'undefined') {
   module.exports = {
     AffixList,
+    D2Random,
     DataFrame,
     DataLoader,
     Diablo2Data,
     StatFormat,
     StringResolver,
+    TreasureTree,
     TypeList,
   }
 }
