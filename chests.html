@@ -420,15 +420,15 @@
           for (let i = minSeed; i < maxSeed; ++i) {
             opts.seed = i
             const res = this.dropper[sim](opts)
+            if (res.length > 0) {
+              nonEmptyCount += 1
+            }
             if (res.some(drop => set[drop.id])) {
               found.push({
                 seed: i,
                 drops: res
               })
               continue
-            }
-            if (res.length > 0) {
-              nonEmptyCount += 1
             }
             if (uniqueItem.length > 0 && res.some(drop => drop.id === uniqueItem && drop.rarity === 'unique')) {
               found.push({
