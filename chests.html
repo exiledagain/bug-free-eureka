@@ -364,6 +364,9 @@
           const difficulty = Number(values.difficulty)
           const levelKey = `MonLvl${difficulty + 1}Ex`
           const level = Number(zone[levelKey])
+          const lockedLevelKey = `MonLvl1`
+          const lockedLevel = Number(zone[lockedLevelKey])
+          const lockChance = ~~(lockedLevel / 2) + 8
           const minLevel = Number(this.levels.first('Id', ChestPU.levelIds[act * 2])[levelKey])
           const maxLevel = Number(this.levels.first('Id', ChestPU.levelIds[act * 2 + 1])[levelKey])
           // extra chest tc for each 1/3 of an act
@@ -413,6 +416,7 @@
             opts.debug = true
           }
           let found = []
+          let nonEmptyCount = 0
           for (let i = minSeed; i < maxSeed; ++i) {
             opts.seed = i
             const res = this.dropper[sim](opts)
@@ -422,6 +426,9 @@
                 drops: res
               })
               continue
+            }
+            if (res.length > 0) {
+              nonEmptyCount += 1
             }
             if (uniqueItem.length > 0 && res.some(drop => drop.id === uniqueItem && drop.rarity === 'unique')) {
               found.push({
@@ -461,9 +468,11 @@
             },
             computed: {
               treasureClass,
-              zone: zoneName
+              zone: zoneName,
+              lockChance
             },
-            drops: found
+            drops: found,
+            nonEmptyCount
           })
         }
 
@@ -508,15 +517,17 @@
           const treasureClass = computed.treasureClass
           const uniqueItem = config.filters.uniqueItem
           const setItem = config.filters.setItem
+          const lockChance = computed.lockChance
           query.appendChild(p(`"${zone}" (${version}) P:${players} MF:${magicFind}`))
           query.appendChild(p(`Treasure: ${treasureClass}`))
+          query.appendChild(p(`Lock Chance: ${lockChance}%`))
           query.appendChild(p(`${chestType} ${chestOpt}`))
           query.appendChild(p(`${low} to ${high}`))
           query.appendChild(p(`Unique: ${uniqueItem}`))
           query.appendChild(p(`Set: ${setItem}`))
         }
 
-        populateResult ({ drops }, result) {
+        populateResult ({ drops, nonEmptyCount }, result) {
           const txt = (text, type = 'p') => {
             const el = document.createElement(type)
             el.textContent = text
@@ -527,7 +538,7 @@
             return style.getPropertyValue(`--d2-color-${rarity}`)
           }
           const max = (1 << 16) - 2
-          result.appendChild(txt(`${drops.length} of ${max} ~ ${(drops.length / max * 100).toFixed(6)}%`))
+          result.appendChild(txt(`${drops.length} of ${max} ~ ${(drops.length / max * 100).toFixed(6)}% (${nonEmptyCount} dropped loot)`))
           drops.forEach((drop, idx) => {
             const el = document.createElement('p')
             el.appendChild(txt(`${idx + 1}. 0x${drop.seed.toString(16).toUpperCase().padStart(4, '0')}`, 'span'))
