@@ -157,6 +157,14 @@
                     </select>
                   </td>
                 </tr>
+                <tr>
+                  <td>
+                    <label for="avoidJunk">Hide Trash</label>
+                  </td>
+                  <td>
+                    <input type="checkbox" id="avoidJunk" name="avoidJunk" checked/>
+                  </td>
+                </tr>
               </table>
             </fieldset>
           </form>
@@ -429,6 +437,19 @@
               })
               continue
             }
+          }
+          if (filters.avoidJunk) {
+            found.forEach(result => {
+              result.drops = result.drops.filter(drop => {
+                if (drop.id.match(/^r\d\d?s?$|^cm\d$/)) {
+                  return true
+                }
+                if (drop.rarity === 'unique' || drop.rarity === 'set' || drop.rarity === 'rare') {
+                  return true
+                }
+                return false
+              })
+            })
           }
           if (this.dropper.debugList) {
             console.log(JSON.stringify(this.dropper.debugList))
