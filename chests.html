@@ -480,13 +480,14 @@
           })[config.values.chestType][config.values.chestOpt]
           const act = `Act ${config.values.act + 1}`
           const magicFind = config.values.magicFind
+          const version = config.values.version
           const low = this.runes.find(rune => rune.id === config.filters.low).name
           const high = this.runes.find(rune => rune.id === config.filters.high).name
           const zone = computed.zone
           const treasureClass = computed.treasureClass
           const uniqueItem = config.filters.uniqueItem
           const setItem = config.filters.setItem
-          query.appendChild(p(`"${zone}" P:${players} MF:${magicFind}`))
+          query.appendChild(p(`"${zone}" (${version}) P:${players} MF:${magicFind}`))
           query.appendChild(p(`Treasure: ${treasureClass}`))
           query.appendChild(p(`${chestType} ${chestOpt}`))
           query.appendChild(p(`${low} to ${high}`))
