@@ -361,7 +361,7 @@
           // extra chest tc for each 1/3 of an act
           const offset = ~~((Math.abs(maxLevel - minLevel) + 1) / 3)
           let idx = 0
-          if (level > minLevel + offset) {
+          if (level >= minLevel + offset) {
             idx = 1
             idx += level >= minLevel + 2 * offset
           }
