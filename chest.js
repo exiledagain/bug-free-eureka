@@ -412,8 +412,8 @@ class ChestDropper {
     random.max = n => {
       console.log(`${n} ${random.toString()} ${++count}`)
       list.push({
+        string: random.toString(),
         n: n.toString(),
-        string: random.toString()
       })
       return oldrandom.call(random, n)
     }
