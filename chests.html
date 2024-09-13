@@ -354,7 +354,7 @@
           const zoneName = this.strings.get(zone.LevelName)
           const act = Number(values.act)
           const difficulty = Number(values.difficulty)
-          const levelKey = `MonLvl${difficulty}Ex`
+          const levelKey = `MonLvl${difficulty + 1}Ex`
           const level = Number(zone[levelKey])
           const minLevel = Number(this.levels.first('Id', ChestPU.levelIds[act * 2])[levelKey])
           const maxLevel = Number(this.levels.first('Id', ChestPU.levelIds[act * 2 + 1])[levelKey])
