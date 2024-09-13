@@ -139,6 +139,24 @@
                     </select>
                   </td>
                 </tr>
+                <tr>
+                  <td>
+                    <label for="uniqueItem">Unique</label>
+                  </td>
+                  <td>
+                    <select id="uniqueItem" name="uniqueItem">
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="setItem">Set</label>
+                  </td>
+                  <td>
+                    <select id="setItem" name="setItem">
+                    </select>
+                  </td>
+                </tr>
               </table>
             </fieldset>
           </form>
@@ -223,6 +241,8 @@
           this.zones.shift()
           this.config()
           this.configRunes()
+          this.configUniques()
+          this.configSets()
           document.getElementById('configForm').onchange = e => {
             this.config()
           }
@@ -367,6 +387,8 @@
           } else if (chestType === 'sparkly') {
             sim = 'simulateSparkly'
           }
+          const uniqueItem = filters.uniqueItem
+          const setItem = filters.setItem
           const opts = {
             treasureClass,
             itemLevel: level,
@@ -376,13 +398,13 @@
             locked,
             dropClass
           }
-          let found = []
           const forceSeed = -1
           const minSeed = forceSeed < 0 ? 0 : forceSeed
           const maxSeed = forceSeed < 0 ? seedLimit : forceSeed + 1
           if (forceSeed >= 0) {
             opts.debug = true
           }
+          let found = []
           for (let i = minSeed; i < maxSeed; ++i) {
             opts.seed = i
             const res = this.dropper[sim](opts)
@@ -391,6 +413,21 @@
                 seed: i,
                 drops: res
               })
+              continue
+            }
+            if (uniqueItem.length > 0 && res.some(drop => drop.id === uniqueItem && drop.rarity === 'unique')) {
+              found.push({
+                seed: i,
+                drops: res
+              })
+              continue
+            }
+            if (setItem.length > 0 && res.some(drop => drop.id === setItem && drop.rarity === 'set')) {
+              found.push({
+                seed: i,
+                drops: res
+              })
+              continue
             }
           }
           if (this.dropper.debugList) {
@@ -447,10 +484,14 @@
           const high = this.runes.find(rune => rune.id === config.filters.high).name
           const zone = computed.zone
           const treasureClass = computed.treasureClass
+          const uniqueItem = config.filters.uniqueItem
+          const setItem = config.filters.setItem
           query.appendChild(p(`"${zone}" P:${players} MF:${magicFind}`))
           query.appendChild(p(`Treasure: ${treasureClass}`))
           query.appendChild(p(`${chestType} ${chestOpt}`))
           query.appendChild(p(`${low} to ${high}`))
+          query.appendChild(p(`Unique: ${uniqueItem}`))
+          query.appendChild(p(`Set: ${setItem}`))
         }
 
         populateResult ({ drops }, result) {
@@ -482,6 +523,58 @@
         getItemName (id) {
           const name = this.strings.get(this.dropper.findItem(id).namestr)
           return name.replace(/\xC3.../g, '')
+        }
+
+        configUniques () {
+          const frag = document.createDocumentFragment()
+          const el = document.createElement('option')
+          el.value = ''
+          el.textContent = 'None'
+          frag.appendChild(el)
+          const uniques = []
+          this.d2data.uniqueItems().each(unique => {
+            if (unique.rarity <= 0 || !unique.enabled) {
+              return
+            }
+            uniques.push({
+              entry: unique,
+              name: this.strings.get(unique.index)
+            })
+          })
+          uniques.sort((a, b) => a.name.localeCompare(b.name))
+          uniques.forEach(({ entry, name }) => {
+            const el = document.createElement('option')
+            el.value = entry.code
+            el.textContent = name
+            frag.appendChild(el)
+          })
+          document.getElementById('uniqueItem').appendChild(frag)
+        }
+
+        configSets () {
+          const frag = document.createDocumentFragment()
+          const el = document.createElement('option')
+          el.value = ''
+          el.textContent = 'None'
+          frag.appendChild(el)
+          const sets = []
+          this.d2data.setItems().each(set => {
+            if (set.item.length === 0) {
+              return
+            }
+            sets.push({
+              entry: set,
+              name: this.strings.get(set.index)
+            })
+          })
+          sets.sort((a, b) => a.name.localeCompare(b.name))
+          sets.forEach(({ entry, name }) => {
+            const el = document.createElement('option')
+            el.value = entry.item
+            el.textContent = name
+            frag.appendChild(el)
+          })
+          document.getElementById('setItem').appendChild(frag)
         }
       }
       new ChestPU().setup()
