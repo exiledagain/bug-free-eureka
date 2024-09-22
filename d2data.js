@@ -1101,7 +1101,7 @@ class TreasureTree {
       const possible = Math.min(lootTc.picks, 6 - i)
       const adjust = possible / lootTc.picks
       // drop i runes before items
-      if (p > 0) {
+      if (p > 0 && possible > 0) {
         this.walk(lootTc.id, n, {
           pre: (v, baseP) => {
             const realP = p * baseP * adjust

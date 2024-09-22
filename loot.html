@@ -207,17 +207,22 @@
           metaMap['Rune'] = []
           for (let i = 1; i <= 33; ++i) {
             const id = `r${i.toFixed(0).padStart(2, '0')}s`
+            const id2 = `r${i.toFixed(0).padStart(2, '0')}`
             metaMap['Rune'].push(id)
+            metaMap['Rune'].push(id2)
           }
           metaMap['High Rune'] = []
           for (let i = 25; i <= 33; ++i) {
             const id = `r${i.toFixed(0).padStart(2, '0')}s`
+            const id2 = `r${i.toFixed(0).padStart(2, '0')}`
             metaMap['High Rune'].push(id)
+            metaMap['High Rune'].push(id2)
           }
           const metaLookup = {}
           for (const k in metaMap) {
             for (const id of metaMap[k]) {
-              metaLookup[id] = `*Any ${k}`
+              metaLookup[id] = metaLookup[id] || []
+              metaLookup[id].push(`*Any ${k}`)
             }
           }
 
@@ -264,9 +269,11 @@
                   }
                   append(treasure, p)
                   if (metaLookup[treasure.id]) {
-                    const copy = Object.assign({}, treasure)
-                    copy.id = metaLookup[treasure.id]
-                    append(copy, p)
+                    metaLookup[treasure.id].forEach(mid => {
+                      const copy = Object.assign({}, treasure)
+                      copy.id = mid
+                      append(copy, p)
+                    })
                   }
                 },
                 post: () => {
@@ -530,7 +537,7 @@
               return type && !this.mustBeNormal(code) && !this.mustBeUnique(code) && type.Rare === '1'
             }
             case 'magic': {
-              return !this.mustBeNormal(code) && !this.mustBeUnique(code)
+              return !this.mustBeNormal(code) && !this.mustBeUnique(code) && !code.startsWith('*Any')
             }
             case 'normal': {
               return !this.mustBeMagic(code) && !this.mustBeUnique(code)
