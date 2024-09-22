@@ -1073,6 +1073,42 @@ class TreasureTree {
     }
   }
 
+  countess (id, n, walker) {
+    const f = [1]
+    for (let i = 1; i < 10; ++i) {
+      f[i] = f[i - 1] * i
+    }
+    const C = (n, k) => {
+      if (k > n) {
+        throw new Error('k > n')
+      }
+      return f[n] / (f[k] * f[n - k])
+    }
+    const treasure = this.eval(id)
+    // runeTc/lootTc are accurate as of s9. if the order changes it won't matter
+    const runeTc = this.eval(treasure.children[0].id)
+    const lootTc = this.eval(treasure.children[1].id)
+    const noDrop = this.noDrop(n, runeTc)
+    if (runeTc.picks <= 0) {
+      throw new Error(`countess rune drop: ${runeTc.picks}`)
+    }
+    for (let i = 0; i <= runeTc.picks; ++i) {
+      const noDropP = 1 - noDrop / (noDrop + runeTc.sum)
+      const p = Math.pow(noDropP, i) * Math.pow(1 - noDropP, runeTc.picks - i) * C(runeTc.picks, i)
+      const possible = Math.min(lootTc.picks, 6 - i)
+      const adjust = possible / lootTc.picks
+      // drop i runes before items
+      if (p > 0) {
+        this.walk(lootTc.id, n, {
+          pre: (v, baseP) => {
+            const realP = p * baseP * adjust
+            walker.pre(v, realP)
+          }
+        })
+      }
+    }
+  }
+
   merge (a, b) {
     a = Object.assign({}, a)
     TreasureTree.mergeKeys.forEach(key => {

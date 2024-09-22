@@ -233,7 +233,8 @@
             if (this.tree.has(monster.treasure) && !walked[monster.treasure]) {
               const treasures = new Map()
               walked[monster.treasure] = true
-              this.tree.walk(monster.treasure, this.dc, {
+              const fn = !monster.treasure.startsWith('Countess') ? 'walk' : 'countess'
+              this.tree[fn](monster.treasure, this.dc, {
                 pre: (treasure, p) => {
                   const append = (treasure) => {
                     this.eligible[treasure.id] = true
@@ -762,7 +763,7 @@
               name: this.strings.get(source.source.string),
               level: source.source.level,
               treasure: source.source.treasure,
-              E: (1 / source.p).toFixed(3),
+              E: (1 / source.p).toFixed(4),
               from: source.source.from,
               type: source.source.rarity
             }
