@@ -1084,6 +1084,9 @@ class TreasureTree {
       }
       return f[n] / (f[k] * f[n - k])
     }
+    const B = (n, k, p) => {
+      return C(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k)
+    }
     const treasure = this.eval(id)
     // runeTc/lootTc are accurate as of s9. if the order changes it won't matter
     const runeTc = this.eval(treasure.children[0].id)
@@ -1092,9 +1095,9 @@ class TreasureTree {
     if (runeTc.picks <= 0) {
       throw new Error(`countess rune drop: ${runeTc.picks}`)
     }
+    const dropP = 1 - noDrop / (noDrop + runeTc.sum)
     for (let i = 0; i <= runeTc.picks; ++i) {
-      const noDropP = 1 - noDrop / (noDrop + runeTc.sum)
-      const p = Math.pow(noDropP, i) * Math.pow(1 - noDropP, runeTc.picks - i) * C(runeTc.picks, i)
+      const p = B(runeTc.picks, i, dropP)
       const possible = Math.min(lootTc.picks, 6 - i)
       const adjust = possible / lootTc.picks
       // drop i runes before items
@@ -1102,6 +1105,15 @@ class TreasureTree {
         this.walk(lootTc.id, n, {
           pre: (v, baseP) => {
             const realP = p * baseP * adjust
+            walker.pre(v, realP)
+          }
+        })
+      }
+      if (i > 0) {
+        // no drop has been considered so we need to set no drop to 0
+        this.walk(runeTc.id, 64, {
+          pre: (v, baseP) => {
+            const realP = p * baseP / runeTc.picks * i
             walker.pre(v, realP)
           }
         })
@@ -1168,7 +1180,7 @@ class TreasureTree {
     const stack = []
     const get = id => Object.assign({}, this.eval(id))
     stack.push(get(id))
-    let limit = 4096
+    let limit = 8192
     const res = []
     while (--limit > 0 && res.length < rem && stack.length > 0) {
       let top = stack.pop()
@@ -1178,7 +1190,6 @@ class TreasureTree {
           stack.push(top)
         }
         const tc = top
-        // assume n=0
         const noDrop = this.noDrop(dc, tc)
         let roll
         if (noDrop > 0) {
@@ -1209,11 +1220,10 @@ class TreasureTree {
       } else if (top.picks < 0) {
         top.index = top.index || top.picks
         const index = top.index - top.picks
-        if (index < -top.picks) {
+        if (index + 1 < -top.picks) {
           stack.push(top)
         }
         const tc = top
-        // assume nodrop=0
         let random = index
         const pick = tc.children.find(child => {
           random -= child.p
