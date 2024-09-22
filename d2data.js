@@ -1099,15 +1099,23 @@ class TreasureTree {
     for (let i = 0; i <= runeTc.picks; ++i) {
       const p = B(runeTc.picks, i, dropP)
       const possible = Math.min(lootTc.picks, 6 - i)
-      const adjust = possible / lootTc.picks
       // drop i runes before items
       if (p > 0 && possible > 0) {
-        this.walk(lootTc.id, n, {
-          pre: (v, baseP) => {
-            const realP = p * baseP * adjust
-            walker.pre(v, realP)
-          }
-        })
+        let sum = 0
+        const noDrop = this.noDrop(n, lootTc)
+        const dropP = 1 - noDrop / (noDrop + lootTc.sum)
+        for (let i = 0; i <= lootTc.picks; ++i) {
+          const pi = B(lootTc.picks, i, dropP)
+          sum += p * pi * Math.min(i, possible)
+        }
+        if (sum > 0) {
+          this.walk(lootTc.id, 64, {
+            pre: (v, baseP) => {
+              const realP = baseP / lootTc.picks
+              walker.pre(v, realP * sum)
+            }
+          })
+        }
       }
       if (i > 0) {
         // no drop has been considered so we need to set no drop to 0
@@ -1130,7 +1138,7 @@ class TreasureTree {
   }
 
   eval (id) {
-    if (/(?:weap|armo|mele)\d+/.test(id)) {
+    if (/^(?:weap|armo|mele)\d+/.test(id)) {
       return this.pseudo(id)
     }
     let res = this.computedEval.get(id)
