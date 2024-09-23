@@ -181,9 +181,7 @@
 
           this.clazzMap = {}
           this.typeList.items().forEach(item => {
-            if (this.typeList.itemIs(item, 'clas')) {
-              this.clazzMap[item] = true
-            }
+            this.clazzMap[item] = this.typeList.itemIs(item, 'clas')
           })
 
           const walked = {}
@@ -409,13 +407,7 @@
         }
 
         isClassSpecific (item) {
-          if (!this.typeList.has(item)) {
-            if (!this.codeMap[item]) {
-              return false
-            }
-            item = this.codeMap[item].type
-          }
-          return this.clazzMap[item]
+          return !!this.clazzMap[item]
         }
 
         entry (code) {
