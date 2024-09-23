@@ -222,16 +222,15 @@ class TypeList {
 
   all () {
     const res = Object.keys(this.set)
-    res.sort()
     return res
   }
 
   types () {
-    return this.all().filter(el => !this.entry(el))
+    return this.all()
   }
 
   items () {
-    return this.all().filter(el => this.entry(el))
+    return this.itemList
   }
 
   same (a, b) {
@@ -239,6 +238,11 @@ class TypeList {
       return true
     }
     return this.equivalent(a, b)
+  }
+
+  itemIs (item, type) {
+    const entry = this.entry(item)
+    return this.equivalent(entry.type, type) || (entry.type2.length > 0 && this.equivalent(entry.type2, type))
   }
 
   equivalent (a, b) {
@@ -343,22 +347,25 @@ class TypeList {
 
   build (miscTxt, typesTxt, weaponsTxt, armorsTxt) {
     this.set = {}
-    miscTxt.each(row => {
-      this.add(row.code, [row.type, row.type2])
-    })
+    this.itemList = []
     typesTxt.each(row => {
       this.add(row.Code, [row.Equiv1, row.Equiv2])
     })
-    if (weaponsTxt) {
-      weaponsTxt.each(row => {
-        this.add(row.code, [row.type, row.type2])
-      })
-    }
-    if (armorsTxt) {
-      armorsTxt.each(row => {
-        this.add(row.code, [row.type, row.type2])
-      })
-    }
+    miscTxt.each(entry => {
+      if (entry.code.length > 0) {
+        this.itemList.push(entry.code)
+      }
+    })
+    weaponsTxt.each(entry => {
+      if (entry.code.length > 0) {
+        this.itemList.push(entry.code)
+      }
+    })
+    armorsTxt.each(entry => {
+      if (entry.code.length > 0) {
+        this.itemList.push(entry.code)
+      }
+    })
   }
 
   isWeapon (code) {
@@ -387,13 +394,6 @@ class AffixList {
   static eTypes = [1,2,3,4,5,6,7].map(id => `etype${id}`)
   static cellSet = new Set()
 
-  // all weapons/armors have magic level > 0
-  static magicMap = {
-    'circ': true,
-    'orb': true,
-    'staf': true
-  }
-
   static isCellIncluded (name) {
     if (AffixList.cellSet.size === 0) {
       const cellSet = AffixList.cellSet
@@ -416,8 +416,11 @@ class AffixList {
     return AffixList.isCellIncluded(name)
   }
 
-  constructor (item, typeList, data, type, level, isRare) {
+  constructor (item, typeList, data, level, isRare) {
     this.item = item
+    const entry = typeList.entry(item.code)
+    this.type = entry.type
+    this.type2 = entry.type2
     this.typeList = typeList
     this.classSet = new Set(this.typeList.expand('clas'))
     this.classesMap = new Map()
@@ -427,11 +430,10 @@ class AffixList {
         this.classesMap.set(child, clazz.substring(0, 3))
       }
     }
-    this.type = type
     this.level = level
     this.isRare = isRare
     this.data = data.filter(this.rowFilter.bind(this), AffixList.cellFilter)
-    if (item.override || AffixList.magicMap[item.code]) {
+    if (entry['magic lvl'] > 0) {
       const fIdx = this.data.keyIndex('frequency')
       const lIdx = this.data.keyIndex('level')
       this.data.values.forEach(value => {
@@ -443,7 +445,7 @@ class AffixList {
   matchingType (aff) {
     const ins = AffixList.iTypes.map(i => aff[i]).filter(el => el)
     const outs = AffixList.eTypes.map(i => aff[i]).filter(el => el)
-    const fn = el => this.typeList.same(this.type, el)
+    const fn = el => this.typeList.same(this.type, el) || (this.type2.length > 0 && this.typeList.same(this.type2, el))
     return ins.some(fn) && !outs.some(fn)
   }
 
@@ -953,12 +955,17 @@ class TreasureTree {
     this.typeMap = {}
     for (const type in types) {
       const { list, predicate } = types[type]
-      const children = this.typeList.expand(predicate)
+      const children = new Set(this.typeList.items().reduce((list, item) => {
+        if (this.typeList.itemIs(item, predicate)) {
+          list.push(item)
+        }
+        return list
+      }, []))
       list.each(el => {
         if (el.spawnable !== '1' || el.rarity <= 0) {
           return
         }
-        if (!children.includes(el.code)) {
+        if (!children.has(el.code)) {
           return
         }
         const group = Math.ceil(el.level / 3) * 3
@@ -1363,6 +1370,13 @@ class StringTable {
     }
     return res
   }
+
+  has (key) {
+    if (!this.map) {
+      throw new Error(`unknown has ${key}: not loaded?`)
+    }
+    return this.map && this.map.has(key)
+  }
 }
 
 class StringResolver {
@@ -1382,6 +1396,10 @@ class StringResolver {
       return res !== key
     })
     return res
+  }
+
+  has (key) {
+    return this.tables.some(table => table.has(key))
   }
 }
 

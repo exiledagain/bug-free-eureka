@@ -180,8 +180,10 @@
           this.tree = new TreasureTree(this.treasure, this.typeList, this.weapons, this.armors)
 
           this.clazzMap = {}
-          this.typeList.expand('clas').forEach(clazz => {
-            this.clazzMap[clazz] = true
+          this.typeList.items().forEach(item => {
+            if (this.typeList.itemIs(item, 'clas')) {
+              this.clazzMap[item] = true
+            }
           })
 
           const walked = {}

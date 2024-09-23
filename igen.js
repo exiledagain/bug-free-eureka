@@ -434,76 +434,194 @@ class IgMetaForm {
     }
   }
 
-  constructor (typeList) {
+  constructor ({ typeList, strings }) {
+    this.itemList = typeList.items()
     this.typeList = typeList
+    this.strings = strings
+    this.itemList = this.itemList.reduce((list, item) => {
+      if (item.length === 0) {
+        return list
+      }
+      const nameId = this.typeList.entry(item).namestr
+      if (!this.strings.has(nameId)) {
+        return list
+      }
+      list.push({
+        id: item,
+        name: this.strings.get(nameId).replace(/\xC3.../g, '')
+      })
+      return list
+    }, [])
+    this.itemList.sort((a, b) => {
+      return a.name.localeCompare(b.name)
+    })
+    this.lastRarity = 'Magic'
+  }
+
+  static populateForm (container, { name, spec }) {
+    const form = document.createElement('form')
+    const fieldset = document.createElement('fieldset')
+    const legend = document.createElement('legend')
+    const table = document.createElement('table')
+    form.autocomplete = "off"
+    form.style.width = 'fit-content'
+    legend.textContent = name
+    const list = {}
+    spec.forEach(({ display, name, input }) => {
+      const row = document.createElement('tr')
+      const key = document.createElement('td')
+      const value = document.createElement('td')
+      const label = document.createElement('label')
+      label.setAttribute('for', name)
+      label.textContent = display
+      const valueEl = input(list)
+      list[name] = valueEl
+      valueEl.id = name
+      valueEl.setAttribute('name', name)
+      key.appendChild(label)
+      value.appendChild(valueEl)
+      row.appendChild(key)
+      row.appendChild(value)
+      table.appendChild(row)
+    })
+    fieldset.appendChild(legend)
+    fieldset.appendChild(table)
+    form.appendChild(fieldset)
+    container.appendChild(form)
+    form.onsubmit = e => {
+      e.preventDefault()
+      return false
+    }
+    return form
+  }
+
+  populateItemList (inputs, itemInput) {
+    this.itemList.forEach(({ id, name }) => {
+      if (!this.typeList.itemIs(id, inputs.type.value)) {
+        return
+      }
+      const opt = document.createElement('option')
+      opt.value = id
+      opt.textContent = name
+      itemInput.appendChild(opt)
+    })
   }
 
   populate (container) {
-    const levelInput = document.createElement('input')
-    levelInput.id = 'level-input'
-    levelInput.name = 'level'
-    levelInput.type = 'text'
-    levelInput.setAttribute('list', 'levels')
-    levelInput.setAttribute('pattern', /\d\d?/.source)
-    levelInput.setAttribute('required', true)
-    const magicInput = document.createElement('input')
-    magicInput.type = 'checkbox'
-    magicInput.id = 'magic-input'
-    const magicLabel = document.createElement('label')
-    magicLabel.setAttribute('for', 'magic-input')
-    magicLabel.textContent = 'Magic Level > 0?'
-    magicLabel.title = 'wands have magic level for most bases but not all'
-    magicLabel.style.userSelect = 'none'
-    const typeInput = document.createElement('select')
-    typeInput.id = 'type-input'
-    this.typeList.types().forEach(type => {
-      const opt = document.createElement('option')
-      opt.value = type
-      opt.textContent = type
-      typeInput.appendChild(opt)
+    this.form = IgMetaForm.populateForm(container, {
+      name: 'Meta',
+      spec: [
+        {
+          display: 'Type',
+          name: 'type',
+          input: (inputs) => {
+            const typeInput = document.createElement('select')
+            const types = this.typeList.all()
+            types.sort((a, b) => {
+              return this.typeList.typesTxt.first('Code', a)['ItemType'].localeCompare(this.typeList.typesTxt.first('Code', b)['ItemType'])
+            })
+            types.forEach(type => {
+              if (type.length === 0 || type === 'None') {
+                return
+              }
+              const entry = this.typeList.typesTxt.first('Code', type)
+              if (entry.Normal === '1') {
+                return
+              }
+              const opt = document.createElement('option')
+              opt.textContent = entry['ItemType']
+              opt.value = type
+              typeInput.appendChild(opt)
+            })
+            typeInput.onchange = e => {
+              inputs.item.innerHTML = ''
+              this.populateItemList(inputs, inputs.item)
+              this.populateRarity(rarity, item.value)
+              this.populateAffixCount(rarity.value, prefix)
+              this.populateAffixCount(rarity.value, suffix)
+            }
+            return typeInput
+          }
+        },
+        {
+          display: 'Item',
+          name: 'item',
+          input: (inputs) => {
+            const itemInput = document.createElement('select')
+            this.populateItemList(inputs, itemInput)
+            itemInput.firstElementChild.selected = true
+            itemInput.onchange = e => {
+              const { item, rarity } = inputs
+              this.populateRarity(rarity, item.value)
+              this.populateAffixCount(rarity.value, prefix)
+              this.populateAffixCount(rarity.value, suffix)
+            }
+            return itemInput
+          }
+        },
+        {
+          display: 'Rarity',
+          name: 'rarity',
+          input: (inputs) => {
+            const rarityInput = document.createElement('select')
+            this.populateRarity(rarityInput, inputs.item.value)
+            rarityInput.onchange = () => {
+              const { rarity, prefix, suffix } = inputs
+              this.populateAffixCount(rarity.value, prefix)
+              this.populateAffixCount(rarity.value, suffix)
+              this.lastRarity = rarityInput.value
+            }
+            return rarityInput
+          }
+        },
+        {
+          display: 'Level',
+          name: 'level',
+          input: () => {
+            const levelInput = document.createElement('input')
+            levelInput.id = 'level-input'
+            levelInput.name = 'level'
+            levelInput.type = 'text'
+            levelInput.setAttribute('list', 'levels')
+            levelInput.setAttribute('pattern', /\d\d?/.source)
+            levelInput.setAttribute('required', true)
+            levelInput.maxLength = 3
+            levelInput.value = '99'
+            return levelInput
+          }
+        },
+        {
+          display: 'Prefix',
+          name: 'prefix',
+          input: () => {
+            const prefixInput = document.createElement('select')
+            this.populateAffixCount('Rare', prefixInput)
+            prefixInput.onchange = e => {
+              e.stopPropagation()
+              return false
+            }
+            return prefixInput
+          }
+        },
+        {
+          display: 'Suffix',
+          name: 'suffix',
+          input: () => {
+            const suffixInput = document.createElement('select')
+            this.populateAffixCount('Rare', suffixInput)
+            suffixInput.onchange = e => {
+              e.stopPropagation()
+              return false
+            }
+            return suffixInput
+          }
+        }
+      ]
     })
-    const rarityInput = document.createElement('select')
-    rarityInput.id = 'rarity-input'
-    const defaultType = '2hsw'
-    this.populateRarity(rarityInput, defaultType)
-    levelInput.value = '94'
-    typeInput.value = defaultType
-    rarityInput.value = 'Rare'
-    const prefixInput = document.createElement('select')
-    this.populateAffixCount(rarityInput.value, prefixInput)
-    const suffixInput = document.createElement('select')
-    this.populateAffixCount(rarityInput.value, suffixInput)
-    this.inputs = {
-      level: levelInput,
-      type: typeInput,
-      rarity: rarityInput,
-      prefix: prefixInput,
-      suffix: suffixInput
-    }
-    typeInput.onchange = e => {
-      this.populateRarity(rarityInput, this.inputs.type.value)
-    }
-    rarityInput.onchange = e => {
-      Array.from(prefixInput.children).forEach(child => child.remove())
-      Array.from(suffixInput.children).forEach(child => child.remove())
-      this.populateAffixCount(rarityInput.value, prefixInput)
-      this.populateAffixCount(rarityInput.value, suffixInput)
-      this.populateRarity(rarityInput, this.inputs.type.value)
-    }
-    prefixInput.onchange = suffixInput.onchange = e => {
-      e.stopPropagation()
-      return false
-    }
-    container.appendChild(magicInput)
-    container.appendChild(magicLabel)
-    container.appendChild(typeInput)
-    container.appendChild(rarityInput)
-    container.appendChild(levelInput)
-    container.appendChild(prefixInput)
-    container.appendChild(suffixInput)
   }
 
   populateAffixCount (rarity, input) {
+    input.innerHTML = ''
     for (let i = 0; i <= IgMetaForm.defaultCounts(rarity); ++i) {
       const opt = document.createElement('option')
       opt.value = opt.textContent = i
@@ -512,13 +630,13 @@ class IgMetaForm {
     input.value = input.firstElementChild.value
   }
 
-  populateRarity (rarityInput, selectedType) {
+  populateRarity (rarityInput, item) {
     const rarity = ['Magic', 'Rare']
     const crafts = {
       'weap': ['Blood', 'Diamond']
     }
     for (const type in crafts) {
-      if (this.typeList.expand(type).includes(selectedType)) {
+      if (this.typeList.itemIs(item, type)) {
         crafts[type].forEach(craftedType => {
           rarity.push(`Crafted - ${craftedType}`)
         })
@@ -529,23 +647,24 @@ class IgMetaForm {
       return opt.value !== rarity[idx]
     })
     if (updateRequired) {
-      Array.from(rarityInput.children).forEach(child => child.remove())
+      rarityInput.innerHTML = ''
       rarity.forEach(type => {
         const opt = document.createElement('option')
         opt.value = type
         opt.textContent = type
+        if (type === this.lastRarity) {
+          opt.selected = true
+        }
         rarityInput.appendChild(opt)
       })
     }
   }
 
   values () {
-    const res = {}
-    res.level = Number(this.inputs.level.value)
-    res.type = this.inputs.type.value
-    res.rarity = this.inputs.rarity.value
-    res.prefix = Number(this.inputs.prefix.value)
-    res.suffix = Number(this.inputs.suffix.value)
+    const res = Object.fromEntries(new FormData(this.form).entries())
+    res.level = Number(res.level)
+    res.prefix = Number(res.prefix)
+    res.suffix = Number(res.suffix)
     return res
   }
 }
@@ -591,40 +710,67 @@ class IgRequirementForm {
     if (this.creation) {
       this.creation.remove()
     }
-    this.creation = document.createElement('div')
-    const codeInput = document.createElement('select')
-    this.populateSelectInput(codeInput, this.codes)
-    const paramInput = document.createElement('select')
-    this.populateSelectInput(paramInput, this.params.get(codeInput.firstElementChild.textContent))
-    const valueInput = document.createElement('input')
-    valueInput.type = 'text'
-    valueInput.pattern = /0*[1-9]\d*/.source
-    valueInput.value = '1'
-    codeInput.onchange = () => {
-      while (paramInput.firstElementChild) {
-        paramInput.firstElementChild.remove()
-      }
-      this.populateSelectInput(paramInput, this.params.get(codeInput.value))
-    }
-    const appendInput = document.createElement('button')
-    appendInput.textContent = '+'
-    appendInput.onclick = () => {
-      if (!codeInput.validity.valid || !paramInput.validity.valid || !valueInput.validity.valid) {
-        return
-      }
-      this.requirements.push({
-        code: codeInput.value,
-        param: paramInput.value,
-        value: Number(valueInput.value)
-      })
-      this.populateCreation()
-      this.populateRequirements()
-    }
-    this.creation.appendChild(codeInput)
-    this.creation.appendChild(paramInput)
-    this.creation.appendChild(valueInput)
-    this.creation.appendChild(appendInput)
-    this.container.appendChild(this.creation)
+    this.creation = IgMetaForm.populateForm(this.container, {
+      name: 'Requirements',
+      spec: [
+        {
+          display: 'Mod Code',
+          name: 'modcode',
+          input: inputs => {
+            const codeInput = document.createElement('select')
+            this.populateSelectInput(codeInput, this.codes)
+            codeInput.onchange = () => {
+              while (inputs.modparam.firstElementChild) {
+                inputs.modparam.firstElementChild.remove()
+              }
+              this.populateSelectInput(inputs.modparam, this.params.get(codeInput.value))
+            }
+            return codeInput
+          }
+        },
+        {
+          display: 'Mod Param',
+          name: 'modparam',
+          input: inputs => {
+            const paramInput = document.createElement('select')
+            this.populateSelectInput(paramInput, this.params.get(inputs.modcode.firstElementChild.textContent))
+            return paramInput
+          }
+        },
+        {
+          display: 'Mod Value',
+          name: 'modvalue',
+          input: () => {
+            const valueInput = document.createElement('input')
+            valueInput.type = 'text'
+            valueInput.pattern = /0*[1-9]\d*/.source
+            valueInput.value = '1'
+            return valueInput
+          }
+        },
+        {
+          display: 'Add',
+          name: 'addmod',
+          input: inputs => {
+            const appendInput = document.createElement('button')
+            appendInput.textContent = '+'
+            appendInput.onclick = () => {
+              if (!inputs.modcode.validity.valid || !inputs.modparam.validity.valid || !inputs.modvalue.validity.valid) {
+                return
+              }
+              this.requirements.push({
+                code: inputs.modcode.value,
+                param: inputs.modparam.value,
+                value: Number(inputs.modvalue.value)
+              })
+              this.populateCreation()
+              this.populateRequirements()
+            }
+            return appendInput
+          }
+        }
+      ]
+    })
   }
 
   populateSelectInput (input, iterable) {
