@@ -996,7 +996,7 @@ class TreasureTree {
   }
 
   has (id) {
-    return this.inverseTreasureMap.has(id) || /(?:weap|armo|mele)\d+/.test(id)
+    return this.inverseTreasureMap.has(id) || /^(?:weap|armo|mele)\d+/.test(id)
   }
 
   upgrade (id, level) {
