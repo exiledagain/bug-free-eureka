@@ -310,7 +310,7 @@
             }
           })
           this.misc.each(misc => {
-            this.codeMap[misc.type] = misc
+            this.codeMap[misc.code] = misc
           })
 
           this.uniqueMap = {}
@@ -476,7 +476,7 @@
         }
 
         getItemLevel (item) {
-          return Number((this.codeMap[item] || { level: 1 }).level)
+          return Number((this.codeMap[item] || { level: 1 }).level || 1)
         }
 
         p (ratio, constant, isMagic, magicFind, level, extra, item) {
