@@ -1743,7 +1743,7 @@ class Diablo2Data {
 
   static defaultVersion = 's9'
 
-  constructor (version = defaultVersion) {
+  constructor (version = Diablo2Data.defaultVersion) {
     this.version = version
   }
 
