@@ -1835,6 +1835,17 @@ class Diablo2Data {
   SkillData ({ resolver }) {
     return new SkillData({ skills: this.skills(), skillDesc: this.skillDesc(), resolver })
   }
+
+  async StringResolver () {
+    const version = this.version
+    const strings = new StringResolver([
+      `data/${version}/global/excel/patchstring.tbl`,
+      `data/${version}/global/excel/expansionstring.tbl`,
+      `data/${version}/global/excel/string.tbl`,
+    ])
+    await strings.load()
+    return strings
+  }
 }
 
 if (typeof window === 'undefined' && typeof self === 'undefined') {
