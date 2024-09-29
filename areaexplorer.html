@@ -275,6 +275,7 @@
           }
           act.onchange = () => {
             this.populateZones(zone, act.value)
+            this.populateAreas()
           }
           zone.onchange = () => {
             this.populateAreas()
