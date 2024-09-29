@@ -580,6 +580,98 @@ class MonsterSourcer {
   ]
   static superTreasureKeys = ['TC', 'TC(N)', 'TC(H)']
   static staticMonsters = {
+    'act2hireTraitorBoss': { area: 'Caldeum Map' },
+    'andariel': { area: 'Act 1 - Catacombs 4' },
+    'ArcaneBoss': { area: 'Arcane' },
+    'archerBoss': { area: 'Pandemonium Map' },
+    'AshenBoss': { area: 'Ashen Plains Map', boss: true },
+    'baalclone': { area: 'Act 5 - World Stone' },
+    'baalclone': { area: 'PD2 Pandemonium Finale' },
+    'baalcrab': { area: 'Act 5 - World Stone' },
+    'baalminionboss': { area: 'River Of Blood' },
+    'baaltentacle3': { area: 'Act 5 - World Stone' },
+    'baaltentacle3': { area: 'PD2 Pandemonium Finale' },
+    'baaltentacle4': { area: 'PD2 Pandemonium Finale' },
+    'baaltentacle4': { area: 'PD2 Pandemonium Finale' },
+    'BastionBoss': { area: 'Fortress Map' },
+    'boneprison1': { area: ['Necropolis Swamp', 'PD2 Pandemonium Finale'] },
+    'boneprison2': { area: ['Necropolis Swamp', 'PD2 Pandemonium Finale'] },
+    'boneprison3': { area: ['Necropolis Swamp', 'PD2 Pandemonium Finale'] },
+    'boneprison4': { area: ['Necropolis Swamp', 'PD2 Pandemonium Finale'] },
+    'CanyonBoss': { area: 'Frozen Forest Map' },
+    'CowBoss': { area: 'Graveyard Map' },
+    'dcloneskele': { area: 'UberDiabloLvl' },
+    'dcloneskelearcher': { area: 'UberDiabloLvl' },
+    'dcloneskmage_cold': { area: 'UberDiabloLvl' },
+    'dcloneskmage_fire': { area: 'UberDiabloLvl' },
+    'dcloneskmage_ltng': { area: 'UberDiabloLvl' },
+    'dcloneskmage_pois': { area: 'UberDiabloLvl' },
+    'diablo': { area: 'Act 4 - Diablo 1' },
+    'doomknight3LibraryBoss': { area: 'Library Map' },
+    'duriel': { area: 'Act 2 - Duriel\'s Lair' },
+    'fingermageboss': { area: 'Hole of Terror' },
+    'griswoldmap': { area: 'River Of Blood' },
+    'IceBoss': { area: 'Ice Map' },
+    'Iskatu': { area: 'Diamond Gate' },
+    'KanemithBoss': { area: 'Kanemith Dungeon' },
+    'leoricMapBoss': { area: 'Crypts Map' },
+    'lernaeanhydra1': { area: 'Ruined Cistern Map' },
+    'lernaeanhydra2': { area: 'Ruined Cistern Map', boss: true },
+    'lightningspire': { area: 'Arcane' },
+    'MarketBoss': { area: 'Desert Map' },
+    'megademon6': { area: 'PD2 Pandemonium Finale' },
+    'megademonboss': { area: 'Lava' },
+    'mephisto': { area: 'Act 3 - Mephisto 3' },
+    'rathmaBloodGolem': { area: 'Necropolis Jungle' },
+    'rathmaBone': { area: 'Necropolis Swamp' },
+    'rathmaBoneClone': { area: 'Necropolis Void' },
+    'rathmaPoison': { area: 'Necropolis Jungle' },
+    'rathmaPoisonClone': { area: 'Necropolis Void' },
+    'rathmaTotem': { area: ['Necropolis Swamp', 'Necropolis Void'] },
+    'reanimatedhorde3': { area: 'Act 5 - Temple Entrance' },
+    'SewerBoss': { area: 'Sewers' },
+    'SharpToothBoss': { area: 'Kanemith Outside' },
+    'siegebeastMapBoss': { area: 'Black Abyss Map' },
+    'siegebeastMapBossFallen': { area: 'Black Abyss Map' },
+    'SiegeBoss': { area: 'Siege Map' },
+    'sk_archer11': { area: 'PD2 Pandemonium Finale' },
+    'skeleton8': { area: 'PD2 Pandemonium Finale' },
+    'skmage_cold6': { area: 'PD2 Pandemonium Finale' },
+    'skmage_fire7': { area: 'PD2 Pandemonium Finale' },
+    'skmage_ltng7': { area: 'PD2 Pandemonium Finale' },
+    'skmage_pois7': { area: 'PD2 Pandemonium Finale' },
+    'spiderboss': { area: 'Spider Map' },
+    'ThroneBoss': { area: 'Throne Map' },
+    'TombBoss': { area: 'Tomb Map' },
+    'torajanBoss': { area: 'Jungle Map' },
+    'torajanBossMaggot': { area: 'Jungle Map' },
+    'uberandariel': { area: 'Act 5 - Pandemonium 1' },
+    'uberbaal': { area: 'PD2 Pandemonium Finale' },
+    'uberdiablo': { area: 'PD2 Pandemonium Finale' },
+    'uberdiablonew': { area: 'UberDiabloLvl' },
+    'uberduriel': { area: 'Act 5 - Pandemonium 2' },
+    'uberizual': { area: 'Act 5 - Pandemonium 3' },
+    'ubermephisto': { area: 'PD2 Pandemonium Finale' },
+    'unravelerboss': { area: 'Kurast' },
+    'vampire9': { area: 'PD2 Pandemonium Finale' },
+    'voidKnightCold': { area: ['Necropolis Swamp', 'Necropolis Void'] },
+    'voidKnightFire': { area: ['Necropolis Swamp', 'Necropolis Void'] },
+    'voidKnightPhys': { area: ['Necropolis Swamp', 'Necropolis Void'] },
+    'voidKnightPoison': { area: ['Necropolis Swamp', 'Necropolis Void'] },
+    'WarlordMiniBossDefiler': { area: 'Hellcave Fortress' },
+    'WarlordMiniBossShaman': { area: 'Hellcaves' },
+    'WarlordOfBlood': { area: 'Hellcave Fortress' },
+    'westmarchMapBoss': { area: 'Westmarch Map' },
+    'willowispboss': { area: 'Realm of Terror' },
+    'willowispminion': { area: 'Hole of Terror' },
+    'willowisptotem': { area: 'Hole of Terror' },
+    'wraith9': { area: 'PD2 Pandemonium Finale' },
+    'ZharMiniBossBaboon': { area: 'Zhar Kurast' },
+    'ZharMiniBossBigHead': { area: 'Zhar Ice' },
+    'ZharMiniBossCantor': { area: 'Zhar Rivers' },
+    'ZharTheMad': { area: 'Zhar Ice' },
+  }
+  static staticSuperMonsters = {
     'Bishibosh': { area: 'Act 1 - Wilderness 2' },
     'Bonebreak': { area: 'Act 1 - Crypt 1 A' },
     'Coldcrow': { area: 'Act 1 - Cave 2' },
@@ -637,12 +729,16 @@ class MonsterSourcer {
     'Baal Subject 4': { area: 'Act 5 - Throne Room' },
     'Baal Subject 5': { area: 'Act 5 - Throne Room' },
   }
-  static staticMonsterMap = Object.entries(MonsterSourcer.staticMonsters).reduce((map, value) => {
-    const area = value[1].area
-    const list = map.has(area) ? map.get(area) : map.set(area, []).get(area)
-    list.push(value[0])
+  static reduceToMonsterMap = (map, value) => {
+    const areas = value[1].area instanceof Array ? value[1].area : [value[1].area]
+    areas.forEach(area => {
+      const list = map.has(area) ? map.get(area) : map.set(area, []).get(area)
+      list.push(value[0])
+    })
     return map
-  }, new Map())
+  }
+  static staticMonsterMap = Object.entries(MonsterSourcer.staticMonsters).reduce(this.reduceToMonsterMap, new Map())
+  static staticSuperMonsterMap = Object.entries(MonsterSourcer.staticSuperMonsters).reduce(this.reduceToMonsterMap, new Map())
 
   constructor (levels, monsters, supers) {
     this.levelData = levels
@@ -690,31 +786,39 @@ class MonsterSourcer {
   supers () {
     const res = []
     this.superData.each(superUnique => {
-      if (!superUnique.Class) {
+      if (superUnique.Class.length === 0) {
         return
       }
-      const monster = this.inverseMonsterMap.get(superUnique.Class)
       for (let difficulty = 0; difficulty < 3; ++difficulty) {
-        const monLevel = Number(monster.boss === '1' ? monster[MonsterSourcer.monBossLevelKeys[difficulty]] : this.inferLevel(superUnique.Superunique, difficulty))
-        const from = MonsterSourcer.staticMonsters[superUnique.Superunique] ? MonsterSourcer.staticMonsters[superUnique.Superunique].area : 'superunique (beta)'
-        res.push({
-          id: monster.Id,
-          rarity: 2,
-          difficulty,
-          level: monLevel + 3,
-          treasure: superUnique[MonsterSourcer.superTreasureKeys[difficulty]],
-          xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
-          from,
-          string: superUnique['Name']
-        })
+        const from = MonsterSourcer.staticSuperMonsters[superUnique.Superunique] ? MonsterSourcer.staticSuperMonsters[superUnique.Superunique].area : 'superunique (beta)'
+        res.push(this.fromSuper(from, difficulty, superUnique))
       }
     })
     return res.flat(Infinity)
   }
 
+  fromSuper (from, difficulty, superUnique) {
+    if (!superUnique.Class) {
+      throw new Error(`unknown super: ${superUnique.Superunique || superUnique}`)
+    }
+    const monster = this.inverseMonsterMap.get(superUnique.Class)
+    const level = 3 + Number(monster.boss === '1' ? monster[MonsterSourcer.monBossLevelKeys[difficulty]] : this.inferLevel(superUnique.Superunique, difficulty))
+    return {
+      id: monster.Id,
+      rarity: 2,
+      difficulty,
+      level,
+      treasure: superUnique[MonsterSourcer.superTreasureKeys[difficulty]],
+      xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
+      from,
+      string: superUnique['Name'],
+      special: true,
+    }
+  }
+
   inferLevel (id, difficulty) {
-    if (MonsterSourcer.staticMonsters[id]) {
-      const area = MonsterSourcer.staticMonsters[id].area
+    if (MonsterSourcer.staticSuperMonsters[id]) {
+      const area = MonsterSourcer.staticSuperMonsters[id].area
       return this.levelData.first('Name', area)[MonsterSourcer.monLevelKeys[difficulty]]
     }
     return 1
@@ -753,28 +857,53 @@ class MonsterSourcer {
       throw new Error(`unknown level: ${levelId}`)
     }
     const res = []
-    MonsterSourcer.monNormalKeys.forEach(key => {
-      const monsterId = level[key]
-      if (!monsterId || !this.inverseMonsterMap.has(monsterId)) {
-        return
-      }
-      res.push(this.expand(level, 0, monsterId, new Set(), nestable))
-    })
+    if (level['MonDen'] > 0) {
+      MonsterSourcer.monNormalKeys.forEach(key => {
+        const monsterId = level[key]
+        if (!monsterId || !this.inverseMonsterMap.has(monsterId)) {
+          return
+        }
+        res.push(this.expand(level, 0, monsterId, new Set(), nestable))
+      })
+    }
     // nightmare, hell keys are the same
-    MonsterSourcer.monHellKeys.forEach(key => {
-      const monsterId = level[key]
-      if (!monsterId || !this.inverseMonsterMap.has(monsterId)) {
-        return
-      }
-      res.push(this.expand(level, 1, monsterId, new Set(), nestable))
-    })
-    MonsterSourcer.monHellKeys.forEach(key => {
-      const monsterId = level[key]
-      if (!monsterId || !this.inverseMonsterMap.has(monsterId)) {
-        return
-      }
-      res.push(this.expand(level, 2, monsterId, new Set(), nestable))
-    })
+    if (level['MonDen(N)'] > 0) {
+      MonsterSourcer.monHellKeys.forEach(key => {
+        const monsterId = level[key]
+        if (!monsterId || !this.inverseMonsterMap.has(monsterId)) {
+          return
+        }
+        res.push(this.expand(level, 1, monsterId, new Set(), nestable))
+      })
+    }
+    if (level['MonDen(H)'] > 0) {
+      MonsterSourcer.monHellKeys.forEach(key => {
+        const monsterId = level[key]
+        if (!monsterId || !this.inverseMonsterMap.has(monsterId)) {
+          return
+        }
+        res.push(this.expand(level, 2, monsterId, new Set(), nestable))
+      })
+    }
+    if (MonsterSourcer.staticSuperMonsterMap.has(level.Name)) {
+      MonsterSourcer.staticSuperMonsterMap.get(level.Name).forEach(monster => {
+        for (let difficulty = 0; difficulty < 3; ++difficulty) {
+          res.push(this.fromSuper(level.Name, difficulty, this.superData.first('Superunique', monster)))
+        }
+      })
+    }
+    if (MonsterSourcer.staticMonsterMap.has(level.Name)) {
+      MonsterSourcer.staticMonsterMap.get(level.Name).forEach(monster => {
+        for (let difficulty = 0; difficulty < 3; ++difficulty) {
+          const statics = this.expand(level, difficulty, monster, new Set())
+          statics.forEach(monster => {
+            const entry = this.monsterData.first('Id', monster.id)
+            monster.special = entry.boss === '1'
+          })
+          res.push(...statics)
+        }
+      })
+    }
     return this.deduplicate(res.flat(Infinity))
   }
 
@@ -815,7 +944,7 @@ class MonsterSourcer {
     }
     // normal, champion, unique
     const levelTable = [0, 2, 3]
-    if (monster.boss === '1') {
+    if (monster.boss === '1' || MonsterSourcer.staticMonsters[monsterId] && MonsterSourcer.staticMonsters[monsterId].boss) {
       res.push({
         id: monsterId,
         rarity: 2,
@@ -844,12 +973,12 @@ class MonsterSourcer {
     } else {
       for (let j = 0; j < 4; ++j) {
         const treasure = monster[MonsterSourcer.monTreasureKeys[difficulty][j]]
-        if (treasure.length >= 0) {
+        if (treasure.length > 0 || j < 3) {
           res.push({
             id: monsterId,
             rarity: j,
             difficulty,
-            level: monLevel + levelTable[j < 4 ? j : 3],
+            level: monLevel + levelTable[j < 3 ? j : 2],
             treasure,
             xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
             from: level.Name,
@@ -891,6 +1020,14 @@ class MonsterSourcer {
         return c
       }
       c = a.level - b.level
+      if (c) {
+        return c
+      }
+      c = a.special !== b.special
+      if (c) {
+        return a.special ? 1 : -1
+      }
+      c = a.treasure.localeCompare(b.treasure)
       if (c) {
         return c
       }
@@ -1401,6 +1538,10 @@ class StringResolver {
       return key
     }
     return table.get(key)
+  }
+
+  readable (key) {
+    return this.get(key).replace(/\xC3.../g, '')
   }
 
   all (key) {

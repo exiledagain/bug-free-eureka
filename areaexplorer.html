@@ -75,12 +75,13 @@
           const difficulty = Number(this.values.difficulty)
           const players = Number(this.values.party)
           const monsters = this.sourcer.monsters(level.Name).reduce((list, monster) => {
-            if (!(monster.rarity === 0 && monster.difficulty === difficulty)) {
+            const passingType = monster.special || monster.rarity === 0
+            if (!(passingType && monster.difficulty === difficulty)) {
               return list
             }
             const entry = this.monsters.first('Id', monster.id)
-            const monLvl = this.monsterLevel.first('Level', monster.level.toString())
-            const Name = this.strings.get(monster.string)
+            const monLvl = this.monsterLevel.first('Level', Math.min(110, monster.level).toString())
+            const Name = this.strings.readable(monster.string)
             const Level = monster.level
             const reses = Object.fromEntries(AreaView.resistanceNames.map((res, idx) => {
               const key = `${AreaView.resistance[idx]}${AreaView.difficulty[difficulty]}`
@@ -102,21 +103,29 @@
               const rate = new MonsterMetrics(this.monsters, this.extended).blockRate({ name: entry.Id })
               return [block, `${rate[difficulty] || 0}%`]
             }))
+            const chill = Object.fromEntries(['Chill'].map(chill => {
+              const key = `coldeffect${AreaView.difficulty[difficulty]}`
+              const rate = `${entry[key] || 0}%`
+              return [chill, rate]
+            }))
             const Type = entry['lUndead'] === '1' || entry['hUndead'] === '1' ? 'Undead' : entry['demon'] === '1' ? 'Demon' : 'None'
             const Leech = `${Math.max(0, Number(entry[`Drain${AreaView.difficulty[difficulty]}`]))}%`
+            const Id = monster.id
             list.push({
               Name,
               Level,
               ...xps,
               ...hps,
               ...reses,
+              ...chill,
               ...block,
               Leech,
               Type,
+              Id,
             })
             return list
           }, [])
-          this.populateTable(container, [this.strings.get(level.LevelName)].join(' - '), monsters)
+          this.populateTable(container, [this.strings.readable(level.LevelName)].join(' - '), monsters)
         }
 
         populateTable (container, name, monsters) {
@@ -228,6 +237,7 @@
                     el.textContent = difficulty
                     res.appendChild(el)
                   })
+                  res.lastElementChild.selected = true
                   return res
                 }
               },
@@ -242,6 +252,7 @@
                     el.textContent = `Act ${i}`
                     res.appendChild(el)
                   }
+                  res.lastElementChild.selected = true
                   return res
                 }
               },
@@ -288,11 +299,17 @@
         }
 
         populateZones (input, act) {
+          const preferred = ''
+          let found = false
           input.innerHTML = ''
           this.zones[act].forEach(level => {
             const el = document.createElement('option')
             el.textContent = level.name
             el.value = level.raw.Name
+            if (!found && level.name === preferred) {
+              el.selected = true
+              found = true
+            }
             input.appendChild(el)
           })
         }
