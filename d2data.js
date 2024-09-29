@@ -670,6 +670,9 @@ class MonsterSourcer {
     'ZharMiniBossBigHead': { area: 'Zhar Ice' },
     'ZharMiniBossCantor': { area: 'Zhar Rivers' },
     'ZharTheMad': { area: 'Zhar Ice' },
+    'uberancientbarb1': { area: 'Uber Ancients' },
+    'uberancientbarb2': { area: 'Uber Ancients' },
+    'uberancientbarb3': { area: 'Uber Ancients' },
   }
   static staticSuperMonsters = {
     'Bishibosh': { area: 'Act 1 - Wilderness 2' },
