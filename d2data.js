@@ -637,6 +637,12 @@ class MonsterSourcer {
     'Baal Subject 4': { area: 'Act 5 - Throne Room' },
     'Baal Subject 5': { area: 'Act 5 - Throne Room' },
   }
+  static staticMonsterMap = Object.entries(MonsterSourcer.staticMonsters).reduce((map, value) => {
+    const area = value[1].area
+    const list = map.has(area) ? map.get(area) : map.set(area, []).get(area)
+    list.push(value[0])
+    return map
+  }, new Map())
 
   constructor (levels, monsters, supers) {
     this.levelData = levels
@@ -1390,12 +1396,15 @@ class StringResolver {
   }
 
   get (key) {
-    let res = key
-    this.tables.some(table => {
-      res = table.get(key)
-      return res !== key
-    })
-    return res
+    const table = this.tables.find(table => table.has(key))
+    if (!table) {
+      return key
+    }
+    return table.get(key)
+  }
+
+  all (key) {
+    return this.tables.map(table => table.get(key))
   }
 
   has (key) {
@@ -1739,6 +1748,7 @@ class Diablo2Data {
     'ItemRatio.txt',
     'UniqueItems.txt',
     'SetItems.txt',
+    'MonLvl.txt',
   ]
 
   static defaultVersion = 's9'
@@ -1828,8 +1838,16 @@ class Diablo2Data {
     return this.loader.get(this.version, 'SetItems.txt')
   }
 
+  monLvl () {
+    return this.loader.get(this.version, 'MonLvl.txt')
+  }
+
   TypeList () {
     return new TypeList(this.misc(), this.itemTypes(), this.weapons(), this.armor())
+  }
+
+  MonsterSourcer () {
+    return new MonsterSourcer(this.levels(), this.monStats(), this.supers())
   }
 
   SkillData ({ resolver }) {

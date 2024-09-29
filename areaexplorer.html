@@ -1,0 +1,317 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&amp;display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <link rel="stylesheet" href="css/common.css">
+    <script src="d2data.js"></script>
+  </head>
+  <body>
+    <div></div>
+    <script>
+      function populateForm (container, { name, spec }) {
+        const form = document.createElement('form')
+        const fieldset = document.createElement('fieldset')
+        const legend = document.createElement('legend')
+        const table = document.createElement('table')
+        form.autocomplete = "off"
+        form.style.width = 'fit-content'
+        legend.textContent = name
+        const list = {}
+        spec.forEach(({ display, name, input }) => {
+          const row = document.createElement('tr')
+          const key = document.createElement('td')
+          const value = document.createElement('td')
+          const label = document.createElement('label')
+          label.setAttribute('for', name)
+          label.textContent = display
+          const valueEl = input(list)
+          list[name] = valueEl
+          valueEl.id = name
+          valueEl.setAttribute('name', name)
+          key.appendChild(label)
+          value.appendChild(valueEl)
+          row.appendChild(key)
+          row.appendChild(value)
+          table.appendChild(row)
+        })
+        fieldset.appendChild(legend)
+        fieldset.appendChild(table)
+        form.appendChild(fieldset)
+        container.appendChild(form)
+        form.onsubmit = e => {
+          e.preventDefault()
+          return false
+        }
+        return {
+          form,
+          inputs: list
+        }
+      }
+      class AreaView {
+        static resistanceNames = ['Phys', 'Magic', 'Fire', 'Light', 'Cold', 'Poison']
+        static resistance = ['ResDm', 'ResMa', 'ResFi', 'ResLi', 'ResCo', 'ResPo']
+        static difficulty = ['', '(N)', '(H)']
+        static health = [
+          ['minHP', 'maxHP'],
+          ['MinHP', 'MaxHP'],
+          ['MinHP', 'MaxHP']
+        ]
+
+        constructor ({ strings, sourcer, values, monsterLevel, extended }) {
+          this.strings = strings
+          this.sourcer = sourcer
+          this.values = values
+          this.levels = sourcer.levelData
+          this.monsters = sourcer.monsterData
+          this.monsterLevel = monsterLevel
+          this.extended = extended
+        }
+
+        populate (container) {
+          const level = this.levels.first('Name', this.values.zone)
+          const difficulty = Number(this.values.difficulty)
+          const players = Number(this.values.party)
+          const monsters = this.sourcer.monsters(level.Name).reduce((list, monster) => {
+            if (!(monster.rarity === 0 && monster.difficulty === difficulty)) {
+              return list
+            }
+            const entry = this.monsters.first('Id', monster.id)
+            const monLvl = this.monsterLevel.first('Level', monster.level.toString())
+            const Name = this.strings.get(monster.string)
+            const Level = monster.level
+            const reses = Object.fromEntries(AreaView.resistanceNames.map((res, idx) => {
+              const key = `${AreaView.resistance[idx]}${AreaView.difficulty[difficulty]}`
+              return [res, `${Number(entry[key])}%`]
+            }))
+            const hps = Object.fromEntries(AreaView.health[difficulty].map((hp, idx) => {
+              const key = `${hp}${AreaView.difficulty[difficulty]}`
+              const ratio = entry.noRatio === '1' ? 1 : (monLvl[`L-HP${AreaView.difficulty[difficulty]}`] / 100)
+              const health = entry[key] * ratio * (1 + (players - 1) * 0.7)
+              return [hp.substring(0, 1).toUpperCase() + hp.substring(1), ~~health]
+            }))
+            const xps = Object.fromEntries(['Exp'].map((xp, idx) => {
+              const key = `${xp}${AreaView.difficulty[difficulty]}`
+              const ratio = entry.noRatio === '1' ? 1 : (monLvl[`L-XP${AreaView.difficulty[difficulty]}`] / 100)
+              const exp = ~~(Number(entry[key]) * ratio * (1 + (players - 1) * 0.5))
+              return [xp, exp]
+            }))
+            const block = Object.fromEntries(['Block'].map(block => {
+              const rate = new MonsterMetrics(this.monsters, this.extended).blockRate({ name: entry.Id })
+              return [block, `${rate[difficulty] || 0}%`]
+            }))
+            const Type = entry['lUndead'] === '1' || entry['hUndead'] === '1' ? 'Undead' : entry['demon'] === '1' ? 'Demon' : 'None'
+            const Leech = `${Math.max(0, Number(entry[`Drain${AreaView.difficulty[difficulty]}`]))}%`
+            list.push({
+              Name,
+              Level,
+              ...xps,
+              ...hps,
+              ...reses,
+              ...block,
+              Leech,
+              Type,
+            })
+            return list
+          }, [])
+          this.populateTable(container, [this.strings.get(level.LevelName)].join(' - '), monsters)
+        }
+
+        populateTable (container, name, monsters) {
+          const headers = new Set()
+          monsters.forEach(monster => {
+            Object.keys(monster).forEach(key => {
+              headers.add(key)
+            })
+          })
+          window.lastMonsters = monsters
+          const fieldset = document.createElement('fieldset')
+          const legend = document.createElement('legend')
+          const table = document.createElement('table')
+          const thead = document.createElement('thead')
+          const tbody = document.createElement('tbody')
+          legend.textContent = name
+          const th = document.createElement('tr')
+          headers.forEach(header => {
+            const el = document.createElement('th')
+            el.style.userSelect = 'none'
+            el.textContent = header
+            th.appendChild(el)
+          })
+          monsters.forEach(monster => {
+            const row = document.createElement('tr')
+            headers.forEach(header => {
+              const el = document.createElement('td')
+              el.textContent = monster[header]
+              row.appendChild(el)
+            })
+            tbody.appendChild(row)
+          })
+          thead.appendChild(th)
+          table.appendChild(thead)
+          table.appendChild(tbody)
+          fieldset.appendChild(legend)
+          fieldset.appendChild(table)
+          fieldset.style.width = 'fit-content'
+          container.appendChild(fieldset)
+        }
+      }
+      class AreaExplorerView {
+        static actZones = [
+          'Act 1 - Town',
+          'Act 2 - Town',
+          'Act 3 - Town',
+          'Act 4 - Town',
+          'Act 5 - Town'
+        ]
+
+        constructor (container) {
+          this.container = container
+          this.d2data = new Diablo2Data()
+          this.setup()
+        }
+
+        async setup () {
+          await this.d2data.load()
+          this.strings = await this.d2data.StringResolver()
+          this.sourcer = this.d2data.MonsterSourcer()
+          this.zones = [[]]
+          let i = 0
+          this.sourcer.levelData.each(level => {
+            if (!level.Id) {
+              return
+            }
+            if (i < 5 && level.Id === this.sourcer.levelData.first('Name', AreaExplorerView.actZones[i]).Id) {
+              this.zones.at(-1).set = new Set(this.zones.at(-1))
+              this.zones.push([])
+              i += 1
+            } else {
+              this.zones.at(-1).push({
+                raw: level,
+                name: this.strings.get(level.LevelName)
+              })
+            }
+          })
+          this.zones.shift()
+          this.populate()
+        }
+
+        populate () {
+          this.meta = document.createElement('div')
+          this.areas = document.createElement('div')
+          this.container.appendChild(this.meta)
+          this.container.appendChild(this.areas)
+          this.populateMeta()
+        }
+
+        populateMeta () {
+          this.meta.innerHTML = ''
+          const { form, inputs: {
+            difficulty,
+            party,
+            act,
+            zone
+          } } = populateForm(this.meta, {
+            name: 'Meta',
+            spec: [
+              {
+                display: 'Difficulty',
+                name: 'difficulty',
+                input: inputs => {
+                  const res = document.createElement('select')
+                  const difficulties = ['Normal', 'Nightmare', 'Hell']
+                  difficulties.forEach((difficulty, idx) => {
+                    const el = document.createElement('option')
+                    el.value = idx
+                    el.textContent = difficulty
+                    res.appendChild(el)
+                  })
+                  return res
+                }
+              },
+              {
+                display: 'Act',
+                name: 'act',
+                input: inputs => {
+                  const res = document.createElement('select')
+                  for (let i = 1; i <= 5; ++i) {
+                    const el = document.createElement('option')
+                    el.value = i - 1
+                    el.textContent = `Act ${i}`
+                    res.appendChild(el)
+                  }
+                  return res
+                }
+              },
+              {
+                display: 'Zone',
+                name: 'zone',
+                input: inputs => {
+                  const res = document.createElement('select')
+                  this.populateZones(res, inputs.act.value)
+                  return res
+                }
+              },
+              {
+                display: 'Party',
+                name: 'party',
+                input: inputs => {
+                  const res = document.createElement('select')
+                  for (let i = 1; i <= 8; ++i) {
+                    const el = document.createElement('option')
+                    el.value = i
+                    el.textContent = i
+                    res.appendChild(el)
+                  }
+                  return res
+                }
+              },
+            ]
+          })
+          difficulty.onchange = () => {
+            this.populateAreas()
+          }
+          act.onchange = () => {
+            this.populateZones(zone, act.value)
+          }
+          zone.onchange = () => {
+            this.populateAreas()
+          }
+          party.onchange = () => {
+            this.populateAreas()
+          }
+          this.form = form
+          this.populateAreas()
+        }
+
+        populateZones (input, act) {
+          input.innerHTML = ''
+          this.zones[act].forEach(level => {
+            const el = document.createElement('option')
+            el.textContent = level.name
+            el.value = level.raw.Name
+            input.appendChild(el)
+          })
+        }
+
+        populateAreas () {
+          this.areas.innerHTML = ''
+          new AreaView({
+            strings: this.strings,
+            sourcer: this.sourcer,
+            values: this.values(),
+            monsterLevel: this.d2data.monLvl(),
+            extended: this.d2data.monStats2(),
+          }).populate(this.areas)
+        }
+
+        values () {
+          return Object.fromEntries(new FormData(this.form))
+        }
+      }
+      new AreaExplorerView(document.body.firstElementChild)
+    </script>
+  </body>
+</html>
