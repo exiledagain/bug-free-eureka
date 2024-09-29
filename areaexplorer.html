@@ -9,7 +9,8 @@
     <script src="d2data.js"></script>
   </head>
   <body>
-    <div></div>
+    <a href="https://github.com/exiledagain/bug-free-eureka" target="_blank" rel="noopener noreferrer">source</a>
+    <div id="main"></div>
     <script>
       function populateForm (container, { name, spec }) {
         const form = document.createElement('form')
@@ -329,7 +330,7 @@
           return Object.fromEntries(new FormData(this.form))
         }
       }
-      new AreaExplorerView(document.body.firstElementChild)
+      new AreaExplorerView(document.getElementById('main'))
     </script>
   </body>
 </html>
