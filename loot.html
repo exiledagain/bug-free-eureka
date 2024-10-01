@@ -33,6 +33,19 @@
                 </tr>
                 <tr>
                   <td>
+                    <label for="difficulty">Difficulty</label>
+                  </td>
+                  <td>
+                    <select id="difficulty" name="difficulty">
+                      <option value="2" selected>Hell</option>
+                      <option value="1">Nightmare</option>
+                      <option value="0">Normal</option>
+                      <option value="-1">Any</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
                     <label for="players">Party</label>
                   </td>
                   <td>
@@ -661,7 +674,8 @@
             top: document.querySelector('#top').value,
             rarity: document.querySelector('#rarity').value,
             item: document.querySelector('#item').value,
-            explain: document.querySelector('#explain').checked
+            explain: document.querySelector('#explain').checked,
+            difficulty: Number(document.getElementById('difficulty').value),
           }
         }
 
@@ -710,6 +724,9 @@
           document.querySelector('#explain').onchange = () => {
             this.generate()
           }
+          document.getElementById('difficulty').onchange = () => {
+            this.generate()
+          }
         }
 
         generate () {
@@ -718,7 +735,7 @@
             return
           }
           this.previous = current
-          const { players, magicFind, rarity, item, top } = this.values()
+          const { players, magicFind, rarity, item, top, difficulty } = this.values()
           if (!item) {
             document.querySelector('#sources').textContent = 'pick an item'
             return
@@ -740,6 +757,13 @@
               break
             }
           }
+          sources = sources.filter(({ source }) => {
+            // block map bosses, etc if nightmare/normal
+            if (source.difficulty < 2 && source.level > 85) {
+              return false
+            }
+            return difficulty < 0 || source.difficulty === difficulty
+          })
           this.populateDrops(document.querySelector('#sources'), sources, top)
         }
 
