@@ -758,9 +758,11 @@
             }
           }
           sources = sources.filter(({ source }) => {
-            // block map bosses, etc if nightmare/normal
-            if (source.difficulty < 2 && source.level > 85) {
-              return false
+            if (source.difficulty < 2) {
+              // block enemies from after world stone keep in normal/nightmare
+              if (this.abacus.levels.first('Name', source.from).Id > 132) {
+                return false
+              }
             }
             return difficulty < 0 || source.difficulty === difficulty
           })
