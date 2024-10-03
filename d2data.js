@@ -673,6 +673,8 @@ class MonsterSourcer {
     'uberancientbarb1': { area: 'Uber Ancients' },
     'uberancientbarb2': { area: 'Uber Ancients' },
     'uberancientbarb3': { area: 'Uber Ancients' },
+    'izual': { area: 'Act 4 - Mesa 2' },
+    'bloodraven': { area: 'Act 1 - Graveyard' },
   }
   static staticSuperMonsters = {
     'Bishibosh': { area: 'Act 1 - Wilderness 2' },
