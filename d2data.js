@@ -754,6 +754,19 @@ class MonsterSourcer {
 
   setup () {
     this.inverseMonsterMap = new Map()
+    class CaseInsensitiveMap extends Map {
+      set (k, v) {
+        return super.set(k.toLowerCase(), v)
+      }
+
+      get (k) {
+        return super.get(k.toLowerCase())
+      }
+
+      has (k) {
+        return super.has(k.toLowerCase())
+      }
+    }
     this.monsterData.each(monster => {
       if (monster.killable === '1') {
         this.inverseMonsterMap.set(monster.Id, monster)
@@ -920,7 +933,8 @@ class MonsterSourcer {
     set.add(monsterId)
     const monster = this.inverseMonsterMap.get(monsterId)
     if (!monster) {
-      throw new Error(`unknown monster: ${monsterId}`)
+      // s8/s9/sX differences
+      return []
     }
     const monLevel = Number(monster.boss !== '1' ? level[MonsterSourcer.monLevelKeys[difficulty]] : monster[MonsterSourcer.monBossLevelKeys[difficulty]])
     if (nestable) {
