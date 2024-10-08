@@ -327,11 +327,11 @@
           this.uniqueMap = {}
           const uniqueSums = {}
           this.uniques.each((unique, idx) => {
-            if (unique.enabled !== '1' || unique.rarity < 1 || !this.eligible[unique.code]) {
+            if (unique.enabled !== '1' || !this.eligible[unique.code] || unique.lvl > 110) {
               return
             }
             uniqueSums[unique.code] = uniqueSums[unique.code] || 0
-            const p = Number(unique.rarity)
+            const p = Math.max(1, Number(unique.rarity))
             uniqueSums[unique.code] += p
             this.uniqueMap[unique.code] = this.uniqueMap[unique.code] || new Map()
             this.uniqueMap[unique.code].set(idx, {
