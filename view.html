@@ -13,7 +13,7 @@
   <body>
     <script>
       async function Load () {
-        const version = 's9'
+        const version = Diablo2Data.defaultVersion
         const files = ['Misc.txt', 'ItemTypes.txt', 'MagicPrefix.txt', 'MagicSuffix.txt', 'Weapons.txt', 'Armor.txt']
         const loader = new DataLoader()
         await loader.preload(version, files)

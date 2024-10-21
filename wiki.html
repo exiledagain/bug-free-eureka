@@ -48,6 +48,8 @@
             // { boss: 'fingermageboss', areas: [ 'Cathedral of Light', 'Cathedral Basement' ], extra: ['willowispboss', 'willowispminion', 'willowisptotem'] },
             { boss: 'KanemithBoss', areas: [ 'Steppes of Daken-Shar', 'The Tombs of Kanemith' ], extra: ['SharpToothBoss'] },
             { boss: 'fingermageboss', areas: [ 'The Plains Of Torment', 'The Pit Of Despair' ], extra: ['willowispboss', 'willowispminion', 'willowisptotem'] },
+            { boss: 'DemonRoadBoss', areas: [ 'The Demon Road' ] },
+            { boss: 'SkovosBoss', areas: [ 'The Skovos Stronghold' ]},
         ]
 
         constructor () {
@@ -56,7 +58,7 @@
         }
 
         async load () {
-          const version = 's9'
+          const version = 's10'
           this.d2data = new Diablo2Data(version)
           await this.d2data.load()
           this.strings = new StringResolver([

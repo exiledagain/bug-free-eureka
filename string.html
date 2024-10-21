@@ -20,7 +20,7 @@
     </table>
     <div id="content"></div>
     <script>
-      const version = 's9'
+      const version = Diablo2Data.defaultVersion
       const strings = new StringResolver([
         `data/${version}/global/excel/patchstring.tbl`,
         `data/${version}/global/excel/expansionstring.tbl`,
@@ -58,7 +58,7 @@
           if (typeof value !== 'string' || value.length === 0) {
             params.delete(key)
           } else {
-            params.set(key, encodeURIComponent(value))
+            params.set(key, value)
           }
           window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}${window.location.hash}`)
         }

@@ -907,6 +907,7 @@ class MonsterSourcer {
       MonsterSourcer.staticSuperMonsterMap.get(level.Name).forEach(monster => {
         for (let difficulty = 0; difficulty < 3; ++difficulty) {
           res.push(this.fromSuper(level.Name, difficulty, this.superData.first('Superunique', monster)))
+          res.at(-1).special = true
         }
       })
     }
@@ -1045,6 +1046,9 @@ class MonsterSourcer {
       c = a.special !== b.special
       if (c) {
         return a.special ? 1 : -1
+      }
+      if (a.special) {
+        return -1
       }
       c = a.treasure.localeCompare(b.treasure)
       if (c) {
@@ -1911,7 +1915,7 @@ class Diablo2Data {
     'MonLvl.txt',
   ]
 
-  static defaultVersion = 's9'
+  static defaultVersion = 's10'
 
   constructor (version = Diablo2Data.defaultVersion) {
     this.version = version
