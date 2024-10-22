@@ -675,6 +675,8 @@ class MonsterSourcer {
     'uberancientbarb3': { area: 'Uber Ancients' },
     'izual': { area: 'Act 4 - Mesa 2' },
     'bloodraven': { area: 'Act 1 - Graveyard' },
+    'SkovosBoss': { area: 'Skovos Stronghold Map' },
+    'DemonRoadBoss': { area: 'Demon Road Map' }
   }
   static staticSuperMonsters = {
     'Bishibosh': { area: 'Act 1 - Wilderness 2' },
@@ -927,6 +929,9 @@ class MonsterSourcer {
   }
 
   expand (level, difficulty, monsterId, set, nestable = true) {
+    if (level.Name === 'Void Event Map') {
+      return []
+    }
     const res = []
     if (set.has(monsterId)) {
       return res
