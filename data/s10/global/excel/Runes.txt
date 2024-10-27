@@ -5,7 +5,7 @@ Runeword44	Fury	1		mele									JahGulEth	r31	r25	r05				dmg%		239	299	swing2		4
 Runeword54	Holy Thunder	1		scep										r05	r08	r09	r07			dmg%		60	60	dmg-ltng		20	60	dmg-max		10	10	res-ltng		60	60	res-ltng-max		5	5	skill	118	3	3	charged	53	60	7	0
 Runeword55	Honor	1		mele										r11	r01	r06	r03	r12		dmg%		160	200	regen		10	10	allskills		1	1	att		200	200	deadly		25	25	str		10	10					0
 Runeword65	King's Grace	1		swor	scep	h2h								r11	r08	r10				dmg%		100	100	att		150	150	dmg-demon		100	100	dmg-undead		50	50	att-demon		100	100	att-undead		100	100	dmg-fire		45	50	0
-Runeword72	Leaf	1		staf										r03	r08					fireskill		3	3	ac/lvl		16	16	res-cold		33	33	skill	41	3	3	skill	36	3	3	skill	37	3	3					0
+Runeword72	Leaf	1		staf										r03	r08					fireskill		3	3	ac/lvl		16	16	res-cold		33	33	skill	41	1	2	skill	36	3	3	skill	37	3	3					0
 Runeword74	Lionheart	1		tors									HelLumFal	r15	r17	r19				str		0	15	vit		10	20	dex		10	15	dmg%		80	110	hp		50	50	res-all		20	30					0
 Runeword75	Lore	1		helm									OrtSol	r09	r12					enr		5	10	allskills		1	1	light		2	2	mana-kill		1	2													0
 Runeword81	Malice	1		mele									IthElEth	r06	r01	r05				openwounds		100	100	dmg-ac		-100	-100	noheal		1	1	dmg%		33	33	light		-1	-1	regen		-5	-5	deep-wounds		6	6	0

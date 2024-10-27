@@ -209,7 +209,7 @@ desecrated	206			10	10										54	204	1024		8	0	10	0	10																246	3	0	
 desecrator	207			1	16											54	1024				12	0																	245	0	0	StrCorruptNum	StrCorruptNum									0
 progressive_mindblast	208		1	8													1024																																			0
 unused208	209		1	30										3	401	256	1024		30	0																																0
-item_maxdeadlystrike	210		1	7											31	25	1024		7	0	7	0												1					85	2	1	StrMaxDeadlyStrike	StrMaxDeadlyStrike									0
+item_maxdeadlystrike	210		1	7											31	25	1024		7	0	7	0												1					85	4	2	StrMaxDeadlyStrike	StrMaxDeadlyStrike									0
 unused210	211		1	30										3	401	256	1024		30	0																																0
 unused211	212		1	30										3	401	256	1024		30	0																																0
 item_mindamage_energy	213		1	6											90	128	1024		6	0	6	0			4	3	energy	mindamage	secondary_mindamage	item_throw_mindamage				1					53	6	1	ModStr1g	ModStr1g	increaseswithenergy								0

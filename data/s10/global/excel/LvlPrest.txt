@@ -1146,4 +1146,4 @@ Kanemith Dungeon	1142	187	1	0	0	0	1	1	0	0	0	1	1	-4	1	Expansion/Map/tombsofkanemi
 LucionArena	1143	188	1	1	1	1	1	1	0	0	0	1	0	0	1	Expansion/Map/lucionarena.ds1	0	0	0	0	0	32767	1	0
 LucionVault	1144	189	1	1	1	1	1	1	0	0	0	1	0	0	1	Expansion/Map/lucionvault.ds1	0	0	0	0	0	7340031	1	0
 Skovos Stronghold Map	1145	190	1	1	1	0	1	1	0	0	0	1	0	0	1	Expansion/Map/SkovosStrongholdV1.ds1	0	0	0	0	0	864026623	0	1
-Demon Road Map	1146	191	1	1	0	1	1	1	0	0	0	1	2	-4	1	Expansion/Map/DemonRoad1.ds1	Expansion/Map/DemonRoad2.ds1	Expansion/Map/DemonRoad3.ds1	Expansion/Map/DemonRoad4.ds1	0	0	127	0	1
+Demon Road Map	1146	191	1	1	0	1	1	1	0	0	0	1	2	-4	4	Expansion/Map/DemonRoad1.ds1	Expansion/Map/DemonRoad2.ds1	Expansion/Map/DemonRoad3.ds1	Expansion/Map/DemonRoad4.ds1	0	0	127	0	1
