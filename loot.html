@@ -238,6 +238,27 @@
             }
           }
 
+          if (this.treasure.first('Treasure Class', 'LucionChestLow')) {
+            monsters.push({
+              from: 'Lucion Chest',
+              difficulty: 2,
+              id: 'lucionchest',
+              level: 89,
+              rarity: 2,
+              string: 'Lucion Chest Low',
+              treasure: 'LucionChestLow'
+            })
+            monsters.push({
+              from: 'Lucion Chest',
+              difficulty: 2,
+              id: 'lucionchest',
+              level: 89,
+              rarity: 2,
+              string: 'Lucion Chest High',
+              treasure: 'LucionChestHigh'
+            })
+          }
+
           this.sourceMap = {}
           const dropMap = new Map()
           monsters.forEach(monster => {
