@@ -740,6 +740,17 @@
           document.querySelector('#version').onchange = async () => {
             const { version, players, rarity, item } = this.values()
             this.abacus = new DropAbacus(version, players)
+            try {
+              const strings = new StringResolver([
+                `data/${version}/global/excel/patchstring.tbl`,
+                `data/${version}/global/excel/expansionstring.tbl`,
+                `data/${version}/global/excel/string.tbl`,
+              ])
+              await strings.load()
+              this.strings = strings
+            } catch (e) {
+              // ignore error
+            }
             await this.abacus.load()
             this.populateItems(document.querySelector('#item'), rarity, item)
             this.generate()
