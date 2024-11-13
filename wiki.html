@@ -89,7 +89,9 @@
           const sourcer = new MonsterSourcer(this.d2data.levels(), this.d2data.monStats(), this.d2data.supers())
           const res = []
           map.areas.forEach(area => {
-            res.push(...sourcer.monsters(inverseMap[area].Name).filter(monster => monster.difficulty === 2 && monster.rarity === 0))
+            if (area !== 'Zhar\'s Sanctum') {
+              res.push(...sourcer.monsters(inverseMap[area].Name).filter(monster => monster.difficulty === 2 && monster.rarity === 0))
+            }
           })
           if (map.extra) {
             map.extra.forEach(monster => {
