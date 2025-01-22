@@ -379,6 +379,28 @@ class IgSetup {
           ]
         }
         return []
+      case 'Crafted - Caster': {
+        if (types.has('tors')) {
+          return [
+            {
+              aff: this.codeLookup('allskills'),
+              par: 0,
+              min: 1,
+              max: 2
+            },
+            {
+              aff: this.codeLookup('cast'),
+              min: 5,
+              max: 11
+            },
+            {
+              aff: this.codeLookup('mana'),
+              min: 20,
+              max: 31
+            }
+          ]
+        }
+      }
       default:
         return []
     }
@@ -633,7 +655,8 @@ class IgMetaForm {
   populateRarity (rarityInput, item) {
     const rarity = ['Magic', 'Rare']
     const crafts = {
-      'weap': ['Blood', 'Diamond']
+      'weap': ['Blood', 'Diamond'],
+      'armo': ['Caster']
     }
     for (const type in crafts) {
       if (this.typeList.itemIs(item, type)) {
