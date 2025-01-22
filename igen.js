@@ -656,7 +656,7 @@ class IgMetaForm {
     const rarity = ['Magic', 'Rare']
     const crafts = {
       'weap': ['Blood', 'Diamond'],
-      'armo': ['Caster']
+      'tors': ['Caster']
     }
     for (const type in crafts) {
       if (this.typeList.itemIs(item, type)) {
