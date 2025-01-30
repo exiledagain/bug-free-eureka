@@ -270,6 +270,7 @@ class IgSetup {
       this.codeInverse[code] = idx
       idx += 1
     }
+    this.nextCodeIdx = idx + 1
   }
 
   addParam (code, param) {
@@ -284,6 +285,10 @@ class IgSetup {
   codeLookup (name) {
     if (IgSetup.codeMap[name]) {
       name = IgSetup.codeMap[name]
+    }
+    if (!(name in this.codeInverse)) {
+      this.codeInverse[name] = this.nextCodeIdx
+      this.nextCodeIdx += 1
     }
     return this.codeInverse[name]
   }
