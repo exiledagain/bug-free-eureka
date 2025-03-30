@@ -80,12 +80,16 @@
 
         mapToMonsters (map) {
           const levels = this.d2data.levels()
-          const inverseMap = {}
-          levels.each(level => {
-            if (level['MonLvl3Ex'] >= 87) {
-              inverseMap[this.strings.get(level['LevelName'])] = level
-            }
-          })
+          const inverseMap = this.inverseMap || { cache: false }
+          if (!inverseMap.cache) {
+            levels.each(level => {
+              if (level['MonLvl3Ex'] >= 87) {
+                inverseMap[this.strings.get(level['LevelName'])] = level
+              }
+            })
+            inverseMap.cache = true
+            this.inverseMap = inverseMap
+          }
           const sourcer = new MonsterSourcer(this.d2data.levels(), this.d2data.monStats(), this.d2data.supers())
           const res = []
           map.areas.forEach(area => {
@@ -306,6 +310,7 @@
             }, 0) / tablee1.length
             tbl.push({
               name: map.areas[0],
+              density: Number(this.inverseMap[map.areas[0]]['MonDen(H)']),
               min,
               max,
               avg,
@@ -313,7 +318,8 @@
             })
           })
           tbl.sort((a, b) => {
-            return a.avg - b.avg
+            // return a.avg - b.avg
+            return b.density - a.density || a.avg - b.avgds
           })
           const txt = document.createElement('textarea')
           txt.textContent = Object.keys(tbl[0]).join(',') + '\n' + tbl.reduce((text, el) => {
