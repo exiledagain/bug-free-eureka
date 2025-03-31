@@ -469,7 +469,8 @@
             computed: {
               treasureClass,
               zone: zoneName,
-              lockChance
+              lockChance,
+              itemLevel: level
             },
             drops: found,
             nonEmptyCount
@@ -518,7 +519,9 @@
           const uniqueItem = config.filters.uniqueItem
           const setItem = config.filters.setItem
           const lockChance = computed.lockChance
+          const itemLevel = computed.itemLevel
           query.appendChild(p(`"${zone}" (${version}) P:${players} MF:${magicFind}`))
+          query.appendChild(p(`Item Level: ${itemLevel}`))
           query.appendChild(p(`Treasure: ${treasureClass}`))
           query.appendChild(p(`Lock Chance: ${lockChance}%`))
           query.appendChild(p(`${chestType} ${chestOpt}`))

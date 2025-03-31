@@ -130,6 +130,14 @@ class DataFrame {
     })
   }
 
+  map (cb) {
+    const res = []
+    this.each(value => {
+      res.push(cb(value))
+    })
+    return res
+  }
+
   keyIndex (needle) {
     return this.keys.indexOf(needle)
   }
@@ -1918,6 +1926,8 @@ class Diablo2Data {
     'UniqueItems.txt',
     'SetItems.txt',
     'MonLvl.txt',
+    'Objects.txt',
+    'ObjGroup.txt'
   ]
 
   static defaultVersion = 's10'
@@ -2021,6 +2031,14 @@ class Diablo2Data {
 
   SkillData ({ resolver }) {
     return new SkillData({ skills: this.skills(), skillDesc: this.skillDesc(), resolver })
+  }
+
+  objects () {
+    return this.loader.get(this.version, 'Objects.txt')
+  }
+
+  objGroup () {
+    return this.loader.get(this.version, 'ObjGroup.txt')
   }
 
   async StringResolver () {

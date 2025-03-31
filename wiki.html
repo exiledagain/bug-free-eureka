@@ -12,6 +12,7 @@
     <select id="generator" >
       <option value="mapres" selected>Map Resistances</option>
       <option value="dp">DP Analysis</option>
+      <option value="chests">Chest Chances (>0%)</option>
     </select>
     <br/>
     <br/>
@@ -325,6 +326,56 @@
           txt.textContent = Object.keys(tbl[0]).join(',') + '\n' + tbl.reduce((text, el) => {
             return text + Object.values(el).join(',') + '\n'
           }, '')
+          this.container.appendChild(txt)
+        }
+
+        chests () {
+          const objects = this.d2data.objects().map(e => {
+            return {
+              id: e['Id'],
+              lockable: e['Lockable'],
+              init: e['InitFn'],
+              op: e['OperateFn']
+            }
+          }).reduce((s,e) => {
+            s[e.init] = s[e.init] || {}
+            s[e.init][e.id] = e
+            return s
+          }, {})
+          const groups = this.d2data.objGroup().map(e => {
+            let tp = 0
+            for (let i = 0, sum = 0; i <= 7 && sum < 100; ++i) {
+              const id = e[`ID${i}`]
+              const density = Number(e[`DENSITY${i}`])
+              let p = Number(e[`PROB${i}`])
+              sum += p
+              if (sum > 100) {
+                p -= sum - 100
+              }
+              if (objects['3'][id]) {
+                tp += p / 100 * density / 128
+              }
+            }
+            return tp
+          })
+          const levels = this.d2data.levels().map(e => {
+            let tp = 0
+            for (let i = 0; i <= 7; ++i) {
+              const groupId = Number(e[`ObjGrp${i}`])
+              const pId = `ObjPrb${i}`
+              let p = Number(e[pId])
+              if (p > 0 && groupId > 0) {
+                tp += groups[groupId] * p / 100 * (Math.floor(Number(e['MonLvl1'])) / 2 + 8) / 100
+              }
+            }
+            return {
+              name: e.Name,
+              p: tp,
+            }
+          }).filter(e => e.p > 0)
+          levels.sort((a, b) => b.p - a.p)
+          const txt = document.createElement('textarea')
+          txt.textContent = JSON.stringify(levels, null, 2)
           this.container.appendChild(txt)
         }
       }
