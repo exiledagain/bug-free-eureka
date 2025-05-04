@@ -350,7 +350,7 @@ class ChestDropper {
   p (id, rarity, magicFind, level, extra) {
     const item = this.findItem(id)
     const ratio = this.findRatio(id, rarity.substring(0, 1).toUpperCase() + rarity.substring(1).toLowerCase())
-    return this.chance(magicFind, extra, level - item.level, rarity === 'magic', ratio.base, ratio.divisor, ratio.min, ChestDropper.constants[rarity])          
+    return this.chance(magicFind, extra, level - item.level, rarity === 'magic', ratio.base, ratio.divisor, ratio.min, ChestDropper.constants[rarity])
   }
 
   chance (magicFind, extra, difference, isMagic, rarityBase, divisor, min, constant) {
