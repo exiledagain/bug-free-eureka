@@ -59,7 +59,7 @@
         }
 
         async load () {
-          const version = 's10'
+          const version = Diablo2Data.defaultVersion
           this.d2data = new Diablo2Data(version)
           await this.d2data.load()
           this.strings = new StringResolver([
