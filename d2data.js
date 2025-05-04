@@ -1930,7 +1930,7 @@ class Diablo2Data {
     'ObjGroup.txt'
   ]
 
-  static defaultVersion = 's10'
+  static defaultVersion = 's11'
 
   constructor (version = Diablo2Data.defaultVersion) {
     this.version = version
