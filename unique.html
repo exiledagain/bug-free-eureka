@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&amp;display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <link rel="stylesheet" href="css/common.css">
+    <script src="d2data.js"></script>
+  </head>
+  <body>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            <input id="search" type="text">
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div id="content"></div>
+    <script>
+      const version = 's9'
+      const d2 = new Diablo2Data(version)
+      const strings = new StringResolver([
+        `data/${version}/global/excel/patchstring.tbl`,
+        `data/${version}/global/excel/expansionstring.tbl`,
+        `data/${version}/global/excel/string.tbl`,
+      ])
+      class StringView {
+        constructor ({ inputEl, container, resolver }) {
+          this.resolver = resolver
+          this.inputEl = inputEl
+          this.container = container
+          this.setup()
+        }
+
+        setup () {
+          this.inputEl.onchange = e => {
+            this.regex = new RegExp(e.target.value, 'i')
+            this.update()
+          }
+        }
+
+        update () {
+          const els = []
+          this.resolver.tables.forEach(table => {
+            for (const [k, v] of table.map) {
+              if (!this.regex || this.regex.test(k) || this.regex.test(v)) {
+                els.push([k, v])
+              }
+            }
+          })
+          this.container.innerHTML = ''
+          for (const [k, v] of els) {
+            const el = document.createElement('p')
+            el.textContent = `${k}: ${v}`
+            this.container.appendChild(el)
+          }
+        }
+      }
+      async function Load () {
+        await strings.load()
+        await d2.load()
+        const fmt = new StatFormat(d2, strings)
+        let seen = {}
+        console.log(fmt.get('item_charged_skill', { value: 0x505, param: 0x5941 }))
+        console.log(fmt.get('item_charged_skill', { value: 0x2322, param: 0x378b }))
+        console.log(fmt.get('item_charged_skill', { value: 0x2121, param: 0x3d8d }))
+        console.log(fmt.get('item_charged_skill', { value: 0xf0f, param: 0x17cf }))
+        console.log(fmt.get('item_charged_skill', { value: 0xb05, param: 0x3d87 }))
+        console.log(fmt.get('item_charged_skill', { value: 0xd06, param: 0x3b05 }))
+        console.log(fmt.get('item_replenish_durability', { value: 0x19 }))
+        d2.itemStatCost().each(el => {
+          if (seen[el['descfunc']]) {
+            return
+          }
+          seen[el['descfunc']] = true
+          console.log(el['Stat'], el['descfunc'])
+          console.log(fmt.get(el['Stat'], { value: 128, param: 10 }))
+        })
+        new StringView({
+          resolver: strings,
+          inputEl: document.querySelector('#search'),
+          container: document.querySelector('#content')
+        })
+      }
+      requestAnimationFrame(Load)
+    </script>
+  </body>
+</html>

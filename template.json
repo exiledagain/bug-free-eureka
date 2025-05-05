@@ -1,0 +1,250 @@
+{
+  "header": {
+    "magic": "0xaa55aa55",
+    "version": "0x60",
+    "size": "0x0",
+    "checksum": "0x0"
+  },
+  "activeWeapon": "0x0",
+  "name": "deadbeef",
+  "status": "0x20",
+  "progression": "0xf",
+  "unknown1": "0x0",
+  "classId": "0x6",
+  "unknown2": "0x2110",
+  "level": "0x5a",
+  "created": "0x0",
+  "lastPlayed": "0x1",
+  "unknown3": "0xffffffff",
+  "assignedSkills": [
+    "0xffff",
+    "0x10b",
+    "0x115",
+    "0xffff",
+    "0x9b",
+    "0x95",
+    "0xffff",
+    "0xffff",
+    "0x113",
+    "0x101",
+    "0x117",
+    "0xffff",
+    "0xffff",
+    "0xffff",
+    "0xffff",
+    "0xffff"
+  ],
+  "leftSkill": "0x0",
+  "rightSkill": "0x0",
+  "leftSkillAlt": "0x0",
+  "rightSkillAlt": "0x0",
+  "appearance": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  "location": "0x840000",
+  "mapId": "0x6abfc434",
+  "unknown4": "0x0",
+  "mercenary": {
+    "dead": "0x0",
+    "id": "0xa7870272",
+    "name": "0x0",
+    "type": "0x0",
+    "experience": "0x57f19ec"
+  },
+  "realm": "0x0",
+  "quests": "0x80029ffd9ffd000c17899fed802200000000000100000000000000019ffd9ffd10010001000197fd9ffd10019ffd9ffd1001000100011fe59ffd9ffd9ffd1c391011000100019ffd9ffd9ffd804a9ffd1001000100000000000000000000000080029ffd9ffd000417899fed802200000000000100000000000000019ffd9ffd10010001000197fd9ffd10019ffd9ffd1001000100011fe59ffd9ffd9ffd1c791011000100019ffd9ffd9ffd804a9ffd1001000100000000000000000000000080029ffd9ffd000417899fed802200000000000100000000000000019ffd9ffd10010001000197fd9ffd10019ffd9ffd1001000100011fe59ffd9ffd9ffd1c79100100000001101910151019804e101110010001012a00000006216f6f5700000000",
+  "waypoints": "0x7fffffffff010200000000000000000000000000000000007fffffffff010200000000000000000000000000000000007fffffffff01020050000000015357",
+  "dialog": "0x7e00000006c880002e00000000c880002400000000c88000ac00347701",
+  "attributes": {
+    "header": "0x6667",
+    "values": [
+      {
+        "real": {
+          "name": "strength"
+        },
+        "id": "0x0",
+        "value": "0x14"
+      },
+      {
+        "real": {
+          "name": "energy"
+        },
+        "id": "0x1",
+        "value": "0x19"
+      },
+      {
+        "real": {
+          "name": "dexterity"
+        },
+        "id": "0x2",
+        "value": "0x14"
+      },
+      {
+        "real": {
+          "name": "vitality"
+        },
+        "id": "0x3",
+        "value": "0x14"
+      },
+      {
+        "real": {
+          "name": "statpts"
+        },
+        "id": "0x4",
+        "value": "0x1cc"
+      },
+      {
+        "real": {
+          "name": "newskills"
+        },
+        "id": "0x5",
+        "value": "0x65"
+      },
+      {
+        "real": {
+          "name": "hitpoints"
+        },
+        "id": "0x6",
+        "value": "0x12000"
+      },
+      {
+        "real": {
+          "name": "maxhp"
+        },
+        "id": "0x7",
+        "value": "0x12000"
+      },
+      {
+        "real": {
+          "name": "mana"
+        },
+        "id": "0x8",
+        "value": "0xca00"
+      },
+      {
+        "real": {
+          "name": "maxmana"
+        },
+        "id": "0x9",
+        "value": "0xca00"
+      },
+      {
+        "real": {
+          "name": "stamina"
+        },
+        "id": "0xa",
+        "value": "0x14b40"
+      },
+      {
+        "real": {
+          "name": "maxstamina"
+        },
+        "id": "0xb",
+        "value": "0x14b40"
+      },
+      {
+        "real": {
+          "name": "level"
+        },
+        "id": "0xc",
+        "value": "0x5a"
+      },
+      {
+        "real": {
+          "name": "experience"
+        },
+        "id": "0xd",
+        "value": "0x627c1b67"
+      },
+      {
+        "real": {
+          "name": "goldbank"
+        },
+        "id": "0xf",
+        "value": "0x24737f"
+      }
+    ]
+  },
+  "skills": {
+    "header": "0x6669",
+    "list": [
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0"
+    ]
+  },
+  "items": {
+    "header": "0x4d4a",
+    "count": "0x1",
+    "list": [
+      {
+        "header": "0x4d4a",
+        "compact": {
+          "flags": "0x800010",
+          "version": "0x65",
+          "location": "0x0",
+          "equipment": "0x0",
+          "x": "0x3",
+          "y": "0x3",
+          "page": "0x4",
+          "code": "0x20737377",
+          "socketed": "0x0"
+        },
+        "code": "wss",
+        "extra": {
+          "id": "0x128c46f6",
+          "level": "0x55",
+          "quality": "0x2",
+          "graphics": "0x0",
+          "auto": "0x0",
+          "properties": 0,
+          "realm": "0x0",
+          "quantity": "0x31",
+          "list": []
+        },
+        "id": 0
+      }
+    ]
+  },
+  "corpses": {
+    "header": "0x4d4a",
+    "count": "0x0",
+    "corpses": []
+  },
+  "mercenaryItems": {
+    "header": "0x666a",
+    "items": {
+      "header": "0x4d4a",
+      "count": "0x0",
+      "list": []
+    }
+  }
+}

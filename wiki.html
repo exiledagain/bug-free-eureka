@@ -51,6 +51,8 @@
             { boss: 'fingermageboss', areas: [ 'The Plains Of Torment', 'The Pit Of Despair' ], extra: ['willowispboss', 'willowispminion', 'willowisptotem'] },
             { boss: 'DemonRoadBoss', areas: [ 'The Demon Road' ] },
             { boss: 'SkovosBoss', areas: [ 'The Skovos Stronghold' ]},
+            { boss: 'TortureHallsBoss', areas: ['The Halls of Torture']},
+            { boss: 'ImperialPalaceBoss', areas: ['The Imperial Palace']}
         ]
 
         constructor () {
@@ -126,7 +128,7 @@
           })
           maps.forEach(map => {
             const levels = map.areas.map(el => inverseMap[el])
-            if (map.areas.length === 1) {
+            if (map.areas.length === 1 && map.areas[0] !== 'The Imperial Palace') {
               map.type = `T${levels[0].MonLvl3Ex - '86'}`
             } else if (levels[0].MonLvl3Ex < '92') {
               map.type = 'Unique Maps'
