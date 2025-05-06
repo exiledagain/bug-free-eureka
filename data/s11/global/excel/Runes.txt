@@ -110,7 +110,7 @@ Runeword69	Last Wish	1		swor	hamm	axe	staf						JahMalJahSurJahBer	r31	r23	r31	r
 Runeword70	Law																																															0
 Runeword71	Lawbringer	1		swor	hamm	scep	h2h	taxe	thro				AmnLemKo	r11	r20	r18				dmg-cold		130	180	dmg-fire		150	210	dmg%		150	200	hit-skill	Decrepify Proc	20	15	ac-miss		200	250	rip		1	1	reduce-ac		50	50	0
 Runeword73	Lightning																																															0
-Loyalty Spear	Loyalty	1		spea									PulTirDol	r21	r03	r14				dmg%		225	245	skill	dopplezon	2	3	skilltab	1	2	2	cast2		60	60	crush		20	20	skill	fend	4	5	mana-kill		2	2	0
+Loyalty Spear	Loyalty	1		spea						jave			PulTirDol	r21	r03	r14				dmg%		225	245	skill	dopplezon	2	3	skilltab	1	2	2	cast2		60	60	crush		20	20	skill	fend	4	5	mana-kill		2	2	0
 Runeword78	Lust																																															0
 Runeword79	Madness																																															0
 Runeword84	Mist	1		miss									ChamShaelGulThulIth	r32	r13	r25	r10	r06		aura	concentration	12	14	allskills		2	2	res-all		40	40	vit		20	30	pierce		100	100	dmg%		325	375					0
