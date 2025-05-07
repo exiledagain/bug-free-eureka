@@ -677,14 +677,16 @@ class MonsterSourcer {
     'ZharMiniBossBaboon': { area: 'Zhar Kurast' },
     'ZharMiniBossBigHead': { area: 'Zhar Ice' },
     'ZharMiniBossCantor': { area: 'Zhar Rivers' },
-    'ZharTheMad': { area: 'Zhar Ice' },
+    'ZharTheMad': { area: 'Zhar Library' },
     'uberancientbarb1': { area: 'Uber Ancients' },
     'uberancientbarb2': { area: 'Uber Ancients' },
     'uberancientbarb3': { area: 'Uber Ancients' },
     'izual': { area: 'Act 4 - Mesa 2' },
     'bloodraven': { area: 'Act 1 - Graveyard' },
     'SkovosBoss': { area: 'Skovos Stronghold Map' },
-    'DemonRoadBoss': { area: 'Demon Road Map' }
+    'DemonRoadBoss': { area: 'Demon Road Map' },
+    'ImperialPalaceBoss': { area: 'Imperial Boss Map' },
+    'TortureHallsBoss': { area: 'Halls of Torture Map' },
   }
   static staticSuperMonsters = {
     'Bishibosh': { area: 'Act 1 - Wilderness 2' },
