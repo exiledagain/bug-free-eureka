@@ -260,6 +260,37 @@
               treasure: 'LucionChestHigh'
             })
           }
+          if (this.treasure.first('Treasure Class', 'T4MidMapBoss')) {
+            monsters.push({
+              from: 'Dungeon',
+              difficulty: 2,
+              id: 'T4FinalMapBoss',
+              level: 93,
+              rarity: 2,
+              string: 'Dungeon Final Boss',
+              treasure: 'T4FinalMapBoss'
+            })
+            monsters.push({
+              from: 'Dungeon',
+              difficulty: 2,
+              id: 'T4MidMapBoss',
+              level: 93,
+              rarity: 2,
+              string: 'Dungeon Mini Boss',
+              treasure: 'T4MidMapBoss'
+            })
+          }
+          if (this.treasure.first('Treasure Class', 'Treasure Fallen H')) {
+            monsters.push({
+              from: 'Map Event',
+              difficulty: 2,
+              id: 'Treasure Fallen H',
+              level: 93,
+              rarity: 2,
+              string: 'Treasure Fallen',
+              treasure: 'Treasure Fallen H'
+            })
+          }
 
           this.sourceMap = {}
           const dropMap = new Map()
