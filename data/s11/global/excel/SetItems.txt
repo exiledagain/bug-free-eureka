@@ -32,7 +32,7 @@ Cathan's Seal	Cathan's Traps	rin	Ring	70	15	11	dgrn	dgrn						5	2500	2	lifesteal
 Tancred's Crowbill	Tancred's Battlegear	mpi	Military Pick	7	27	20	dgld	dgld						5	2500	2	att		100	175	dmg%		60	80	splash	358	100	1	mana		20	20	att-skill	Charged Bolt	33	12																	swing2		20	20					att-skill	Charged Bolt	20	12																													0
 Tancred's Spine	Tancred's Battlegear	ful	Full Plate Mail	7	27	20	dgld	dgld						5	2500	2	hp		40	40	str		15	15	dmg%		30	45																									ac/lvl	48																																							0
 Tancred's Hobnails	Tancred's Battlegear	lbt	Boots	7	27	20	dgld	dgld						5	2500	2	regen-stam		25	25	dex		10	20	red-dmg%		5	10																									move3		30	30					str		10	10																													0
-Tancred's Weird	Tancred's Battlegear	amu	Amulet	7	27	20	dgld	dgld						5	2500	2	red-dmg		3	6	red-mag		2	4	dmg-ltng		1	15																									mag%		78	78					att		160	160																													0
+Tancred's Weird	Tancred's Battlegear	amu	Amulet	7	27	20	dgld	dgld						5	2500	2	red-dmg		3	6	red-mag		2	4	dmg-ltng		1	45																									mag%		78	78					att		160	160																													0
 Tancred's Skull	Tancred's Battlegear	bhm	Bone Helm	7	27	20	dgld	dgld						5	2500	2	dmg%		20	30	att		80	80																													res-all		10	10																																					0
 Sigon's Gage	Sigon's Complete Steel	hgl	Gauntlets	7	9	6	whit	whit						5	2500	2	str		10	10	att		20	20																													swing3		30	30																																					0
 Sigon's Visor	Sigon's Complete Steel	ghm	Great Helm	7	9	6	whit	whit						5	2500	2	mana		30	30	ac		25	25																													att/lvl	16																																							0
