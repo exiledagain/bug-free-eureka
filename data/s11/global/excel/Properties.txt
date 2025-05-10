@@ -434,3 +434,4 @@ extra-shadow	1			1	extra_shadow																													375	0
 extra-spiritwolf	1			1	extra_spiritwolf																													375	0
 joust-reduction-zeraes	1			1	joustreduction_zeraes																													374	0
 map-glob-boss-dropubermats	1			1	map_glob_boss_dropubermats																													416	0
+map-glob-boss-droppuzzlebox	1			1	map_glob_boss_droppuzzlebox																													412	0

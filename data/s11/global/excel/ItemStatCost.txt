@@ -211,7 +211,7 @@ progressive_mindblast	208		1	8													1024																																	
 joustreduction_zeraes	209		1	5													1024		6		6																		150	3	0	JoustreductionZeraes	JoustreductionZeraes									0
 item_maxdeadlystrike	210		1	7											31	25	1024		7	0	7	0												1					85	4	2	StrMaxDeadlyStrike	StrMaxDeadlyStrike									0
 map_glob_boss_dropubermats	211			2											1065	72	2009		2	2	2	2																	208	3	0	MapBossUberMats	MapBossUberMats									0
-unused211	212		1	30										3	401	256	1024		30	0																																0
+map_glob_boss_droppuzzlebox	212			2											1065	72	2009		2	2	2	2																	208	3	0	MapBossPuzzlebox	MapBossPuzzlebox									0
 item_mindamage_energy	213		1	6											90	128	1024		6	0	6	0			4	3	energy	mindamage	secondary_mindamage	item_throw_mindamage				1					53	6	1	ModStr1g	ModStr1g	increaseswithenergy								0
 item_armor_perlevel	214		1	6											43	42	1024		6	0	6	0			4	3	level	armorclass											72	6	1	ModStr1i	ModStr1i	increaseswithplaylevelX								0
 item_armorpercent_perlevel	215		1	6											87	100	1024		6	0	6	0			5	3	level	armorclass											73	8	1	Modstr2v	Modstr2v	increaseswithplaylevelX								0
