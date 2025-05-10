@@ -843,9 +843,8 @@
               name: this.strings.get(source.source.string),
               level: source.source.level,
               treasure: source.source.treasure,
-              E: (1 / source.p).toFixed(4),
+              E: (1 / source.p).toLocaleString(undefined, { minimumFractionDigits: 4 }),
               from: source.source.from,
-              type: source.source.rarity
             }
             const level = this.abacus.levels.first('Name', entry.from)
             if (level) {
@@ -856,13 +855,14 @@
             }
             const { explain } = this.values()
             if (explain) {
-              entry.drop = (1 / source.explain.drop).toFixed(3)
+              entry.type = source.source.rarity
+              entry.drop = (1 / source.explain.drop).toLocaleString(undefined, { minimumFractionDigits: 3 })
               if (source.explain.reduce && source.explain.reduce !== 1.0) {
-                entry.reduce = (1 / source.explain.reduce).toFixed(3)
+                entry.reduce = (1 / source.explain.reduce).toLocaleString(undefined, { minimumFractionDigits: 3 })
               }
-              entry.rarity = (1 / source.explain.rarity).toFixed(3)
+              entry.rarity = (1 / source.explain.rarity).toLocaleString(undefined, { minimumFractionDigits: 3 })
               if (source.explain.base) {
-                entry.base = (1 / source.explain.base).toFixed(3)
+                entry.base = (1 / source.explain.base).toLocaleString(undefined, { minimumFractionDigits: 3 })
               }
             }
             if (head.childElementCount === 0) {
