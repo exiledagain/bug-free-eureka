@@ -2057,6 +2057,9 @@ luca difficulty 0 -> 1	0			0	18	185	0		1	luca							useitem				uber-difficulty	1
 luca difficulty 1 -> 2	1			0	18	185	1		1	luca							useitem				uber-difficulty	100		1	1																																																																															0
 luca difficulty 2 -> 1 (introduction doesn't have T0)	1			0	18	185	2		1	luca							useitem				uber-difficulty	100		-1	-1																																																																															0
 fortify T1 map-- map + fort (unique)	1			100					2	"t5me"	"fort,qty=1"						useitem			100	map-glob-skirmish-mode	100		50	50																																																																															0
+demonic cube + unique staff (reroll stats)	1			100	31				2	"staf,uni"	imrn,qty=1																																							cast2	100		20	20																									cast2	100		20	20																					0
+demonic cube + unique spiked shield (reroll stats)	1			100	31				2	"sshi,uni"	imrn,qty=1																																							thorns	100		14	16																									thorns	100		64	84																					0
+demonic cube + unique bone shield (reroll stats)	1			100	31				2	"bshi,uni"	imrn,qty=1																																							red-mag	100		2	2																									red-mag	100		2	2																					
 demonic cube + unique weapon (reroll stats)	1			100	31				2	weap,uni	imrn,qty=1																																																																																													0
 demonic cube + unique armor (reroll stats)	1			100	31				2	armo,uni	imrn,qty=1																																																																																													0
 demonic cube + unique amulet (reroll stats)	1			100	31				2	amul,uni	imrn,qty=1																																																																																													0
@@ -2076,3 +2079,9 @@ imbued t1 map reroll magic	1	4		100	18	361	0		2	"t1me,mag,qty=1"	"irma,qty=1"			
 imbued t2 map reroll magic	1	4		100	18	361	0		2	"t2me,mag,qty=1"	"irma,qty=1"						"usetype,mag"			100																																																																																				0
 imbued t3 map reroll magic	1	4		100	18	361	0		2	"t3me,mag,qty=1"	"irma,qty=1"						"usetype,mag"			100																																																																																				0
 Puzzlebox 1h throw weapon	1			100					2	"thro,nos"	"lbox,qty=1"						useitem			100	sock			1	2																																																																															0
+Lillith's Mirror arrows (magic)	1			100					2	"aqv,mag"	llmr						useitem	99		100	dye	100		4	4	mirrored	100		1	1																useitem	99		100	dye	100		21	21	mirrored	100		1	1																																													0
+Lillith's Mirror bolts (magic)	1			100					2	"cqv,mag"	llmr						useitem	99		100	dye	100		4	4	mirrored	100		1	1																useitem	99		100	dye	100		21	21	mirrored	100		1	1																																													0
+Lillith's Mirror arrows (rare)	1			100					2	"aqv,rar"	llmr						useitem	99		100	dye	100		4	4	mirrored	100		1	1																useitem	99		100	dye	100		21	21	mirrored	100		1	1																																													0
+Lillith's Mirror bolts (rare)	1			100					2	"cqv,rar"	llmr						useitem	99		100	dye	100		4	4	mirrored	100		1	1																useitem	99		100	dye	100		21	21	mirrored	100		1	1																																													0
+Lillith's Mirror arrows (craft)	1			100					2	"aqv,crf"	llmr						useitem	99		100	dye	100		4	4	mirrored	100		1	1																useitem	99		100	dye	100		21	21	mirrored	100		1	1																																													0
+Lillith's Mirror bolts (craft)	1			100					2	"cqv,crf"	llmr						useitem	99		100	dye	100		4	4	mirrored	100		1	1																useitem	99		100	dye	100		21	21	mirrored	100		1	1																																													0

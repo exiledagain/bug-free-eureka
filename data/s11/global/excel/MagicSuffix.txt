@@ -848,7 +848,7 @@ of the Armorer	845	1	1	1	1		1				2	318	map-mon-droparmor		3	3											t3m					
 of the Crafter	846	1	1	1	1		1				1	318	map-mon-dropcrafting		1	1											t1m	t2m													0
 of the Crafter	847	1	1	1	1		1				1	318	map-mon-dropcrafting		2	2											t2m	t3m													0
 of the Crafter	848	1	1	1	1		1				1	318	map-mon-dropcrafting		3	3											t3m														0
-of the Adventurer	849	1		1	1		1					320	map-glob-arealevel		1	1											t1m	t2m	t3m	t4m											0
+of the Adventurer	849			1	1		1					320	map-glob-arealevel		1	1											t1m	t2m	t3m	t4m											0
 of Radiance	850	1	1	1	15	55	11				1	25	light		3	3	att		30	60							rod	miss	helm	tors	misl										0
 of the Fox	851	1	1	1	17		13				3	26	hp		6	10											ring														0
 of Might	852	1	1	1	10		8				3	31	str		3	5											amul	ring	glov												0

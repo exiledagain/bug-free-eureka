@@ -685,6 +685,8 @@ class MonsterSourcer {
     'bloodraven': { area: 'Act 1 - Graveyard' },
     'SkovosBoss': { area: 'Skovos Stronghold Map' },
     'DemonRoadBoss': { area: 'Demon Road Map' },
+    'ImperialPalaceMiniBoss': { area: 'Imperial Palace Map' },
+    'ImperialPalaceBossMinion': { area: 'Imperial Boss Map' },
     'ImperialPalaceBoss': { area: 'Imperial Boss Map' },
     'TortureHallsBoss': { area: 'Halls of Torture Map' },
   }

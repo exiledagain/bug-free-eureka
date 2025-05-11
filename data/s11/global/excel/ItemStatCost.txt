@@ -455,7 +455,7 @@ map_play_fastercastrate	452	1	1	9											3876	156	1105		7	20	7	20												
 map_mon_skillondeath	453		1	7	16						1			2	11	9	0197		21	0	7	0	16												killed	30			160	15		Moditemskondeath	Moditemskondeath									0
 map_play_maxhp_percent	454		1	16											32093	204	1076		6	10	6	10			11			maxhp											58	7	2	MapPlayHave	MapPlayHave	ModStr2g								0
 map_play_maxmana_percent	455		1	16											56452	204	1077		6	10	6	10			11			maxmana											54	7	2	MapPlayHave	MapPlayHave	ModStr2h								0
-map_play_damageresist	456		1	9											152	68	1036		8	0	8	0																	22	7	2	MapPlayHave	MapPlayHave	ModStr2u_PD2								0
+map_play_damageresist	456		1	9											152	68	1036		8	0	8	0																	60	7	2	MapPlayHave	MapPlayHave	ModStrMapPlayerPDR								0
 map_play_velocitypercent	457	1	1	10		1											1067		7	30	7	30																		7	2	MapPlayHave	MapPlayHave	ModVelocity								0
 heroic	458			3											54	204	1024		8	0	3	0																	249	3	0	StrHeroic	StrHeroic									0
 extra_spirits	459		1	5													1024		5		5																		68	9	2	StrExtraRevives	StrExtraRevives	StrExtraSpirits								0
