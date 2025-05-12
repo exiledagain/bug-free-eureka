@@ -12,8 +12,9 @@
   </head>
   <body>
     <script>
+      var chosenVersion = Diablo2Data.defaultVersion
       async function Load () {
-        const version = Diablo2Data.defaultVersion
+        const version = chosenVersion
         const files = ['Misc.txt', 'ItemTypes.txt', 'MagicPrefix.txt', 'MagicSuffix.txt', 'Weapons.txt', 'Armor.txt']
         const loader = new DataLoader()
         await loader.preload(version, files)
@@ -28,6 +29,42 @@
         let setup, meta, requirements
         let prefixList, suffixList
         function populate (container) {
+          versionForm = IgMetaForm.populateForm(container, {
+            name: 'Version',
+            spec: [
+              {
+                name: 'version',
+                display: 'S10',
+                input: inputs => {
+                  const select = document.createElement('select')
+                  const versions = [Diablo2Data.defaultVersion, 's10']
+                  versions.forEach(version => {
+                    const display = version.toUpperCase()
+                    const el = document.createElement('option')
+                    el.value = version
+                    el.textContent = display
+                    select.appendChild(el)
+                    if (version == chosenVersion) {
+                      el.selected = true
+                    }
+                  })
+                  select.onchange = e => {
+                    chosenVersion = select.value
+                    Array.from(document.body.children).forEach(el => {
+                      if (el.tagName !== 'SCRIPT') {
+                        el.remove()
+                      }
+                    })
+                    Load()
+                    e.preventDefault()
+                    e.stopPropagation()
+                    return false
+                  }
+                  return select
+                }
+              }
+            ]
+          })
           meta = new IgMetaForm({ typeList: tl, strings })
           meta.populate(container)
         }
