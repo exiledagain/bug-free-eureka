@@ -670,7 +670,7 @@ class MonsterSourcer {
     'WarlordMiniBossShaman': { area: 'Hellcaves' },
     'WarlordOfBlood': { area: 'Hellcave Fortress' },
     'westmarchMapBoss': { area: 'Westmarch Map' },
-    'willowispboss': { area: 'Realm of Terror' },
+    'willowispboss': { area: 'Realm of Terror', boss: true },
     'willowispminion': { area: 'Hole of Terror' },
     'willowisptotem': { area: 'Hole of Terror' },
     'wraith9': { area: 'PD2 Pandemonium Finale' },
@@ -689,6 +689,7 @@ class MonsterSourcer {
     'ImperialPalaceBossMinion': { area: 'Imperial Boss Map' },
     'ImperialPalaceBoss': { area: 'Imperial Boss Map' },
     'TortureHallsBoss': { area: 'Halls of Torture Map' },
+    'RadamentBoss': { area: 'Sanctuary Of Sin Map' },
   }
   static staticSuperMonsters = {
     'Bishibosh': { area: 'Act 1 - Wilderness 2' },
@@ -768,19 +769,6 @@ class MonsterSourcer {
 
   setup () {
     this.inverseMonsterMap = new Map()
-    class CaseInsensitiveMap extends Map {
-      set (k, v) {
-        return super.set(k.toLowerCase(), v)
-      }
-
-      get (k) {
-        return super.get(k.toLowerCase())
-      }
-
-      has (k) {
-        return super.has(k.toLowerCase())
-      }
-    }
     this.monsterData.each(monster => {
       if (monster.killable === '1') {
         this.inverseMonsterMap.set(monster.Id, monster)
@@ -981,7 +969,7 @@ class MonsterSourcer {
     }
     // normal, champion, unique
     const levelTable = [0, 2, 3]
-    if (monster.boss === '1' || MonsterSourcer.staticMonsters[monsterId] && MonsterSourcer.staticMonsters[monsterId].boss) {
+    if (monster.boss === '1' || (MonsterSourcer.staticMonsters[monsterId] && MonsterSourcer.staticMonsters[monsterId].boss)) {
       res.push({
         id: monsterId,
         rarity: 2,
