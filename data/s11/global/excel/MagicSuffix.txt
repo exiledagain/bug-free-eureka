@@ -977,6 +977,7 @@ of the Armorer	974	1	1		1		1				9	318	map-mon-droparmor		6	6											t3m						
 of the Crafter	975	1	1		1		1				5	318	map-mon-dropcrafting		2	2											t1m	t2m													0
 of the Crafter	976	1	1		1		1				5	318	map-mon-dropcrafting		4	4											t2m	t3m													0
 of the Crafter	977	1	1		1		1				5	318	map-mon-dropcrafting		6	6											t3m														0
-of the Archmage	978	1	1	1	49		41				3	9	cast3		30	30											rod	orb	club												0
+of the Archmage	978	1	1	1	49		41				1	9	cast3		30	30											rod	orb	club					staf							0
 of Life Everlasting	979	100	1	1	45		37				4	1	red-dmg		10	25											shld	tors													0
 of Fortification	980	100	1		61		53				3	2	red-mag		12	16											tors	shld													0
+of the Archmage	981	1	1	1	49		41				1	9	cast3		40	40											staf														0
