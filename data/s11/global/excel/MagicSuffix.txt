@@ -356,14 +356,14 @@ of the Locust	353	1	1	1	20		15				7	27	lifesteal		6	7									1	cred	mele	misl		
 of the Lamprey	354	100	1	1	55		43				7	27	lifesteal		8	9									1	cred	mele							orb							0
 of the Leech	355	1	1	1	14		10				4	27	lifesteal		3	4											ring	circ	helm												0
 of the Locust	356	1	1	1	47		35				4	27	lifesteal		5	6											ring	circ	helm												0
-of the Lamprey	357	100	1	1	77		65				4	27	lifesteal		7	8									1	cred	ring	circ	helm												0
+of the Lamprey	357	100	1	1	77		65				4	27	lifesteal		7	8									1	cred	ring	circ													0
 of the Leech	358	1	1	1	34		26				4	27	lifesteal		3	3									1	cred	glov														0
 of the Bat	359	1	1	1	7		4				7	28	manasteal		4	5											weap	misl						orb							0
 of the Wraith	360	1	1	1	21		16				7	28	manasteal		6	7									1	cred	mele	misl													0
 of the Vampire	361	100	1	1	56		48				7	28	manasteal		8	9									1	cred	mele														0
 of the Bat	362	1	1	1	15		11				4	28	manasteal		3	4											amul	circ	helm												0
 of the Wraith	363	1	1	1	58		40				4	28	manasteal		5	6											amul	circ	helm												0
-of the Vampire	364	100	1	1	78		66				4	28	manasteal		7	8									1	cred	amul	circ	helm												0
+of the Vampire	364	100	1	1	78		66				4	28	manasteal		7	8									1	cred	amul	circ													0
 of the Bat	365	1	1	1	35		27				4	28	manasteal		3	3									1	cred	glov														0
 of Defiance	366	1	1	1	25		18				2	29	res-pois-len		75	75									1	dred	tors	shld	amul	circ	misl										0
 of Amelioration	367	1	1	1	18		13				3	29	res-pois-len		50	50											tors	shld	amul	circ	misl										0
