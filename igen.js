@@ -461,9 +461,10 @@ class IgMetaForm {
     }
   }
 
-  constructor ({ typeList, strings }) {
+  constructor ({ typeList, strings, getRequiredItemLevel }) {
     this.itemList = typeList.items()
     this.typeList = typeList
+    this.getRequiredItemLevel = getRequiredItemLevel
     this.strings = strings
     this.itemList = this.itemList.reduce((list, item) => {
       if (item.length === 0) {
@@ -563,9 +564,10 @@ class IgMetaForm {
             typeInput.onchange = e => {
               inputs.item.innerHTML = ''
               this.populateItemList(inputs, inputs.item)
-              this.populateRarity(rarity, item.value)
+              this.populateRarity(rarity, inputs.item.value)
               this.populateAffixCount(rarity.value, prefix)
               this.populateAffixCount(rarity.value, suffix)
+              requiredilvl.textContent = this.getRequiredItemLevel(item.value)
             }
             return typeInput
           }
@@ -582,6 +584,7 @@ class IgMetaForm {
               this.populateRarity(rarity, item.value)
               this.populateAffixCount(rarity.value, prefix)
               this.populateAffixCount(rarity.value, suffix)
+              requiredilvl.textContent = this.getRequiredItemLevel(item.value)
             }
             return itemInput
           }
@@ -612,8 +615,13 @@ class IgMetaForm {
             levelInput.setAttribute('list', 'levels')
             levelInput.setAttribute('pattern', /\d\d?/.source)
             levelInput.setAttribute('required', true)
-            levelInput.maxLength = 3
+            levelInput.maxLength = 2
             levelInput.value = '99'
+            levelInput.onchange = e => {
+              if (levelInput.validity.valid) {
+                requiredilvl.textContent = this.getRequiredItemLevel(item.value)
+              }
+            }
             return levelInput
           }
         },
@@ -641,6 +649,14 @@ class IgMetaForm {
               return false
             }
             return suffixInput
+          }
+        },
+        {
+          name: 'requiredilvl',
+          display: 'Item Level',
+          input: () => {
+            const input = document.createElement('span')
+            return input
           }
         }
       ]

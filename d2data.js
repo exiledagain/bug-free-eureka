@@ -254,6 +254,12 @@ class TypeList {
   }
 
   equivalent (a, b) {
+    if (!this.has(a) || !this.has(b)) {
+      return false
+    }
+    if (a in this.cache && b in this.cache[a]) {
+      return this.cache[a][b]
+    }
     const res = this.ancestors(a).has(b)
     this.cache[a] = this.cache[a] || {}
     return this.cache[a][b] = res

@@ -26,6 +26,38 @@
           `data/${version}/global/excel/string.tbl`,
         ])
         await strings.load()
+        function getRequiredItemLevel (item) {
+          const getALvl = (ilvl, qlvl, mlvl) => {
+            if (qlvl > ilvl) {
+              ilvl = qlvl
+            }
+            if (mlvl > 0) {
+              return ilvl + mlvl
+            }
+            if (ilvl < 99 - ~~(qlvl / 2)) {
+              return ilvl - ~~(qlvl / 2)
+            }
+            return 2 * ilvl - 99
+          }
+          const alvl = Number(level.value)
+          const qlvl = Number(tl.entry(item)['level'])
+          const mlvl = Number(tl.entry(item)['magic lvl'])
+          const lowerbound = (lo, hi) => {
+            let range = hi - lo  + 1
+            while (range > 0) {
+              let mi = lo + (range >> 1)
+              if (getALvl(mi, qlvl, mlvl) >= alvl) {
+                range = (range >> 1)
+              } else {
+                lo = mi + 1
+                range -= (range >> 1) + 1
+              }
+            }
+            return lo
+          }
+          const res = lowerbound(1, 99)
+          return res > 99 ? 'Impossible' : res
+        }
         let setup, meta, requirements
         let prefixList, suffixList
         function populate (container) {
@@ -65,7 +97,7 @@
               }
             ]
           })
-          meta = new IgMetaForm({ typeList: tl, strings })
+          meta = new IgMetaForm({ typeList: tl, strings, getRequiredItemLevel })
           meta.populate(container)
         }
         function readyForSim () {
@@ -76,6 +108,9 @@
             return false
           }
           if (prefixList.empty() && suffixList.empty()) {
+            return false
+          }
+          if (!window.level || !level.validity.valid) {
             return false
           }
           return true
@@ -164,6 +199,9 @@
         const prefixData = loader.get(version, 'MagicPrefix.txt')
         const suffixData = loader.get(version, 'MagicSuffix.txt')
         function reload () {
+          if (!document.getElementById('level').validity.valid) {
+            return
+          }
           const itemCode = document.getElementById('item').value
           const level = Number(document.getElementById('level').value)
           const isRare = document.getElementById('rarity').value !== 'Magic'
@@ -189,6 +227,7 @@
           } else {
             requirements = null
           }
+          requiredilvl.textContent = getRequiredItemLevel(itemCode)
           simResults.textContent = ''
           document.body.appendChild(form)
           document.body.appendChild(document.createElement('div'))
