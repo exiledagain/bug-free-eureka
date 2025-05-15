@@ -929,9 +929,6 @@ class MonsterSourcer {
   }
 
   expand (level, difficulty, monsterId, set, nestable = true) {
-    if (level.Name === 'Void Event Map') {
-      return []
-    }
     const res = []
     if (set.has(monsterId)) {
       return res
