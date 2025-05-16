@@ -806,8 +806,8 @@ Massive	803	1	1	1	20		15				7	105	dmg%		51	65									1	dgld	misl							staf	wan
 Assamic	804	100	1	1	3	43	1				2	123	att-demon		25	50	dmg-demon		10	25							misl							wand	orb						0
 Arcadian	805	100	1	1	15	55	11				2	123	att-demon		51	100	dmg-demon		26	50							misl							wand	orb						0
 Cultist's	806	100	1	1	28	68	25				4	170	openwounds		20	20	deep-wounds		30	40							weap	misl						staf	wand	orb					0
-Bloodthirster's	807	100	1	1	48		45				4	170	openwounds		20	20	deep-wounds		136	190							weap	misl						staf	wand	orb					0
-Gorelust's	808	100	1	1	68		65				4	170	openwounds		20	20	deep-wounds		224	310							weap	misl						staf	wand	orb					0
+Bloodthirster's	807	100	1	1	48		45				4	170	openwounds		20	20	deep-wounds		204	285							weap	misl						staf	wand	orb					0
+Gorelust's	808	100	1	1	68		65				4	170	openwounds		20	20	deep-wounds		407	563							weap	misl						staf	wand	orb					0
 Cultist's	809	100	1	1	28	68	25				3	170	openwounds		5	5	deep-wounds		30	40							jewl														0
 Bloodthirster's	810	100	1	1	48		45				3	170	openwounds		5	5	deep-wounds		65	85							jewl														0
 Gorelust's	811	100	1	1	68		65				3	170	openwounds		5	5	deep-wounds		95	125							jewl														0
