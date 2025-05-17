@@ -184,14 +184,16 @@
               res[emphasis] = monsters.reduce((sum, el) => {
                 if (el[emphasis] >= 100) {
                   // ignore special cases: no loot table, optional spawn, or unbreakable resistance
-                  if (el.Monster.startsWith('\'') || el.Monster.endsWith('*') || el[emphasis] > 999) {
+                  if (el.Monster.startsWith('\'') || el.Monster.endsWith('*')) {
                     sum.nilImmunes.push(el[emphasis])
-                  } else {
+                  } else if (el[emphasis] < 999) {
                     sum.immunes.push(el[emphasis])
+                  } else {
+                    sum.superImmunes.push(el[emphasis])
                   }
                 }
                 return sum
-              }, { immunes: [], nilImmunes: [] })
+              }, { immunes: [], nilImmunes: [], superImmunes: [] })
             })
             return res
           }
@@ -217,10 +219,10 @@
                   res = `<span class=d2-${colorMap[k]}>${res}</span>`
                 }
                 if (v.nilImmunes.length > 0) {
-                  if (res.length > 0) {
-                    res += '*'
-                  }
                   res += '*'
+                }
+                if (v.superImmunes.length > 0) {
+                  res += '**'
                 }
                 return res
               }
