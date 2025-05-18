@@ -339,7 +339,7 @@ Gimmershred	100	1		1		78	70	7ta	flying axe			5	5000	lgrn							dmg%		190	240	dmg
 Griffon's Eye	100	1		1		84	76	ci3	diadem			5	5000								ac		100	200	cast2		25	25	allskills		1	1	extra-ltng		10	15	pierce-ltng		15	20																													0
 Windhammer	100	1		1		76	68	7m7	ogre maul			5	5000	cblu	cblu		invmau				dmg%		230	280	crush		50	50	swing2		40	40	hit-skill	Twister	33	35																													splash	358	100	1	0
 Thunderstroke	100	1		1		77	69	amf	matriarchal javelin			5	5000	dblu	dblu						dmg%		200	250	dmg-ltng		1	511	hit-skill	Lightning	20	28	swing2		15	15	pierce-ltng		10	10	skill	Lightning Bolt	3	3	skilltab	2	2	3																	splash	358	100	1	0
-Giantmaimer	100			1								5	5000	oran			invarmageddonblade																																																				0
+Armageddon Blade	100			1								5	5000	oran			invarmageddonblade																																																				0
 Demon's Arch	100	1		1		76	68	7s7	balrog spear			5	5000	cred	cred						dmg%		210	310	dmg-fire		232	323	lifesteal		6	12	pierce-fire		10	20	swing2		30	30	dmg-ltng		1	666	pierce-ltng		10	20																	splash	358	100	1	0
 Boneflame	100	1		1		80	72	nee	succubae skull			3	5000	dred	dred						ac%		120	150	move2		30	30	gethit-skill	Terror	5	3	nec		3	3	res-all		20	30	heal-kill		4	8	red-dmg%		10	20																					0
 Steelpillar	100	1		1		77	69	7p7	war pike			3	5000								dmg%		210	260	swing2		25	25	reduce-ac		20	20	ac%		100	150	crush		40	40	pierce-phys		5	10																					splash	358	100	1	0
