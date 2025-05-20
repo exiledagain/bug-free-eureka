@@ -650,6 +650,13 @@
           return res
         }
 
+        normalReduceProduct (find, level, first, code) {
+          return this.mustBeNormal(code) ? 1 : (1 - this.p(this.getItemRatio(code, 'Unique'), DropAbacus.constants['unique'], false, find, level, first.treasure['unique'], code)) *
+                 (1 - this.p(this.getItemRatio(code, 'Set'), DropAbacus.constants['set'], false, find, level, first.treasure['set'], code)) *
+                 (1 - this.p(this.getItemRatio(code, 'Rare'), DropAbacus.constants['rare'], false, find, level, first.treasure['rare'], code)) *
+                 (1 - this.p(this.getItemRatio(code, 'Magic'), DropAbacus.constants['magic'], true, find, level, first.treasure['rare'], code))
+        }
+
         drop (find, code, rarity) {
           if (!this.can(code, rarity)) {
             return []
@@ -671,7 +678,7 @@
               // unique/set will be almost 100% accurate
               // unique -> rare if dropped before/not allowed -> magic -> ...
               // set -> magic -> ...
-              const reduceP = rarity !== 'normal' && rarity === 'set' ? 1 - this.p(uniqueRatio, uniqueConstant, false, find, source.level, first.treasure['unique'], code) : 1
+              const reduceP = rarity !== 'normal' && rarity === 'set' ? 1 - this.p(uniqueRatio, uniqueConstant, false, find, source.level, first.treasure['unique'], code) : (rarity === 'normal' ? this.normalReduceProduct(find, source.level, first, code) : 1)
               const p = first.p * rarityP * reduceP
               const explain = {
                 rarity: rarityP,
