@@ -299,7 +299,7 @@ Pandemonium key	0		2	100	28	1			3	"pk1,qty=1"	"pk2,qty=1"	"pk3,qty=1"					Pandem
 Pandemonium key - PD2	1		2	100	28	1			3	"pk1,qty=1"	"pk2,qty=1"	"pk3,qty=1"					useitem																																																																																							0
 Pandemonium Finale key	0		2	100	28	1			3	"dhn,qty=1"	"bey,qty=1"	"mbr,qty=1"					Pandemonium Finale Portal																																																																																							0
 Pandemonium Finale key 2	0		2	100	28	1			3	"dhn,qty=1"	"bey,qty=1"	"mbr,qty=1"					Pandemonium Finale Portal																																																																																							0
-Pandemonium Finale key 3	1			100					3	"dhn,qty=1"	"bey,qty=1"	"mbr,qty=1"					ubtm																																																																																							0
+Pandemonium Finale key 3	1			100					3	"dhn,qty=1"	"bey,qty=1"	"mbr,qty=1"					useitem																													"ubtm,qty=1"																																																										0
 Token of Absolution	1			100					4	"tes,qty=1"	"ceh,qty=1"	"bet,qty=1"	"fed,qty=1"				toa																																																																																							0
 r08 + r12 + perfect emerald + basic set weapon -> exceptional set weapon (staves)	1			100					4	"staf,bas,set"	"r08g,qty=1"	"r12g,qty=1"	"gg4e,qty=1"				"useitem,mod,exc"				cast2	100		20	20																																																																															0
 r08 + r12 + perfect emerald + basic set weapon -> exceptional set weapon	1			100					4	"weap,bas,set"	"r08g,qty=1"	"r12g,qty=1"	"gg4e,qty=1"				"useitem,mod,exc"																																																																																							0
@@ -1893,20 +1893,20 @@ imbued t3 map upgrade mag to rare	1	4		100	18	361	0		2	"t3me,mag"	"urma,qty=1"		
 imbued t3 map reroll rare	1	4		100	18	361	0		2	"t3me,rar"	"rrra,qty=1"						"usetype,rar"			100																																																																																				0
 imbued t3 map imbue magic	1	4		100	18	361	0		2	"t3me,nor,qty=1"	"irma,qty=1"						"usetype,mag"			100																																																																																				0
 imbued t3 map imbue rare	1	4		100	18	361	0		2	"t3me,nor,qty=1"	"irra,qty=1"						"usetype,rar"			100																																																																																				0
-imbue upgrade mag to rare x50	1	4		100	18	361	0		3	"upma,qty=50"	"runs,qty=50"	"gg4z,qty=50"					"urma,qty=50"			100																																																																																				0
-imbue upgrade mag to rare x40	1	4		100	18	361	0		3	"upma,qty=40"	"runs,qty=40"	"gg4z,qty=40"					"urma,qty=40"			100																																																																																				0
-imbue upgrade mag to rare x30	1	4		100	18	361	0		3	"upma,qty=30"	"runs,qty=30"	"gg4z,qty=30"					"urma,qty=30"			100																																																																																				0
-imbue upgrade mag to rare x20	1	4		100	18	361	0		3	"upma,qty=20"	"runs,qty=20"	"gg4z,qty=20"					"urma,qty=20"			100																																																																																				0
-imbue upgrade mag to rare x10	1	4		100	18	361	0		3	"upma,qty=10"	"runs,qty=10"	"gg4z,qty=10"					"urma,qty=10"			100																																																																																				0
-imbue upgrade mag to rare x9	1	4		100	18	361	0		3	"upma,qty=9"	"runs,qty=9"	"gg4z,qty=9"					"urma,qty=9"			100																																																																																				0
-imbue upgrade mag to rare x8	1	4		100	18	361	0		3	"upma,qty=8"	"runs,qty=8"	"gg4z,qty=8"					"urma,qty=8"			100																																																																																				0
-imbue upgrade mag to rare x7	1	4		100	18	361	0		3	"upma,qty=7"	"runs,qty=7"	"gg4z,qty=7"					"urma,qty=7"			100																																																																																				0
-imbue upgrade mag to rare x6	1	4		100	18	361	0		3	"upma,qty=6"	"runs,qty=6"	"gg4z,qty=6"					"urma,qty=6"			100																																																																																				0
-imbue upgrade mag to rare x5	1	4		100	18	361	0		3	"upma,qty=5"	"runs,qty=5"	"gg4z,qty=5"					"urma,qty=5"			100																																																																																				0
-imbue upgrade mag to rare x4	1	4		100	18	361	0		3	"upma,qty=4"	"runs,qty=4"	"gg4z,qty=4"					"urma,qty=4"			100																																																																																				0
-imbue upgrade mag to rare x3	1	4		100	18	361	0		3	"upma,qty=3"	"runs,qty=3"	"gg4z,qty=3"					"urma,qty=3"			100																																																																																				0
-imbue upgrade mag to rare x2	1	4		100	18	361	0		3	"upma,qty=2"	"runs,qty=2"	"gg4z,qty=2"					"urma,qty=2"			100																																																																																				0
-imbue upgrade mag to rare x1	1	4		100	18	361	0		3	"upma,qty=1"	"runs,qty=1"	"gg4z,qty=1"					"urma,qty=1"			100																																																																																				0
+imbue upgrade mag to rare x50	1	4		100	18	361	0		3	"upma,qty=50"	"runs,qty=50"	"ggm4,qty=50"					"urma,qty=50"			100																																																																																				0
+imbue upgrade mag to rare x40	1	4		100	18	361	0		3	"upma,qty=40"	"runs,qty=40"	"ggm4,qty=40"					"urma,qty=40"			100																																																																																				0
+imbue upgrade mag to rare x30	1	4		100	18	361	0		3	"upma,qty=30"	"runs,qty=30"	"ggm4,qty=30"					"urma,qty=30"			100																																																																																				0
+imbue upgrade mag to rare x20	1	4		100	18	361	0		3	"upma,qty=20"	"runs,qty=20"	"ggm4,qty=20"					"urma,qty=20"			100																																																																																				0
+imbue upgrade mag to rare x10	1	4		100	18	361	0		3	"upma,qty=10"	"runs,qty=10"	"ggm4,qty=10"					"urma,qty=10"			100																																																																																				0
+imbue upgrade mag to rare x9	1	4		100	18	361	0		3	"upma,qty=9"	"runs,qty=9"	"ggm4,qty=9"					"urma,qty=9"			100																																																																																				0
+imbue upgrade mag to rare x8	1	4		100	18	361	0		3	"upma,qty=8"	"runs,qty=8"	"ggm4,qty=8"					"urma,qty=8"			100																																																																																				0
+imbue upgrade mag to rare x7	1	4		100	18	361	0		3	"upma,qty=7"	"runs,qty=7"	"ggm4,qty=7"					"urma,qty=7"			100																																																																																				0
+imbue upgrade mag to rare x6	1	4		100	18	361	0		3	"upma,qty=6"	"runs,qty=6"	"ggm4,qty=6"					"urma,qty=6"			100																																																																																				0
+imbue upgrade mag to rare x5	1	4		100	18	361	0		3	"upma,qty=5"	"runs,qty=5"	"ggm4,qty=5"					"urma,qty=5"			100																																																																																				0
+imbue upgrade mag to rare x4	1	4		100	18	361	0		3	"upma,qty=4"	"runs,qty=4"	"ggm4,qty=4"					"urma,qty=4"			100																																																																																				0
+imbue upgrade mag to rare x3	1	4		100	18	361	0		3	"upma,qty=3"	"runs,qty=3"	"ggm4,qty=3"					"urma,qty=3"			100																																																																																				0
+imbue upgrade mag to rare x2	1	4		100	18	361	0		3	"upma,qty=2"	"runs,qty=2"	"ggm4,qty=2"					"urma,qty=2"			100																																																																																				0
+imbue upgrade mag to rare x1	1	4		100	18	361	0		3	"upma,qty=1"	"runs,qty=1"	"ggm4,qty=1"					"urma,qty=1"			100																																																																																				0
 imbue reroll rare x50	1	4		100	18	361	0		3	"rera,qty=50"	"runs,qty=50"	"ggm4,qty=50"					"rrra,qty=50"			100																																																																																				0
 imbue reroll rare x40	1	4		100	18	361	0		3	"rera,qty=40"	"runs,qty=40"	"ggm4,qty=40"					"rrra,qty=40"			100																																																																																				0
 imbue reroll rare x30	1	4		100	18	361	0		3	"rera,qty=30"	"runs,qty=30"	"ggm4,qty=30"					"rrra,qty=30"			100																																																																																				0
