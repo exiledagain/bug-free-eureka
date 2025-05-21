@@ -697,13 +697,15 @@
                 drop: first.p,
                 reduce: reduceP
               }
-              res.push({
-                p,
-                first,
-                source,
-                rarityP,
-                explain
-              })
+              if (reduceP > 0) {
+                res.push({
+                  p,
+                  first,
+                  source,
+                  rarityP,
+                  explain
+                })
+              }
             })
           })
           res.sort((a, b) => {
