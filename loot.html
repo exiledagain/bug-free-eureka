@@ -547,7 +547,7 @@
 
         mustBeNormal (code) {
           const type = this.getType(code)
-          return type && type.Normal === '1'
+          return code.startsWith('*') || type && type.Normal === '1'
         }
 
         mustBeMagic (code) {
