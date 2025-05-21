@@ -128,6 +128,14 @@
                     <input id="explain" name="explain" type="checkbox">
                   </td>
                 </tr>
+                <tr title="Include the chance for Set/Normal items to be blocked by higher rarity">
+                  <td>
+                    <label for="reduce">Reduce</label>
+                  </td>
+                  <td>
+                    <input id="reduce" name="reduce" type="checkbox" checked> (Set/Normal Only)
+                  </td>
+                </tr>
               </table>
             </fieldset>
           </form>
@@ -627,9 +635,9 @@
           return res
         }
 
-        set (find, itemId) {
+        set (find, itemId, shouldReduce = false) {
           const item = this.getSetItem(itemId)
-          const drops = this.drop(find, item.code, 'set')
+          const drops = this.drop(find, item.code, 'set', shouldReduce)
           const code = item.code
           const res = drops.filter(drop => {
             if (drop.source.level < item.level) {
@@ -651,13 +659,14 @@
         }
 
         normalReduceProduct (find, level, first, code) {
-          return this.mustBeNormal(code) ? 1 : (1 - this.p(this.getItemRatio(code, 'Unique'), DropAbacus.constants['unique'], false, find, level, first.treasure['unique'], code)) *
-                 (1 - this.p(this.getItemRatio(code, 'Set'), DropAbacus.constants['set'], false, find, level, first.treasure['set'], code)) *
-                 (1 - this.p(this.getItemRatio(code, 'Rare'), DropAbacus.constants['rare'], false, find, level, first.treasure['rare'], code)) *
-                 (1 - this.p(this.getItemRatio(code, 'Magic'), DropAbacus.constants['magic'], true, find, level, first.treasure['rare'], code))
+          return this.mustBeNormal(code) ? 1 :
+            (1 - this.p(this.getItemRatio(code, 'Unique'), DropAbacus.constants['unique'], false, find, level, first.treasure['unique'], code)) *
+            (1 - this.p(this.getItemRatio(code, 'Set'), DropAbacus.constants['set'], false, find, level, first.treasure['set'], code)) *
+            (1 - this.p(this.getItemRatio(code, 'Rare'), DropAbacus.constants['rare'], false, find, level, first.treasure['rare'], code)) *
+            (1 - this.p(this.getItemRatio(code, 'Magic'), DropAbacus.constants['magic'], true, find, level, first.treasure['rare'], code))
         }
 
-        drop (find, code, rarity) {
+        drop (find, code, rarity, shouldReduce) {
           if (!this.can(code, rarity)) {
             return []
           }
@@ -678,7 +687,10 @@
               // unique/set will be almost 100% accurate
               // unique -> rare if dropped before/not allowed -> magic -> ...
               // set -> magic -> ...
-              const reduceP = rarity !== 'normal' && rarity === 'set' ? 1 - this.p(uniqueRatio, uniqueConstant, false, find, source.level, first.treasure['unique'], code) : (rarity === 'normal' ? this.normalReduceProduct(find, source.level, first, code) : 1)
+              let reduceP = 1
+              if (shouldReduce && (rarity === 'normal' || rarity === 'set')) {
+                reduceP = rarity === 'set' ? 1 - this.p(uniqueRatio, uniqueConstant, false, find, source.level, first.treasure['unique'], code) : this.normalReduceProduct(find, source.level, first, code)
+              }
               const p = first.p * rarityP * reduceP
               const explain = {
                 rarity: rarityP,
@@ -726,6 +738,7 @@
             item: document.querySelector('#item').value,
             explain: document.querySelector('#explain').checked,
             difficulty: Number(document.getElementById('difficulty').value),
+            reduce: document.querySelector('#reduce').checked
           }
         }
 
@@ -788,6 +801,9 @@
           document.getElementById('difficulty').onchange = () => {
             this.generate()
           }
+          document.getElementById('reduce').onchange = () => {
+            this.generate()
+          }
         }
 
         generate () {
@@ -796,7 +812,7 @@
             return
           }
           this.previous = current
-          const { players, magicFind, rarity, item, top, difficulty } = this.values()
+          const { players, magicFind, rarity, item, top, difficulty, reduce } = this.values()
           if (!item) {
             document.querySelector('#sources').textContent = 'pick an item'
             return
@@ -806,11 +822,11 @@
             case 'normal':
             case 'magic':
             case 'rare': {
-              sources = this.abacus.drop(magicFind, item, rarity)
+              sources = this.abacus.drop(magicFind, item, rarity, reduce)
               break
             }
             case 'set': {
-              sources = this.abacus.set(magicFind, item)
+              sources = this.abacus.set(magicFind, item, reduce)
               break
             }
             case 'unique': {
