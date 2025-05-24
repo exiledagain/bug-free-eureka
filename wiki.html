@@ -52,7 +52,8 @@
             { boss: 'DemonRoadBoss', areas: [ 'The Demon Road' ] },
             { boss: 'SkovosBoss', areas: [ 'The Skovos Stronghold' ]},
             { boss: 'TortureHallsBoss', areas: ['The Halls of Torture']},
-            { boss: 'ImperialPalaceBoss', areas: ['The Imperial Palace']}
+            { boss: 'ImperialPalaceBoss', areas: ['The Imperial Palace', 'The Imperial Cellar'], extra: ['ImperialPalaceMiniBoss', 'ImperialPalaceBossMinion']},
+            { boss: '', areas: ['The Outer Void'], extra: []}
         ]
 
         constructor () {
@@ -128,7 +129,7 @@
           })
           maps.forEach(map => {
             const levels = map.areas.map(el => inverseMap[el])
-            if (map.areas.length === 1 && map.areas[0] !== 'The Imperial Palace') {
+            if (map.areas.length === 1 && (map.areas[0] !== 'The Imperial Palace' && map.areas[0] !== 'The Outer Void')) {
               map.type = `T${levels[0].MonLvl3Ex - '86'}`
             } else if (levels[0].MonLvl3Ex < '92') {
               map.type = 'Unique Maps'
