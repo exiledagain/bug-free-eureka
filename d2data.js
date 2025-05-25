@@ -2048,6 +2048,143 @@ class Diablo2Data {
   }
 }
 
+class GambleInventory {
+  // ordered by qsort of level (visual studio 2003)
+  static GambleListExtracted = [
+    'amu ',
+    'rin ',
+    'sbw ',
+    'jav ',
+    'cap ',
+    'qui ',
+    'buc ',
+    'ssd ',
+    'tkf ',
+    'lbt ',
+    'hax ',
+    'lea ',
+    'lbl ',
+    'lgl ',
+    'hbw ',
+    'sml ',
+    'bar ',
+    'skp ',
+    'hla ',
+    'scm ',
+    'spr ',
+    'lxb ',
+    'lax ',
+    'vbt ',
+    'axe ',
+    'tax ',
+    'vgl ',
+    'vbl ',
+    'mac ',
+    'stu ',
+    'sbr ',
+    'lbw ',
+    'tri ',
+    '2hs ',
+    'pil ',
+    'rng ',
+    'lrg ',
+    'spk ',
+    'vou ',
+    'hlm ',
+    'crs ',
+    'flc ',
+    'bax ',
+    'mgl ',
+    'mbt ',
+    'cbw ',
+    'mbl ',
+    '2ax ',
+    'bkf ',
+    'scl ',
+    'mst ',
+    'mxb ',
+    'kit ',
+    'scy ',
+    'bsd ',
+    'chn ',
+    'fhl ',
+    'ssp ',
+    'bal ',
+    'brn ',
+    'btx ',
+    'clm ',
+    'brs ',
+    'sbb ',
+    'mpi ',
+    'bsh ',
+    'fla ',
+    'msk ',
+    'tbl ',
+    'spl ',
+    'lsd ',
+    'tbt ',
+    'tgl ',
+    'spt ',
+    'gis ',
+    'pax ',
+    'mau ',
+    'bhm ',
+    'tow ',
+    'ghm ',
+    'glv ',
+    'gax ',
+    'lbb ',
+    'plt ',
+    'ci0 ',
+    'pik ',
+    'hxb ',
+    'bsw ',
+    'wax ',
+    'whm ',
+    'swb ',
+    'hbl ',
+    'hbt ',
+    'flb ',
+    'hgl ',
+    'gix ',
+    'wsd ',
+    'fld ',
+    'tsp ',
+    'hal ',
+    'crn ',
+    'gts ',
+    'lwb ',
+    'gma ',
+    'gth ',
+    'rxb ',
+    'gsd ',
+    'wsc ',
+    'ltp ',
+    'ful ',
+    'aar ',
+    'ci1 ',
+  ]
+
+  constructor ({ d2data }) {
+    this.d2data = d2data
+    this.tl = this.d2data.TypeList()
+  }
+
+  async load () {
+    this.gamble = await this.d2data.loader.load(this.d2data.version, 'Gamble.txt')
+    this.gambleList = this.gamble.map(({ name, code}) => {
+      if (code.length === 0) {
+        return
+      }
+      return {
+        name,
+        code,
+        level: this.tl.entry(code).level || 1
+      }
+    }).filter(i => i).sort((a, b) => a.level - b.level)
+  }
+}
+
 if (typeof window === 'undefined' && typeof self === 'undefined') {
   module.exports = {
     AffixList,
