@@ -696,6 +696,11 @@ class MonsterSourcer {
     'ImperialPalaceBoss': { area: 'Imperial Boss Map' },
     'TortureHallsBoss': { area: 'Halls of Torture Map' },
     'RadamentBoss': { area: 'Sanctuary Of Sin Map' },
+    'LucionSpawner': { area: 'Lucion Arena' },
+    'LucionSpawn': { area: 'Lucion Arena' },
+    'LucionSpawnRanged': { area: 'Lucion Arena' },
+    'LucionSpawnTank': { area: 'Lucion Arena' },
+    'Lucion': { area: 'Lucion Arena' },
   }
   static staticSuperMonsters = {
     'Bishibosh': { area: 'Act 1 - Wilderness 2' },

@@ -215,8 +215,8 @@
         const suffixData = d2data.suffix()
         const autoData = d2data.automagic()
         function reload () {
-          const itemCode = 'jew'
-          const level = 99
+          const itemCode = 'amu'
+          const level = 85
           const isRare = true
           prefixList = new AffixList({ code: itemCode }, tl, prefixData, itemCode, level, isRare)
           suffixList = new AffixList({ code: itemCode }, tl, suffixData, itemCode, level, isRare)
@@ -229,8 +229,8 @@
           const rng = new D2Random('0xb40943')
           rng.reset('0x' + '63320')
           // rng.set(...'3460463983 361285771'.split(' '))
-          const crafted = true
-          const automod = true
+          const crafted = false
+          const automod = false
           const magicLevel = 0
           const item = new RollItem({ rng, prefixList, suffixList, crafted, automod, autoList, magicLevel }).simulate()
           console.log(item)
