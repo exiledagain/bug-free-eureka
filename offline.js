@@ -21,15 +21,16 @@ global.TreasureTree = TreasureTree
 global.Diablo2Data = Diablo2Data
 global.D2Random = D2Random
 
-function printBestRouteFromZero (histogram) {
+function printBestRouteFromZero (histogram, p = 0) {
   const keys = Object.keys(histogram)
   keys.sort((a, b) => Number(a) - Number(b))
   let best = 0
   let res = []
   for (const k of keys) {
-    if (best <= histogram[k]) {
-      best = Number(histogram[k])
-      res.push([k, histogram[k]])
+    const val = Number((histogram[k][0] || 0) + (histogram[k][1] > 0 ? histogram[k][1] * p : 0))
+    if (best <= val) {
+      best = val
+      res.push([k, val])
     }
   }
   console.log(res)
@@ -39,24 +40,24 @@ async function Main () {
   const dropper = new ChestDropper()
   await dropper.setup()
 
-  const treasureClasses = ['Act 5 (H) Chest C']
-  const levels = [87]
+  const treasureClasses = ['Act 2 (H) Chest B']
+  const levels = [79]
 
   const queries = []
 
   for (const treasureClass of treasureClasses) {
     const chestDropLevel = treasureClass.at(-1).charCodeAt(0) - 'A'.charCodeAt(0)
     for (const itemLevel of levels) {
-      for (let locked = 1; locked <= 1; ++locked) {
+      for (let locked = 0; locked <= 1; ++locked) {
         for (let dc = 1; dc <= 1; ++dc) {
-          for (let mf = 0; mf <= 600; ++mf) {
+          for (let mf = 0; mf <= 300; ++mf) {
             queries.push({ treasureClass, itemLevel, chestDropLevel, locked, magicFind: mf, dropClass: dc })
           }
         }
       }
     }
   }
-  
+
   let n = 16
   let step = ~~(queries.length / n)
 
@@ -69,7 +70,7 @@ async function Main () {
   childData.push(queries.slice((n - 1) * step))
 
   let best = 0
-  
+
   console.log('[')
   let messages = 0
   let rem = n
@@ -101,7 +102,7 @@ async function Main () {
       if (rem === 0) {
         console.log(']')
         console.log(histogram)
-        printBestRouteFromZero(histogram)
+        printBestRouteFromZero(histogram, .15)
       }
     })
   }
@@ -152,7 +153,7 @@ async function Child () {
     r33s: 1,
     r29s: 1,
   }
-  const values = valuesSpecific
+  const values = valuesChart
   const filter1 = res => {
     return res.some(el => el.id === 'rin' && el.rarity === 'unique')
   }
@@ -196,7 +197,7 @@ async function Child () {
         if (evalValue) {
           const e = evaluate(res)
           // const e = evaluate(res) * sparklyMults[type]
-          sum += e == 2 ? 2 : 0
+          sum += e
           continue
         }
         if (filter(res)) {
