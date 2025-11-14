@@ -195,7 +195,7 @@ class d2s {
 }
 
 async function Main () {
-  const version = 's9'
+  const version = Diablo2Data.defaultVersion
 
   const input = process.argv[2]
   const output = process.argv[3]

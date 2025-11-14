@@ -1613,6 +1613,16 @@ class MonsterMetrics {
 }
 
 class StatFormat {
+  static clazzNames = [
+    'Amazon',
+    'Sorceress',
+    'Necromancer',
+    'Paladin',
+    'Barbarian',
+    'Druid',
+    'Assassin'
+  ]
+
   constructor (data, resolver) {
     this.resolver = resolver
     this.data = data
@@ -1641,6 +1651,7 @@ class StatFormat {
   format ({ value, param = 0 }, { id, position, positive, negative, secondary }) {
     // positive (read: non-negative)
     const primary = value >= 0 ? positive : negative
+    const sign = value > 0 ? '+' : ''
     switch (id) {
       case 0: {
         return ''
@@ -1649,10 +1660,10 @@ class StatFormat {
       case 1: {
         switch (position) {
           case 1: {
-            return `+${value} ${primary}` + (id > 5 ? ` ${secondary}` : '')
+            return `${sign}${value} ${primary}` + (secondary.length > 0 ? ` ${secondary}` : '')
           }
           case 2: {
-            return `${primary} +${value}` + (id > 5 ? ` ${secondary}` : '')
+            return `${primary} ${sign}${value}` + (secondary.length > 0 ? ` ${secondary}` : '')
           }
           default: {
             throw new Error(`unknown position: ${position}`)
@@ -1663,10 +1674,10 @@ class StatFormat {
       case 2: {
         switch (position) {
           case 1: {
-            return `${value}% ${primary}` + (id > 5 ? ` ${secondary}` : '')
+            return `${value}% ${primary}` + (secondary.length > 0 ? ` ${secondary}` : '')
           }
           case 2: {
-            return `${primary} ${value}%` + (id > 5 ? ` ${secondary}` : '')
+            return `${primary} ${value}%` + (secondary.length > 0 ? ` ${secondary}` : '')
           }
           default: {
             throw new Error(`unknown position: ${position}`)
@@ -1677,10 +1688,10 @@ class StatFormat {
       case 3: {
         switch (position) {
           case 1: {
-            return `${value} ${primary}` + (id > 5 ? ` ${secondary}` : '')
+            return `${sign}${value}% ${primary}` + (secondary.length > 0 ? ` ${secondary}` : '')
           }
           case 2: {
-            return `${primary} ${value}` + (id > 5 ? ` ${secondary}` : '')
+            return `${primary} ${sign}${value}%` + (secondary.length > 0 ? ` ${secondary}` : '')
           }
           default: {
             return primary
@@ -1691,10 +1702,10 @@ class StatFormat {
       case 4: {
         switch (position) {
           case 1: {
-            return `+${value}% ${primary}` + (id > 5 ? ` ${secondary}` : '')
+            return `${sign}${value}% ${primary}` + (secondary.length > 0 ? ` ${secondary}` : '')
           }
           case 2: {
-            return `${primary} +${value}%` + (id > 5 ? ` ${secondary}` : '')
+            return `${primary} ${sign}${value}%` + (secondary.length > 0 ? ` ${secondary}` : '')
           }
           default: {
             throw new Error(`unknown position: ${position}`)
@@ -1706,10 +1717,10 @@ class StatFormat {
         value = (value * 100) >> 7
         switch (position) {
           case 1: {
-            return `+${value}% ${primary}` + (id > 5 ? ` ${secondary}` : '')
+            return `${sign}${value}% ${primary}` + (secondary.length > 0 ? ` ${secondary}` : '')
           }
           case 2: {
-            return `${primary} +${value}%` + (id > 5 ? ` ${secondary}` : '')
+            return `${primary} ${sign}${value}%` + (secondary.length > 0 ? ` ${secondary}` : '')
           }
           default: {
             throw new Error(`unknown position: ${position}`)
@@ -1728,12 +1739,22 @@ class StatFormat {
         return primary.replace('%d', 1)
       }
       case 12: {
+        switch (position) {
+          case 0:
+            return primary
+          case 1:
+            return `${sign}${value} ${primary}`
+          case 2:
+            return `${primary} ${sign}${value}`
+        }
         return primary
       }
       case 13: {
         switch (position) {
           case 1: {
-            return `+${value} ${primary}`
+            const classStringId = this.data.charStats().first('class', StatFormat.clazzNames[param])['StrAllSkills']
+            const classString = this.resolver.get(classStringId)
+            return `${sign}${value} ${classString}`
           }
           default: {
             throw new Error(`unknown position: ${position}`)
@@ -1741,20 +1762,22 @@ class StatFormat {
         }
       }
       case 14: {
-        const skill = this.data.skills().first('Id', param.toString())
-        const clazz = skill['charclass'].substring(0, 1).toUpperCase() + skill['charclass'].substring(1).toLowerCase()
-        // PD2 only?
-        const clazzy = this.resolver.get(`${clazz}Only`)
-        return `${primary.replace('%d', value)} ${clazzy}`
+        const tab = (param & 0x3) + 1
+        const clazz = param >> 3
+        const clazzEntry = this.data.charStats().first('class', StatFormat.clazzNames[clazz])
+        const clazzy = this.resolver.get(clazzEntry['StrClassOnly'])
+        const tabFormat = this.resolver.get(clazzEntry[`StrSkillTab${tab}`])
+        return `${tabFormat.replace('%d', value)} ${clazzy}`
       }
       case 15: {
-        if (position === 0) {
-          return primary
-        }
+        // nStuff
         const skillId = param >> 6
         const skillLevel = param & 0x3F
         const skill = this.data.skills().first('Id', skillId.toString())
         const desc = this.data.skillDesc().first('skilldesc', skill['skilldesc'])
+        if (!desc) {
+          return primary
+        }
         const name = this.resolver.get(desc['str name'])
         return primary.replace('%d', value).replace('%%', '%').replace('%d', skillLevel).replace('%s', name)
       }
@@ -1768,6 +1791,9 @@ class StatFormat {
       case 17: {
         // time-base affix
         return ''
+      }
+      case 19: {
+        return primary.replace('%d', value.toString() + '%')
       }
       case 20: {
         return `-${value}% ${primary}`
@@ -1801,13 +1827,13 @@ class StatFormat {
         const name = this.resolver.get(desc['str name'])
         // PD2 only?
         const clazzy = this.resolver.get(`${clazz}Only`)
-        return `+${value} to ${name} ${clazzy}`
+        return `${sign}${value} to ${name} ${clazzy}`
       }
       case 28: {
         const skill = this.data.skills().first('Id', param.toString())
         const desc = this.data.skillDesc().first('skilldesc', skill['skilldesc'])
         const name = this.resolver.get(desc['str name'])
-        return `+${value} to ${name}`
+        return `${sign}${value} to ${name}`
       }
       default: {
         throw new Error(`unknown stat id: ${id}`)
@@ -1906,7 +1932,7 @@ class D2Random {
 
 class Diablo2Data {
   static gameFiles = [
-    'CharStats.txt',
+    'Experience.txt',
     'ItemStatCost.txt',
     'MonStats.txt',
     'MonStats2.txt',
@@ -1927,7 +1953,9 @@ class Diablo2Data {
     'SetItems.txt',
     'MonLvl.txt',
     'Objects.txt',
-    'ObjGroup.txt'
+    'ObjGroup.txt',
+    'CharStats.txt',
+    'Hireling.txt'
   ]
 
   static defaultVersion = 's11'
@@ -1943,6 +1971,14 @@ class Diablo2Data {
 
   charStats () {
     return this.loader.get(this.version, 'CharStats.txt')
+  }
+
+  hireling () {
+    return this.loader.get(this.version, 'Hireling.txt')
+  }
+
+  experience () {
+    return this.loader.get(this.version, 'Experience.txt')
   }
 
   itemStatCost () {

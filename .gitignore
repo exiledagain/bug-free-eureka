@@ -1,1 +1,7 @@
-.vscode/
+.vscode
+*.d2s
+*.jar
+node_modules
+/*.txt
+
+/dump

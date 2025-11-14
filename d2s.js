@@ -147,16 +147,23 @@ class BitWriter {
 }
 
 class SaveFileParser {
+  // https://github.com/ThePhrozenKeep/D2MOO/blob/8322494ed1f715ad51552f169df76cf600fabc71/source/D2Common/include/D2Items.h#L146
   static ItemFlags = {
-    identified: 4,
-    socketed: 11,
-    new: 13,
-    ear: 16,
-    starter: 17,
-    compact: 21,
-    ethereal: 22,
-    personalized: 24,
-    runeword: 26
+    identified: 0x10,
+    quantity: 0x20,
+    broken: 0x100,
+    socketed: 0x800,
+    nosell: 0x1000,
+    noequip: 0x4000,
+    named: 0x8000,
+    ear: 0x10000,
+    starter: 0x20000,
+    compact: 0x200000,
+    ethereal: 0x400000,
+    personalized: 0x1000000,
+    lowquality: 0x2000000,
+    runeword: 0x4000000,
+    item: 0x8000000
   }
 
   static ItemQuality = {
@@ -171,8 +178,25 @@ class SaveFileParser {
     tempered: 9
   }
 
+  // https://github.com/ThePhrozenKeep/D2MOO/blob/8322494ed1f715ad51552f169df76cf600fabc71/source/D2Common/include/D2Inventory.h#L21
+  static ItemEquipmentSlot = [
+    'NONE',
+    'HEAD',
+    'NECK',
+    'TORSO',
+    'RARM',
+    'LARM',
+    'RRIN',
+    'LRIN',
+    'BELT',
+    'FEET',
+    'GLOVES',
+    'SWRARM',
+    'SWLARM'
+  ]
+
   static isItemFlag (item, id) {
-    return (BigInt(item.compact.flags) & BigInt(1 << id)) != BigInt(0)
+    return (BigInt(item.compact.flags) & BigInt(id)) != BigInt(0)
   }
 
   /**
@@ -559,8 +583,8 @@ class SaveFileWriter {
     header: {
       "magic": "0xaa55aa55",
       "version": "0x60",
-      "size": "0x3d3",
-      "checksum": "0x2fc84721"
+      "size": "0x0",
+      "checksum": "0x0"
     },
     "activeWeapon": "0x0",
     "name": "SynthSave",
@@ -606,45 +630,30 @@ class SaveFileWriter {
       "experience": "0x0"
     },
     "realm": "0x0",
-    "quests": "0x80029ffd9ffd000c17899fed802200000000000100000000000000019ffd9ffd10010001000197fd9ffd10019ffd9ffd1001000100011fe59ffd9ffd9ffd1c391011000100019ffd9ffd9ffd804a9ffd1001000100000000000000000000000080029ffd9ffd000417899fed802200000000000100000000000000019ffd9ffd10010001000197fd9ffd10019ffd9ffd1001000100011fe59ffd9ffd9ffd1c791011000100019ffd9ffd9ffd804a9ffd1001000100000000000000000000000080029ffd9ffd000417899fed802200000000000100000000000000019ffd9ffd10010001000197fd9ffd10019ffd9ffd1001000100011fe59ffd9ffd9ffd1c79100100000001101910151019804e101110010001012a00000006216f6f5700000000",
+    "quests": "0x80029ffd9ffd801e17899fed802200000000000100000000000000019ffd9ffd10010001000197fd9ffd10019ffd9ffd1001000100011fe59ffd9ffd9ffd1c791011000100019ffd9ffd9ffd804a9ffd1001000100000000000000000000000080029ffd9ffd801617899fed802200000000000100000000000000019ffd9ffd10010001000197fd9ffd10019ffd9ffd1001000100011fe59ffd9ffd9ffd1c791011000100019ffd9ffd9ffd804a9ffd1001000100000000000000000000000080029ffd9ffd801617899fed802200000000000100000000000000019ffd9ffd10010001000197fd9ffd10019ffd9ffd1001000100011fe59ffd9ffd9ffd1c79100100000001101910151019804e101110010001012a00000006216f6f5700000000",
     "waypoints": "0x7fffffffff010200000000000000000000000000000000007fffffffff010200000000000000000000000000000000007fffffffff01020050000000015357",
-    "dialog": "0x7e00000006c880002e00000000c880002400000000c88000ac00347701",
+    "dialog": "0x7a00000002c8a0802c00000000c880002400000000c88000ac00347701",
     "attributes": {
       "header": "0x6667",
-      "values": {
-        "strength": "0x14",
-        "energy": "0x19",
-        "dexterity": "0x14",
-        "vitality": "0x14",
-        "statpts": "0x1cc",
-        "newskills": "0x65",
-        "hitpoints": "0x12000",
-        "maxhp": "0x12000",
-        "mana": "0xca00",
-        "maxmana": "0xca00",
-        "stamina": "0x14b40",
-        "maxstamina": "0x14b40",
-        "level": "0x5a",
-        "experience": "0x627c1b67",
-        "goldbank": "0x2536cf"
-      }
+      "values": []
     },
-    "skills": "0x6669",
+    "skills": {
+      header: "0x6669",
+      list: Array.from({ length: 33 }, () => 0)
+    },
     "items": {
       "header": "0x4d4a",
-      "count": "0x0"
+      list: []
     },
     "corpses": {
       "header": "0x4d4a",
-      "count": "0x0",
       "corpses": []
     },
     "mercenaryItems": {
       "header": "0x666a",
       "items": {
         "header": "0x4d4a",
-        "count": "0x0",
-        "items": []
+        list: []
       }
     }
   }
@@ -707,11 +716,11 @@ class SaveFileWriter {
     this.writeSkills(object.skills)
     this.writeItems(object.items)
     this.writeCorpses(object.corpses)
-    this.writeMercenaryItems(object.mercenaryItems)
-    delete this.writer
+    this.writeMercenaryItems(object.mercenaryItems, object.mercenary.id)
     writer.seek(8)
     writer.write(writer.bytes.length, 32)
     writer.write(this.checksum(writer.bytes), 32)
+    delete this.writer
     return writer.bytes
   }
 
@@ -722,9 +731,9 @@ class SaveFileWriter {
     }
   }
 
-  writeMercenaryItems (mercenaryItems) {
+  writeMercenaryItems (mercenaryItems, id) {
     this.writer.write(mercenaryItems.header, 16)
-    if (mercenaryItems.items && mercenaryItems.items.length > 0) {
+    if (Number(id) > 0) {
       this.writeItems(mercenaryItems.items)
     }
   }

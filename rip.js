@@ -72,21 +72,21 @@
       position: toPosition(ancestor.parentElement.getAttribute('style'))
     }
   }
-  const tabs = document.querySelectorAll('.tab')
-  if (tabs[0].textContent !== 'Character' || tabs[1].textContent !== 'Mercenary' || tabs[4].textContent !== 'I' || tabs[5].textContent !== 'II') {
+  const tabs = [...document.querySelectorAll('.tab')]
+  if (tabs[0].textContent !== 'Character' || tabs[1].textContent !== 'Mercenary' || tabs.at(-2).textContent !== 'I' || tabs.at(-1).textContent !== 'II') {
     console.error('missing tabs')
     return
   }
   tabs[0].click()
   await waitFrames(2)
-  tabs[4].click()
+  tabs.at(-2).click()
   await waitFrames(2)
   const character = {}
   character.name = document.querySelector('.xxl').textContent.trim()
   character.stats = [...document.querySelectorAll('.stat-box > div > div')].map(el => el.textContent.split(': '))
   character.equipment = [...document.querySelectorAll('.item-column .popper .item .details')].map(getItem)
   character.inventory = [...document.querySelectorAll('.inventory .popper .item .details')].map(getItem)
-  tabs[5].click()
+  tabs.at(-1).click()
   await waitFrames(2)
   character.swap = [...document.querySelectorAll('.item-box.weapon .popper .item .details')].map(getItem)
   tabs[1].click()

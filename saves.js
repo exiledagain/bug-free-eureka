@@ -2,10 +2,10 @@
 
 const fs = require('fs')
 const { SaveFileParser, SaveFileWriter } = require('./d2s.js')
-const { DataFrame, TypeList, Diablo2Data, StatFormat, StringResolver } = require('./d2data.js')
+const { Diablo2Data, StatFormat } = require('./d2data.js')
 
 async function Main () {
-  const version = 's9'
+  const version = Diablo2Data.defaultVersion
 
   global.fetch = async file => {
     return {
@@ -15,33 +15,37 @@ async function Main () {
     }
   }
 
-  const typeList = new TypeList(...['Misc.txt', 'ItemTypes.txt', 'Weapons.txt', 'Armor.txt'].map(el => new DataFrame().parse(fs.readFileSync(`data/s9/global/excel/${el}`, { encoding: 'ascii' }))))
-  const costs = new DataFrame().parse(fs.readFileSync('data/s9/global/excel/ItemStatCost.txt', { encoding: 'ascii' }))
-  const tables = [
-    `data/${version}/global/excel/patchstring.tbl`,
-    `data/${version}/global/excel/expansionstring.tbl`,
-    `data/${version}/global/excel/string.tbl`,
-  ]
-  const resolver = new StringResolver(tables)
   const d2data = new Diablo2Data(version)
-  await resolver.load()
   await d2data.load()
+
+  const resolver = await d2data.StringResolver()
+  const typeList = d2data.TypeList()
+  const costs = d2data.itemStatCost()
   const format = new StatFormat(d2data, resolver)
 
   const base = process.argv[2]
   const first = process.argv[3]
   const second = process.argv[4]
 
-  const raw = fs.readFileSync(`${base}/${first}.d2s`)
-  let json = new SaveFileParser({ typeList, reader: raw, costs, format }).object()
-  json.name = second
-  json.status = 0x20
-  json = JSON.parse(fs.readFileSync('save.json'))
-  const data = new SaveFileWriter({ typeList, costs }).write(json)
+  const firstFileName = `${base}/${first}.d2s`
+  const secondFileName = `${base}/${second}.d2s`
 
-  // fs.writeFileSync('save.json', JSON.stringify(json, null, 2))
-  fs.writeFileSync(`${base}/${second}.d2s`, Buffer.from(data))
-  console.log(new SaveFileParser({ typeList, reader: fs.readFileSync(`${base}/${first}.d2s`), costs, format }).json())
+  const raw = fs.readFileSync(firstFileName)
+  const firstParser = new SaveFileParser({ typeList, reader: raw, costs, format })
+  const json = firstParser.json()
+  fs.writeFileSync('dumpfirst.json', json)
+  const saveObj = firstParser.object()
+  saveObj.name = second
+  saveObj.items.list.forEach(item => {
+    if (item.compact.code === '0x73303172') {
+      item.compact.flags = 0
+    }
+  })
+
+  const data = new SaveFileWriter({ typeList, costs }).write(saveObj)
+
+  fs.writeFileSync(secondFileName, Buffer.from(data))
+  fs.writeFileSync('dumpsecond.json', new SaveFileParser({ typeList, reader: data, costs, format }).json())
 }
 
 Main()

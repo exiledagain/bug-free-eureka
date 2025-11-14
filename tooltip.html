@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&amp;display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <link rel="stylesheet" href="css/common.css">
+    <script src="d2data.js"></script>
+  </head>
+  <body>
+    <div id="content"></div>
+    <script>
+      const version = Diablo2Data.defaultVersion
+      const strings = new StringResolver([
+        `data/${version}/global/excel/patchstring.tbl`,
+        `data/${version}/global/excel/expansionstring.tbl`,
+        `data/${version}/global/excel/string.tbl`,
+      ])
+      class TooltipView {
+        constructor ({ container, data, resolver }) {
+          this.data = data
+          this.resolver = resolver
+          this.container = container
+          this.setup()
+        }
+
+        setup () {
+          const formatter = new StatFormat(this.data, this.resolver)
+          this.container.textContent = formatter.get('item_skilloncast', { value: 0xc, param: 0x16d4 } )
+        }
+      }
+      async function Load () {
+        await strings.load()
+        const data = new Diablo2Data()
+        await data.load()
+        new TooltipView({
+          data,
+          resolver: strings,
+          container: document.querySelector('#content')
+        })
+      }
+      Load()
+    </script>
+  </body>
+</html>

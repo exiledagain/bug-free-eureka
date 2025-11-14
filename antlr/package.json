@@ -1,0 +1,14 @@
+{
+  "type": "module",
+  "dependencies": {
+    "antlr4": "^4.13.2",
+    "util": "^0.12.5"
+  },
+  "scripts": {
+    "build": "webpack --config webpack.config.js --mode=production"
+  },
+  "devDependencies": {
+    "webpack": "^5.101.2",
+    "webpack-cli": "^6.0.1"
+  }
+}

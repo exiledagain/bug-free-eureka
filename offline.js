@@ -25,7 +25,7 @@ function printBestRouteFromZero (histogram, p = 0) {
   const keys = Object.keys(histogram)
   keys.sort((a, b) => Number(a) - Number(b))
   let best = 0
-  let res = []
+  const res = []
   for (const k of keys) {
     const val = Number((histogram[k][0] || 0) + (histogram[k][1] > 0 ? histogram[k][1] * p : 0))
     if (best <= val) {
@@ -58,10 +58,10 @@ async function Main () {
     }
   }
 
-  let n = 16
-  let step = ~~(queries.length / n)
+  const n = 16
+  const step = ~~(queries.length / n)
 
-  let childData = []
+  const childData = []
 
   for (let i = 0; i < n - 1; ++i) {
     childData.push(queries.slice(i * step, (i + 1) * step))
@@ -102,7 +102,7 @@ async function Main () {
       if (rem === 0) {
         console.log(']')
         console.log(histogram)
-        printBestRouteFromZero(histogram, .15)
+        printBestRouteFromZero(histogram, 0.15)
       }
     })
   }
@@ -111,39 +111,39 @@ async function Main () {
 async function Child () {
   const { queries } = JSON.parse(workerData)
   const valuesChart = {
-    'r01s': 0,
-    'r02s': 0,
-    'r03s': 0,
-    'r04s': 0,
-    'r05s': 0,
-    'r06s': 0,
-    'r07s': 0,
-    'r08s': 0,
-    'r09s': 0,
-    'r10s': 0,
-    'r11s': 0,
-    'r12s': 0,
-    'r13s': 0,
-    'r14s': 0,
-    'r15s': 0,
-    'r16s': 0,
-    'r17s': 0,
-    'r18s': 0,
-    'r19s': 0,
-    'r20s': 0.025 / 3,
-    'r21s': 0.025,
-    'r22s': 0.05,
-    'r23s': 0.1,
-    'r24s': 0.15,
-    'r25s': 0.25,
-    'r26s': 0.5,
-    'r27s': 1,
-    'r28s': 1,
-    'r29s': 1.5,
-    'r30s': 3,
-    'r31s': 1.25,
-    'r32s': 2.5,
-    'r33s': 5
+    r01s: 0,
+    r02s: 0,
+    r03s: 0,
+    r04s: 0,
+    r05s: 0,
+    r06s: 0,
+    r07s: 0,
+    r08s: 0,
+    r09s: 0,
+    r10s: 0,
+    r11s: 0,
+    r12s: 0,
+    r13s: 0,
+    r14s: 0,
+    r15s: 0,
+    r16s: 0,
+    r17s: 0,
+    r18s: 0,
+    r19s: 0,
+    r20s: 0.025 / 3,
+    r21s: 0.025,
+    r22s: 0.05,
+    r23s: 0.1,
+    r24s: 0.15,
+    r25s: 0.25,
+    r26s: 0.5,
+    r27s: 1,
+    r28s: 1,
+    r29s: 1.5,
+    r30s: 3,
+    r31s: 1.25,
+    r32s: 2.5,
+    r33s: 5
   }
   const valuesSpecific = {
     // 'r28s': 1,
@@ -151,7 +151,7 @@ async function Child () {
     // 'r33s': 1,
     // uar: { rarity: 'unique', value: 1 }
     r33s: 1,
-    r29s: 1,
+    r29s: 1
   }
   const values = valuesChart
   const filter1 = res => {
@@ -178,12 +178,12 @@ async function Child () {
   const dropper = new ChestDropper()
   await dropper.setup()
   const sparklyMults = [
-    .02,
-    .04,
-    .06,
-    .2,
-    .3,
-    .38
+    0.02,
+    0.04,
+    0.06,
+    0.2,
+    0.3,
+    0.38
   ]
   queries.forEach(query => {
     let sum = 0
@@ -223,7 +223,7 @@ global.fetch = async file => {
   return {
     ok: true,
     arrayBuffer: async () => fs.readFileSync(file).buffer,
-    text: async () => fs.readFileSync(file, { encoding: 'ascii' }),
+    text: async () => fs.readFileSync(file, { encoding: 'ascii' })
   }
 }
 
