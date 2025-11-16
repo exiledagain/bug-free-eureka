@@ -419,6 +419,7 @@ class AffixList {
     if (AffixList.cellSet.size === 0) {
       const cellSet = AffixList.cellSet
       cellSet.add('Name')
+      cellSet.add('*comment')
       cellSet.add('group')
       cellSet.add('level')
       cellSet.add('frequency')
@@ -519,12 +520,13 @@ class AffixView {
   constructor (list) {
     this.list = list.data.sort(AffixView.sort)
     let nIndex = list.data.keyIndex('Name')
-    this.list.keys.splice(nIndex + 1, 0, 'p')
+    this.list.keys[list.data.keyIndex('*comment')] = 'id'
+    this.list.keys.splice(nIndex + 2, 0, 'p')
     let pIndex = list.data.keyIndex('frequency')
     const sum = this.list.values.reduce((sum, el) => sum + Number(el[pIndex]), 0)
     this.list.values.forEach(el => {
-      el.splice(nIndex + 1, 0, `${(el[pIndex] / sum * 100).toFixed(2)}%`)
-      el[pIndex + 1] = `${el[pIndex + 1]}/${sum}`
+      el.splice(nIndex + 2, 0, `${(el[pIndex] / sum * 100).toFixed(2)}%`)
+      el[pIndex + 2] = `${el[pIndex + 2]}/${sum}`
     })
   }
 
