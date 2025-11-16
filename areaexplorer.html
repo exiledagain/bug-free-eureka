@@ -11,6 +11,7 @@
   <body>
     <a href="https://github.com/exiledagain/bug-free-eureka" target="_blank" rel="noopener noreferrer">source</a>
     <div id="main"></div>
+    <div id="main1"></div>
     <script>
       function populateForm (container, { name, spec }) {
         const form = document.createElement('form')
@@ -111,6 +112,7 @@
             }))
             const Type = entry['lUndead'] === '1' || entry['hUndead'] === '1' ? 'Undead' : entry['demon'] === '1' ? 'Demon' : 'None'
             const Leech = `${Math.max(0, Number(entry[`Drain${AreaView.difficulty[difficulty]}`]))}%`
+            const PrimeEvil = ~~(entry['primeevil'] === '1')
             const Id = monster.id
             list.push({
               Name,
@@ -122,6 +124,7 @@
               ...block,
               Leech,
               Type,
+              PrimeEvil,
               Id,
             })
             return list
@@ -187,6 +190,15 @@
           await this.d2data.load()
           this.strings = await this.d2data.StringResolver()
           this.sourcer = this.d2data.MonsterSourcer()
+          if (false) {
+            const comparisonData = new Diablo2Data('s11')
+            await comparisonData.load()
+            this.comparison = {
+              d2data: comparisonData,
+              strings: await comparisonData.StringResolver(),
+              sourcer: comparisonData.MonsterSourcer()
+            }
+          }
           this.zones = [[]]
           let i = 0
           this.sourcer.levelData.each(level => {
@@ -211,8 +223,10 @@
         populate () {
           this.meta = document.createElement('div')
           this.areas = document.createElement('div')
+          this.areasPrev = document.createElement('div')
           this.container.appendChild(this.meta)
           this.container.appendChild(this.areas)
+          this.container.appendChild(this.areasPrev)
           this.populateMeta()
         }
 
@@ -324,6 +338,16 @@
             monsterLevel: this.d2data.monLvl(),
             extended: this.d2data.monStats2(),
           }).populate(this.areas)
+          if (this.comparison) {
+            this.areasPrev.innerHTML = ''
+            new AreaView({
+              strings: this.comparison.strings,
+              sourcer: this.comparison.sourcer,
+              values: this.values(),
+              monsterLevel: this.comparison.d2data.monLvl(),
+              extended: this.comparison.d2data.monStats2(),
+            }).populate(this.areasPrev)
+          }
         }
 
         values () {
