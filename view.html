@@ -69,7 +69,7 @@
                 display: 'Season',
                 input: inputs => {
                   const select = document.createElement('select')
-                  const versions = [Diablo2Data.defaultVersion, 's10']
+                  const versions = Array.from(new Set([Diablo2Data.defaultVersion, 's11', 's10']))
                   versions.forEach(version => {
                     const display = version.toUpperCase()
                     const el = document.createElement('option')

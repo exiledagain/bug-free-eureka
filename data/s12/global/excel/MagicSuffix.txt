@@ -173,7 +173,7 @@ of Alacrity	170	100	1	1	43		35				4	9	swing2		20	20									1	dyel	glov									
 of Fervor	171	100	1		39		31				4	7	swing1		15	15											jewl														0
 of Blocking	172	1	1	1	1		1				11	8	block		10	10	block2		15	15							shld														0
 of Deflecting	173	1	1	1	11		8				9	8	block		20	20	block2		30	30							shld														0
-of the Apprentice	174	1	1	1	5	36	3				6	9	cast1		10	10											rod	ring	amul	orb	circ	club									0
+of the Apprentice	174	1	1	1	5		3				6	9	cast1		10	10											ring	amul													0
 of the Magus	175	1	1	1	29		21				6	9	cast3		20	20											rod	orb	circ	club											0
 of Frost	176	1	1	1	4	44	3				5	10	cold-min		1	1	cold-max		1	2	cold-len		50	50			weap	misl						wand	orb						0
 of the Icicle	177	100	1	1	13	53	9				4	10	cold-min		3	4	cold-max		12	16	cold-len		75	75			weap	misl						wand	orb						0
@@ -1013,3 +1013,4 @@ of Pox	1010	100	1	1	52		47				6	319	extra-pois		12	20											wand												
 of the Oracle	1011	100	1	1	14	46	14				6	319	extra-mag		2	6											wand														0
 of the Warlock	1012	100	1	1	30		28				6	319	extra-mag		6	12											wand														0
 of the Eldritch	1013	100	1	1	52		47				6	319	extra-mag		12	20											wand														0
+of the Apprentice	1014	1	1	1	5	36	3				6	9	cast1		10	10											rod	orb	circ	club											0
