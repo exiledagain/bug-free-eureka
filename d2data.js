@@ -526,7 +526,7 @@ class AffixView {
     const sum = this.list.values.reduce((sum, el) => sum + Number(el[pIndex]), 0)
     this.list.values.forEach(el => {
       el.splice(nIndex + 2, 0, `${(el[pIndex] / sum * 100).toFixed(2)}%`)
-      el[pIndex + 2] = `${el[pIndex + 2]}/${sum}`
+      el[pIndex + 1] = `${el[pIndex + 1]}/${sum}`
     })
   }
 
