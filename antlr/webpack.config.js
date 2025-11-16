@@ -1,6 +1,10 @@
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
+const __dirname = import.meta.dirname
+
 const path = require('path')
 
-module.exports = {
+export default {
   entry: './index.js',
   output: {
     filename: 'pd2propparser.js',

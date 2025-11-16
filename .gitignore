@@ -5,3 +5,7 @@ node_modules
 /*.txt
 
 /dump
+
+dumpfirst.json
+dumpsecond.json
+rejuved.json

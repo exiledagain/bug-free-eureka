@@ -87,7 +87,6 @@ class GrammarConstructor {
       }
     }
     const str = pos
-    const skillDesc = this.d2data.skillDesc()
     switch (func) {
       case 1:
       case 6: {
@@ -191,7 +190,7 @@ class GrammarConstructor {
       case 14: {
         // only item_addskill_tab
         const classTabSkills = this.d2data.charStats().map(e => {
-          if (e['class'].length === 'Expansion') {
+          if (e['class'] === 'Expansion') {
             return undefined
           }
           const res = []

@@ -138,6 +138,13 @@ class DataFrame {
     return res
   }
 
+  reduce (cb, first) {
+    this.each((value, i) => {
+      first = cb(first, value, i)
+    })
+    return first
+  }
+
   keyIndex (needle) {
     return this.keys.indexOf(needle)
   }
@@ -1745,6 +1752,9 @@ class StatFormat {
           case 1:
             return `${sign}${value} ${primary}`
           case 2:
+            if (value === 1) {
+              return primary
+            }
             return `${primary} ${sign}${value}`
         }
         return primary
@@ -1955,10 +1965,11 @@ class Diablo2Data {
     'Objects.txt',
     'ObjGroup.txt',
     'CharStats.txt',
-    'Hireling.txt'
+    'Hireling.txt',
+    'Runes.txt'
   ]
 
-  static defaultVersion = 's11'
+  static defaultVersion = 's12'
 
   constructor (version = Diablo2Data.defaultVersion) {
     this.version = version
@@ -2055,6 +2066,10 @@ class Diablo2Data {
 
   monLvl () {
     return this.loader.get(this.version, 'MonLvl.txt')
+  }
+
+  runes () {
+    return this.loader.get(this.version, 'Runes.txt')
   }
 
   TypeList () {

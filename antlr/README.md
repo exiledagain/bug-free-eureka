@@ -2,7 +2,7 @@
 
 Older versions of antlr4, such as those provided by `apt`, may not work correctly.
 
-`java -jar antlr/antlr-4.13.0-complete.jar -o antlr -encoding utf8 -Dlanguage=JavaScript ProjectDiablo2PropParser.g4`
+`java -jar antlr/antlr-4.13.0-complete.jar -o antlr -encoding utf8 -Dlanguage=JavaScript ProjectDiablo2PropGrammar.g4`
 
 # Dist Generation
 

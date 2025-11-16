@@ -167,6 +167,7 @@ class SaveFileParser {
   }
 
   static ItemQuality = {
+    none: 0,
     inferior: 1,
     normal: 2,
     superior: 3,
@@ -176,6 +177,17 @@ class SaveFileParser {
     unique: 7,
     crafted: 8,
     tempered: 9
+  }
+
+  // https://github.com/ThePhrozenKeep/D2MOO/blob/8322494ed1f715ad51552f169df76cf600fabc71/source/D2Common/include/D2Items.h#L135
+  static ItemMode = {
+    stored: 0,
+    equip: 1,
+    belt: 2,
+    ground: 3,
+    cursor: 4,
+    drop: 5,
+    socket: 6
   }
 
   // https://github.com/ThePhrozenKeep/D2MOO/blob/8322494ed1f715ad51552f169df76cf600fabc71/source/D2Common/include/D2Inventory.h#L21
@@ -197,6 +209,31 @@ class SaveFileParser {
 
   static isItemFlag (item, id) {
     return (BigInt(item.compact.flags) & BigInt(id)) != BigInt(0)
+  }
+
+  static stringToCode (itemCode) {
+    if (itemCode.length > 4) {
+      throw new Error('item code should be at most 4 characters')
+    }
+    let res = 0n
+    for (let i = 0; i < 4; ++i) {
+      res <<= 8n
+      res |= 0x20n
+    }
+    for (let i = 0; i < itemCode.length; ++i) {
+      res <<= 8n
+      res |= BigInt(itemCode.charCodeAt(itemCode.length - 1 - i))
+    }
+    return res & 0xFFFFFFFFn
+  }
+
+  static codeToString (itemCode) {
+    let res = ''
+    for (let i = 0; i < 4; ++i) {
+      const code = Number((itemCode >> BigInt(i * 8)) & BigInt(0xFF))
+      res += String.fromCharCode(code)
+    }
+    return res.trim()
   }
 
   /**
@@ -316,6 +353,7 @@ class SaveFileParser {
     item.compact.flags = this.reader.read(32)
     item.compact.version = this.reader.read(10)
     item.compact.location = this.reader.read(3)
+    // location could be ground/dropping -> ship equipment, page to read 16 bit x, y
     item.compact.equipment = this.reader.read(4)
     item.compact.x = this.reader.read(4)
     item.compact.y = this.reader.read(4)
@@ -323,7 +361,7 @@ class SaveFileParser {
     if (!SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.ear)) {
       item.compact.code = this.reader.read(32)
       item.compact.socketed = this.reader.read(SaveFileParser.isItemFlag(item, SaveFileParser.ItemFlags.compact) ? 1 : 3)
-      item.code = this.codeToString(item.compact.code)
+      item.code = SaveFileParser.codeToString(item.compact.code)
     } else {
       item.compact.ear = {}
       item.compact.ear.file = this.reader.read(3)
@@ -355,9 +393,13 @@ class SaveFileParser {
           break
         }
         case SaveFileParser.ItemQuality.rare:
-        case SaveFileParser.ItemQuality.crafted: {
+        case SaveFileParser.ItemQuality.crafted:
+        case SaveFileParser.ItemQuality.tempered: {
           extra.rarePrefix = this.reader.read(8)
           extra.rareSuffix = this.reader.read(8)
+          if (Number(extra.quality) == SaveFileParser.ItemQuality.tempered) {
+            break
+          }
           extra.prefix = []
           extra.suffix = []
           for (let i = 0; i < 3; ++i) {
@@ -435,15 +477,6 @@ class SaveFileParser {
     return item
   }
 
-  codeToString (itemCode) {
-    let res = ''
-    for (let i = 0; i < 4; ++i) {
-      const code = Number((itemCode >> BigInt(i * 8)) & BigInt(0xFF))
-      res += String.fromCharCode(code)
-    }
-    return res.trim()
-  }
-
   itemStat (id) {
     const res = { id }
     res.real = {}
@@ -492,8 +525,10 @@ class SaveFileParser {
       }
       const first = this.itemStat(id)
       const list = [first]
+      // magicmindam, item_maxdamage_percent, firemindam, lightmindam
       if (id === BigInt(52) || id === BigInt(17) || id === BigInt(48) || id === BigInt(50)) {
         list.push(this.itemStat(id + BigInt(1)))
+      // coldmindam, poisonmindam
       } else if (id === BigInt(54) || id === BigInt(57)) {
         list.push(this.itemStat(id + BigInt(1)))
         list.push(this.itemStat(id + BigInt(2)))
@@ -658,9 +693,10 @@ class SaveFileWriter {
     }
   }
 
-  constructor ({ typeList, costs }) {
+  constructor ({ typeList, costs, addSaveAdd = false }) {
     this.typeList = typeList
     this.costs = costs
+    this.addSaveAdd = addSaveAdd
   }
 
   checksum (bytes) {
@@ -755,9 +791,10 @@ class SaveFileWriter {
     const entry = this.costs.first('ID', BigInt(id).toString())
     const bits = Number(entry['Save Param Bits'])
     if (bits !== 0) {
+      console.log(id)
       this.writer.write(param, bits)
     }
-    this.writer.write(value, Number(entry['Save Bits']))
+    this.writer.write(BigInt(value) + (this.addSaveAdd ? BigInt(entry['Save Add']) : 0n), Number(entry['Save Bits']))
   }
 
   writeItemStatList (list) {
