@@ -308,8 +308,8 @@ class GrammarConstructor {
       if (!desc) {
         return undefined
       }
-      return this.toAntlr(this.resolver.readable(desc['str name']))
-    }).filter(i => i).join(' | ')
+      return [this.toAntlr(this.resolver.readable(desc['str name'])), this.toAntlr(skill.skill)]
+    }).flat().filter(i => i).join(' | ')
     return `${GrammarConstructor.Tokens.AnySkill}: (${allSkillNames})`
   }
 
@@ -333,8 +333,8 @@ class GrammarConstructor {
       if (!desc) {
         return undefined
       }
-      return this.toAntlr(`${this.resolver.readable(desc['str name'])} ${clazzy}`)
-    }).filter(i => i).join(' | ')
+      return [this.toAntlr(`${this.resolver.readable(desc['str name'])} ${clazzy}`), this.toAntlr(`${skill.skill} ${clazzy}`)]
+    }).flat().filter(i => i).join(' | ')
     return `${GrammarConstructor.Tokens.ClassOnlySkill}: (${allClassySkillNames})`
   }
 }

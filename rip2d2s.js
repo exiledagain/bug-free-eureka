@@ -19,10 +19,238 @@ class ItemProperty {
   }
 }
 
+class PropertiesConverter {
+  constructor ({ d2data }) {
+    this.d2data = d2data
+    this.properties = this.d2data.properties()
+    this.itemStatCost = this.d2data.itemStatCost()
+    this.skills = this.d2data.skills()
+  }
+
+  convert ({ propCode, min, max, param }) {
+    const entry = this.properties.first('code', propCode)
+    const res = []
+    for (let i = 1; i <= 7; ++i) {
+      const stat = entry[`stat${i}`]
+      const func = Number(entry[`func${i}`])
+      const val = entry[`val${i}`]
+
+      const statEntry = this.itemStatCost.first('Stat', stat)
+
+      switch (func) {
+        case 1:
+        case 2:
+        // for rates, doesn't appear to be adjust
+        case 8:
+        // sockets but we don't care about checking
+        case 14: {
+          const paramBits = Number(statEntry['Save Param Bits'])
+          let param = undefined
+          if (paramBits > 0) {
+            param = 0
+          }
+          res.push(new ItemProperty({
+            id: statEntry.ID,
+            // could be random
+            value: min,
+            param
+          }))
+          break
+        }
+        // min damage only
+        case 5: {
+          const list = [
+            'mindamage',
+            'secondary_mindamage',
+            'item_throw_mindamage'
+          ]
+          res.push(...list.map(statCode => {
+            const stat = this.itemStatCost.first('Stat', statCode)
+            return new ItemProperty({
+              id: stat.ID,
+              // could be random
+              value: min
+            })
+          }))
+          break
+        }
+        // max damage only
+        case 6: {
+          const list = [
+            'maxdamage',
+            'secondary_maxdamage',
+            'item_throw_maxdamage'
+          ]
+          res.push(...list.map(statCode => {
+            const stat = this.itemStatCost.first('Stat', statCode)
+            return new ItemProperty({
+              id: stat.ID,
+              // could be random
+              value: min
+            })
+          }))
+          break
+        }
+        // enhanced damage only
+        case 7: {
+          const list = [
+            'item_mindamage_percent',
+            'item_maxdamage_percent'
+          ]
+          res.push(...list.map(statCode => {
+            const stat = this.itemStatCost.first('Stat', statCode)
+            return new ItemProperty({
+              id: stat.ID,
+              // could be random
+              value: min
+            })
+          }))
+          break
+        }
+        // skilltab only
+        case 10: {
+          res.push(new ItemProperty({
+            id: stat.ID,
+            // could be random
+            value: min,
+            param
+          }))
+          break
+        }
+        // skill on { kill, death, ... }, splash
+        case 11: {
+          let index = Number(param)
+          if (!Number.isFinite(index)) {
+            const skillEntry = this.skills.first('skill', param)
+            index = skillEntry.Id
+          }
+          res.push(new ItemProperty({
+            id: stat.ID,
+            // could be random
+            value: max,
+            param: (index << 6) | (min & 0x3F)
+          }))
+          break
+        }
+        // skill-rand only
+        case 12: {
+          res.push(new ItemProperty({
+            id: stat.ID,
+            value: param,
+            // could be random
+            param: min
+          }))
+          break
+        }
+        case 15: {
+          res.push(new ItemProperty({
+            id: statEntry.ID,
+            // could be random
+            value: min
+          }))
+          break
+        }
+        case 16: {
+          res.push(new ItemProperty({
+            id: statEntry.ID,
+            // could be random
+            value: min
+          }))
+          break
+        }
+        case 17: {
+          res.push(new ItemProperty({
+            id: statEntry.ID,
+            // could be random
+            value: min
+          }))
+          break
+        }
+        case 19: {
+          let index = Number(param)
+          if (!Number.isFinite(index)) {
+            const skillEntry = this.skills.first('skill', param)
+            index = skillEntry.Id
+          }
+          res.push(new ItemProperty({
+            id: stat.ID,
+            // could be random
+            value: min | (min << 8),
+            param: (index << 6) | (max & 0x3F)
+          }))
+          break
+        }
+        // probably checks for eth/set?
+        case 20: {
+          const list = [
+            'item_indesctructible'
+          ]
+          res.push(...list.map(statCode => {
+            const stat = this.itemStatCost.first('Stat', statCode)
+            return new ItemProperty({
+              id: stat.ID,
+              // could be random
+              value: 1
+            })
+          }))
+          break
+        }
+        case 21: {
+          res.push(new ItemProperty({
+            id: statEntry.ID,
+            // could be random
+            value: min,
+            param: val
+          }))
+          break
+        }
+        // oskill etc
+        case 22: {
+          let index = Number(param)
+          if (!Number.isFinite(index)) {
+            const skillEntry = this.skills.first('skill', param)
+            index = skillEntry.Id
+          }
+          res.push(new ItemProperty({
+            id: stat.ID,
+            // could be random
+            value: min,
+            param: index
+          }))
+          break
+        }
+        // sorc-skill-rand-ctc
+        case 25: {
+          // chain lightning
+          let index = 53
+          res.push(new ItemProperty({
+            id: stat.ID,
+            // could be random
+            value: min,
+            param: (index << 6) | (max & 0x3F)
+          }))
+          break
+        }
+        // randclassskill2, randelemskill, etc
+        case 36: {
+          res.push(new ItemProperty({
+            id: stat.ID,
+            value: val,
+            // could be random
+            param: min
+          }))
+          break
+        }
+      }
+    }
+    return res
+  }
+}
+
 class PropertyParser {
   /**
    * 
-   * @param {Diablo2Data} d2data 
+   * @param {Diablo2Data} d2data
    */
   constructor ({ d2data, resolver, defaults, parser }) {
     this.d2data = d2data
@@ -48,8 +276,8 @@ class PropertyParser {
       if (!desc) {
         return undefined
       }
-      return [this.resolver.readable(desc['str name']).toLowerCase(), skill]
-    }).filter(i => i).reverse())
+      return [[skill.skill.toLowerCase(), skill], [this.resolver.readable(desc['str name']).toLowerCase(), skill]]
+    }).flat().filter(i => i).reverse())
     this.classNameToClassEntry = Object.fromEntries(this.d2data.charStats().map(e => {
       if (e['class'] === 'Expansion') {
         return undefined
@@ -89,19 +317,24 @@ class PropertyParser {
    * @returns {ItemProperty}
    */
   parse (string) {
-    const res = this.parseProp(string)
-    if (res instanceof Array) {
-      res.forEach(e => {
-        if (!(e instanceof ItemProperty)) {
-          console.error(res)
-          throw new Error(`wrong prop type for ${string}`)
-        }
-      })
-    } else if (!(res instanceof ItemProperty)) {
-      console.error(res)
-      throw new Error(`wrong prop type for ${string}`)
+    try {
+      const res = this.parseProp(string)
+      if (res instanceof Array) {
+        res.forEach(e => {
+          if (!(e instanceof ItemProperty)) {
+            console.error(res)
+            throw new Error(`wrong prop type for ${string}`)
+          }
+        })
+      } else if (!(res instanceof ItemProperty)) {
+        console.error(res)
+        throw new Error(`wrong prop type for ${string}`)
+      }
+      return res
+    } catch (e) {
+      console.error(string)
+      throw e
     }
-    return res
   }
 
   parseProp (prop) {
@@ -188,9 +421,10 @@ class PropertyParser {
         regex: /Reanimate as: (.+?)$/i,
         reviver: match => {
           const reanimate = this.d2data.itemStatCost().first('Stat', 'item_reanimate')
-          const value = Number(match[1])
+          const value = 6
+          const param = Number(match[1])
           return [
-            new ItemProperty({ id: reanimate.ID, value })
+            new ItemProperty({ id: reanimate.ID, value, param })
           ]
         }
       },
@@ -220,9 +454,40 @@ class PropertyParser {
         }
       },
       {
+        regex: /(\d+) poison damage over (\d+) seconds/i,
+        reviver: match => {
+          const min = this.d2data.itemStatCost().first('Stat', `poisonmindam`)
+          const max = this.d2data.itemStatCost().first('Stat', `poisonmaxdam`)
+          const len = this.d2data.itemStatCost().first('Stat', `poisonlength`)
+          const minValue = Number(match[1])
+          const maxValue = Number(match[1])
+          const lengthValue = Number(match[2]) * 25
+          // text = (min * len + 128) / 256
+          // Math.ceil((256 * text - 128) / len) = min
+          const encodedMinValue = Math.ceil((256 * minValue - 128) / lengthValue)
+          const encodedMaxValue = encodedMinValue
+          const res = [
+            new ItemProperty({ id: min.ID, value: encodedMinValue }),
+            new ItemProperty({ id: max.ID, value: encodedMaxValue }),
+            new ItemProperty({ id: len.ID, value: lengthValue })
+          ]
+          return res
+        }
+      },
+      {
         regex: /\+(.+?) to Life \(Based on Character Level\)$/i,
         reviver: match => {
           const stat = this.d2data.itemStatCost().first('Stat', 'item_hp_perlevel')
+          const value = ~~(Number(match[1]) * 8)
+          return [
+            new ItemProperty({ id: stat.ID, value })
+          ]
+        }
+      },
+      {
+        regex: /\+(.+?) to Mana \(Based on Character Level\)$/i,
+        reviver: match => {
+          const stat = this.d2data.itemStatCost().first('Stat', 'item_mana_perlevel')
           const value = ~~(Number(match[1]) * 8)
           return [
             new ItemProperty({ id: stat.ID, value })
@@ -288,26 +553,6 @@ class PropertyParser {
         }
       },
       {
-        regex: /(\d+) poison damage over (\d+) seconds/i,
-        reviver: match => {
-          const lenthValue = Number(match[2])
-          // poison damage isn't adjusted
-          // const value = Math.ceil(((Number(match[1]) * 256) - 128) / lenthValue)
-          const value = Number(match[1])
-          if (value <= 0 || lenthValue <= 0) {
-            throw new Error('poison stats should be positive')
-          }
-          const min = this.d2data.itemStatCost().first('Stat', 'poisonmindam')
-          const max = this.d2data.itemStatCost().first('Stat', 'poisonmaxdam')
-          const len = this.d2data.itemStatCost().first('Stat', 'poisonlength')
-          return [
-            new ItemProperty({ id: min.ID, value }),
-            new ItemProperty({ id: max.ID, value }),
-            new ItemProperty({ id: len.ID, value: lenthValue })
-          ]
-        }
-      },
-      {
         regex: /Attacker Takes Damage of (.+?) \(Based on Character Level\)/i,
         reviver: match => {
           const value = ~~(Number(match[1]) * 8)
@@ -364,8 +609,11 @@ class PropertyParser {
         }
       },
       {
-        // ?
-        regex: /undefined$/i
+        // seen in items that must be eth
+        regex: /undefined$/i,
+        reviver: _ => {
+          return []
+        }
       }
     ]
     for (const e of possible) {
@@ -413,10 +661,37 @@ class PropertyParser {
         if (typeof value !== 'number') {
           throw new Error(`expected value for ${parsed.name}`)
         }
-        if (Number(entry['op param']) > 0) {
+        if (Number(entry['op param']) > 0 && entry['op'] !== '4' && entry['op'] !== '5') {
           value <<= Number(entry['op param'])
         }
-        return new ItemProperty({ id, value })
+        // some stats have required param bits (unused but should be 0)
+        const param = Number(entry['Save Param Bits']) > 0 ? 0 : undefined
+        const res = new ItemProperty({ id, value, param })
+        // normal_damage_reduction collides with damageresist since the only difference is a %
+        const normal_damage_reduction = this.itemStatCost.first('Stat', 'normal_damage_reduction')
+        if (id === Number(normal_damage_reduction.ID) && parsed.percentages[0].text.endsWith('%')) {
+          const damageresist = this.itemStatCost.first('Stat', 'damageresist')
+          return new ItemProperty({
+            id: damageresist.ID,
+            value,
+            param
+          })
+        }
+        const lut = {
+          item_elemskill_fire: 1,
+          item_elemskill_cold: 4,
+          item_elemskill_lightning: 2,
+          item_elemskill_poison: 5,
+          item_elemskill_magic: 3
+        }
+        if (entry.Stat in lut) {
+          const pairEntry = this.itemStatCost.first('Stat', 'item_elemskill')
+          return [
+            new ItemProperty({ id: pairEntry.ID, value, param: lut[entry.Stat] }),
+            res
+          ]
+        }
+        return res
       }
       case 11: {
         // we can assume there's no rep-quant in pd2
@@ -475,7 +750,6 @@ class PropertyParser {
         const b = parsed.percentages[2].value
         const value = (b << 8) | (a & 0xFF)
         const param = (skillId << 6) | (skillLevel & 0x3F)
-        console.log(a, b, skillId, skillLevel, value, param)
         return new ItemProperty({ id, value, param })
       }
       case 27: {
@@ -502,16 +776,17 @@ class PropertyParser {
 }
 
 class ItemRejuvenated {
-  constructor ({ raw, propertyParser, typeList }) {
+  constructor ({ raw, propertyParser, typeList, nameToItemEntry }) {
     this.raw = raw
     this.propertyParser = propertyParser
     this.typeList = typeList
-    const isJewel = raw.name.includes(' Jewel ')
+    const isGem = !!nameToItemEntry[raw.name] && nameToItemEntry[raw.name].type.startsWith('gem')
+    const isJewel = raw.name.includes(' Jewel ') || raw.name === 'Jewel' || raw.name === 'Rainbow Facet'
     const isRune = raw.name.endsWith(' Rune')
     this.rarity = raw.type.startsWith('Low') ? 'Low Quality' : raw.type.split(' ', 1)[0].toLowerCase()
     const socketsIndex = raw.type.endsWith(')') ? raw.type.length - 4 : raw.type.length
     this.base = raw.type.substring(this.rarity.length + 1, socketsIndex)
-    if (isRune) {
+    if (isRune || isGem) {
       this.rarity = 'normal'
       this.base = raw.name
     }
@@ -530,11 +805,10 @@ class ItemRejuvenated {
       this.socketCount = Number(raw.type.at(-2))
       this.sockets = raw.sockets.map(jew => {
         jew.type = jew.name.includes('Jewel') ? 'Jewel' : jew.name
-        return new ItemRejuvenated({ raw: jew, propertyParser, typeList })
+        return new ItemRejuvenated({ raw: jew, propertyParser, typeList, nameToItemEntry })
       })
     }
     this.props = this.parseProps(raw.props)
-    console.log(this.props)
     this.props.forEach(prop => {
       if (prop.id === 360 || prop.id === 206) {
         prop.param = 0
@@ -575,16 +849,16 @@ class ItemRejuvenated {
           props.pop()
           continue
         }
-        props.at(-1).push(this.props[i + 1])
         i += 1
-        if (i + 1 >= this.props.length || this.props[i + 1].id - 1 !== id) {
+        props.at(-1).push(this.props[i])
+        if (i + 1 >= this.props.length || this.props[i + 1].id - 1 !== this.props[i].id) {
           console.error('ignored...')
           props.pop()
           props.pop()
           continue
         }
-        props.at(-1).push(this.props[i + 1])
         i += 1
+        props.at(-1).push(this.props[i])
       }
     }
     this.props = props
@@ -644,6 +918,7 @@ class Rejuvenator {
     'dru': 'Druid',
     'ass': 'Assassin'
   }
+
   /**
    * @typedef {object} RejuvenatorArgs
    * @property {Diablo2Data} d2data
@@ -661,14 +936,15 @@ class Rejuvenator {
     this.resolver = resolver
     this.defaults = defaults
     this.parser = parser
+    this.propertiesConverter = new PropertiesConverter({ d2data })
     this.propertyParser = new PropertyParser({ d2data, resolver, defaults, parser })
     this.typeList = d2data.TypeList()
     this.nameToItemEntry = this.typeList.itemList.reduce((map, code) => {
-      // only need socketable rune versions
-      if (/r\d\ds/.test(code)) {
+      const entry = this.typeList.entry(code)
+      // only need socketable rune/gem versions
+      if (entry.name.endsWith(' Stack')) {
         return map
       }
-      const entry = this.typeList.entry(code)
       const readable = this.resolver.readable(entry.namestr)
       map[readable] = entry
       return map
@@ -690,12 +966,22 @@ class Rejuvenator {
       }
       entry._index = i
       const readable = this.resolver.readable(entry.index)
+      map[entry.index] = entry
       map[readable] = entry
       return map
     }, {})
-    this.nametoSetEntry = this.d2data.setItems().reduce((map, entry, i) => {
-      entry._index = i
+    if (this.nameToUniqueEntry['Siggard\'s Staunch']) {
+      this.nameToUniqueEntry['Siggard\'s Stealth'] = this.nameToUniqueEntry['Siggard\'s Staunch']
+    }
+    let delta = 0
+    this.nameToSetEntry = this.d2data.setItems().reduce((map, entry, i) => {
+      if (entry.index === 'Expansion') {
+        delta += 1
+        return map
+      }
+      entry._index = i - delta
       const readable = this.resolver.readable(entry.index)
+      map[entry.index] = entry
       map[readable] = entry
       return map
     }, {})
@@ -768,32 +1054,42 @@ class Rejuvenator {
       header: 0x4d4an,
       list: []
     }
-    this.rip.equipment.forEach((item, i) => {
+    const items = [...this.rip.equipment, ...this.rip.swap, ...this.rip.mercenary.equipment]
+    items.forEach((item, i) => {
+      const dx = 2
+      const dy = 4
       object.items.list.push(this.getItem(item))
       object.items.list.at(-1).compact.location = SaveFileParser.ItemMode.stored
       object.items.list.at(-1).compact.equipment = 0
-      const dx = 2
-      const dy = 4
       object.items.list.at(-1).compact.x = ~~((i * dx) % 10)
       object.items.list.at(-1).compact.y = ~~((i * dx) / 10) * dy
+      // page 1 = inventory
+      // page 5 = stash
+      object.items.list.at(-1).compact.page = 5
+    })
+    this.rip.inventory.filter(i => i.type.includes(' Charm') && i.position.y >= 4).forEach((item, i) => {
+      object.items.list.push(this.getItem(item))
+      object.items.list.at(-1).compact.location = SaveFileParser.ItemMode.stored
+      object.items.list.at(-1).compact.equipment = 0
+      object.items.list.at(-1).compact.x = item.position.x
+      object.items.list.at(-1).compact.y = item.position.y - 4
+      // page 1 = inventory
+      // page 5 = stash
       object.items.list.at(-1).compact.page = 1
     })
-
-    console.log(require('util').inspect(object, false, Infinity, true))
 
     this.name = name
     this.rejuvenatedObject = object
   }
 
   getItem (json, isSocketed = false) {
-    const rejuv = new ItemRejuvenated({ raw: json, propertyParser: this.propertyParser, typeList: this.typeList })
+    const rejuv = new ItemRejuvenated({ raw: json, propertyParser: this.propertyParser, typeList: this.typeList, nameToItemEntry: this.nameToItemEntry })
     return this.getItemEncoded(rejuv, isSocketed)
   }
 
   getItemEncoded (rejuv, isSocketed) {
     const entry = this.nameToItemEntry[rejuv.base]
     const code = SaveFileParser.stringToCode(entry.code)
-    console.log(rejuv.name, rejuv.base, entry.code, code.toString(16), rejuv.quality, rejuv.quality)
     const quality = Object.keys(SaveFileParser.ItemQuality).indexOf(rejuv.rarity.toLowerCase())
     const res = {
       code: entry.code,
@@ -851,13 +1147,44 @@ class Rejuvenator {
         res.extra.prefix = []
         res.extra.suffix = []
         res.extra.list.push(...rejuv.props)
+        break
       }
       case SaveFileParser.ItemQuality.set: {
-        res.extra.file = 0
+        const setEntry = this.nameToSetEntry[rejuv.name]
+        const properties = []
+        const getProp = (setEntry, i, j) => {
+          return {
+            propCode: setEntry[`aprop${i}${j}`],
+            min: setEntry[`amin${i}${j}`],
+            max: setEntry[`amax${i}${j}`],
+            param: setEntry[`apar${i}${j}`]
+          }
+        }
+        let bitset = 0
+        for (let i = 1; i <= 5; ++i) {
+          properties.push([])
+          const a = getProp(setEntry, i, 'a')
+          const b = getProp(setEntry, i, 'b')
+          if (a.propCode.length > 0) {
+            properties.at(-1).push(this.propertiesConverter.convert(a))
+          }
+          if (b.propCode.length > 0) {
+            properties.at(-1).push(this.propertiesConverter.convert(b))
+          }
+          if (properties.at(-1).length === 0) {
+            properties.pop()
+          } else {
+            bitset |= 1 << (i - 1)
+          }
+        }
+        res.extra.file = setEntry._index
+        res.extra.mask = bitset
+        res.extra.property = properties
+        res.extra.list.push(...rejuv.props)
         break
       }
       case SaveFileParser.ItemQuality.unique: {
-        const uniqueEntry = this.nameToUniqueEntry[rejuv.raw.name]
+        const uniqueEntry = this.nameToUniqueEntry[rejuv.name]
         res.extra.file = uniqueEntry ? uniqueEntry._index - (uniqueEntry.version !== '0') : 0
         res.extra.list.push(...rejuv.props)
         break
@@ -884,7 +1211,8 @@ class Rejuvenator {
     }
     res.extra.realm = 0
     if (this.typeList.isArmor(entry.code)) {
-      res.extra.armor = Number(entry.maxac)
+      // +1 from max is possible
+      res.extra.armor = Number(entry.maxac) + Number(this.d2data.itemStatCost().first('Stat', 'armorclass')['Save Add']) + 1
     }
     if (this.typeList.isArmor(entry.code) || this.typeList.isWeapon(entry.code)) {
       res.extra.durability = {
@@ -904,12 +1232,6 @@ class Rejuvenator {
       res.compact.socketed = rejuv.sockets.length
       res.sockets = rejuv.sockets.map(s => this.getItemEncoded(s, true))
     }
-    if (quality === SaveFileParser.ItemQuality.set) {
-      // todo: set item completion
-      res.extra.mask = 0
-      res.extra.properties |= res.extra.mask
-    }
-    // todo: properties for set/runeword
     if (rw) {
       res.extra.property = []
       res.extra.property.push(rejuv.props)

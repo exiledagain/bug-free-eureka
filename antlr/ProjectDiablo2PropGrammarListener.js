@@ -1607,6 +1607,33 @@ export default class ProjectDiablo2PropGrammarListener extends antlr4.tree.Parse
 	}
 
 
+	// Enter a parse tree produced by ProjectDiablo2PropGrammarParser#item_crushingblow_efficiency.
+	enterItem_crushingblow_efficiency(ctx) {
+	}
+
+	// Exit a parse tree produced by ProjectDiablo2PropGrammarParser#item_crushingblow_efficiency.
+	exitItem_crushingblow_efficiency(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ProjectDiablo2PropGrammarParser#extra_cold_arrows.
+	enterExtra_cold_arrows(ctx) {
+	}
+
+	// Exit a parse tree produced by ProjectDiablo2PropGrammarParser#extra_cold_arrows.
+	exitExtra_cold_arrows(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ProjectDiablo2PropGrammarParser#item_shiny_appearance.
+	enterItem_shiny_appearance(ctx) {
+	}
+
+	// Exit a parse tree produced by ProjectDiablo2PropGrammarParser#item_shiny_appearance.
+	exitItem_shiny_appearance(ctx) {
+	}
+
+
 	// Enter a parse tree produced by ProjectDiablo2PropGrammarParser#item_pierce_cold.
 	enterItem_pierce_cold(ctx) {
 	}

@@ -10,7 +10,7 @@ global.SaveFileParser = SaveFileParser
 const { Rejuvenator } = require('./rip2d2s.js')
 
 async function Main () {
-  const version = Diablo2Data.defaultVersion
+  const version = 's11'
 
   global.fetch = async file => {
     return {

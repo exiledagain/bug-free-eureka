@@ -791,7 +791,6 @@ class SaveFileWriter {
     const entry = this.costs.first('ID', BigInt(id).toString())
     const bits = Number(entry['Save Param Bits'])
     if (bits !== 0) {
-      console.log(id)
       this.writer.write(param, bits)
     }
     this.writer.write(BigInt(value) + (this.addSaveAdd ? BigInt(entry['Save Add']) : 0n), Number(entry['Save Bits']))

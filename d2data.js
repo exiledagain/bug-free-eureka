@@ -1968,7 +1968,8 @@ class Diablo2Data {
     'ObjGroup.txt',
     'CharStats.txt',
     'Hireling.txt',
-    'Runes.txt'
+    'Runes.txt',
+    'Properties.txt'
   ]
 
   static defaultVersion = 's12'
@@ -2072,6 +2073,10 @@ class Diablo2Data {
 
   runes () {
     return this.loader.get(this.version, 'Runes.txt')
+  }
+
+  properties () {
+    return this.loader.get(this.version, 'Properties.txt')
   }
 
   TypeList () {
