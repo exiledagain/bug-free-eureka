@@ -860,6 +860,41 @@ class ItemRejuvenated {
       }
     }
     this.props = props
+    // damage props should be > 0 but (ele?) facets aren't added to the site tooltip correctly
+    for (let i = 0; i < this.props.length; ++i) {
+      const a = this.props[i][0]
+      const id = a.id
+      if (!(id === 52 || id === 17 || id === 48 || id === 50 || id === 54 || id === 57)) {
+        continue
+      }
+      const b = this.props[i][1]
+      const c = id === 54 || id === 87 ? this.props[i][2] : undefined
+      if (a.value < 0) {
+        console.error('corrected..', id)
+        a.value = 0
+        b.value = 0
+        if (c) {
+          c.value = 0
+        }
+        continue
+      }
+      if (b.value < 0) {
+        console.error('corrected...', b.id)
+        a.value = 0
+        b.value = 0
+        if (c) {
+          c.value = 0
+        }
+        continue
+      }
+    }
+  }
+
+  clamp (v, d) {
+    if (!Number.isFinite(v)) {
+      return d
+    }
+    return v
   }
 
   parseProps (props) {
