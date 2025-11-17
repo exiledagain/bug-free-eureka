@@ -12,7 +12,7 @@
   --d2-color-rune: rgb(255, 168, 0)
 }
 
-body {
+body, button {
   background-color: var(--commong-bg-color);
   color: silver;
   font-family: 'Noto Sans JP', sans-serif;
@@ -44,4 +44,56 @@ button:disabled {
 a, a:visited {
   color: silver;
   font-family: 'Noto Sans JP', sans-serif;
+}
+.self-center {
+  margin: auto;
+  max-width: 1300px;
+  width: 95%;
+}
+
+.centered-items {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.io {
+  color: inherit;
+  background-color: inherit;
+  font-family: inherit;
+  height: 15em;
+  width: 100%;
+  resize: none;
+  outline: none;
+  font-size: medium;
+  box-sizing: border-box;
+  border: none;
+  position: relative;
+  overflow-wrap: normal;
+  overflow-x: scroll;
+  white-space: pre;
+}
+
+.fixed-io {
+  width: 95%;
+  border: 2px silver solid;
+  padding: 8px 8px 8px 8px;
+}
+
+.clear-text {
+  position: absolute;
+  box-sizing: border-box;
+  right: calc(17% + 16px);
+  z-index: 100;
+  color: inherit;
+  background: inherit;
+  border: none;
+  font-family: inherit;
+  font-size: xx-large;
 }

@@ -1,3 +1,5 @@
+'use strict'
+
 class BitReader {
   constructor (bytes) {
     this.bytes = bytes
@@ -974,9 +976,11 @@ class SaveFileWriter {
   }
 }
 
-module.exports = {
-  BitReader,
-  BitWriter,
-  SaveFileParser,
-  SaveFileWriter
+if (typeof window === 'undefined' && typeof self === 'undefined') {
+  module.exports = {
+    BitReader,
+    BitWriter,
+    SaveFileParser,
+    SaveFileWriter
+  }
 }

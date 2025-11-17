@@ -1,7 +1,5 @@
 'use strict'
 
-const { SaveFileParser } = require("./d2s")
-
 class ItemProperty {
   constructor ({ id, value, param }) {
     this.id = Number(id)
@@ -1333,6 +1331,8 @@ class Rejuvenator {
   }
 }
 
-module.exports = {
-  Rejuvenator
+if (typeof window === 'undefined' && typeof self === 'undefined') {
+  module.exports = {
+    Rejuvenator
+  }
 }
