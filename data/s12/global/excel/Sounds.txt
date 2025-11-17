@@ -2632,7 +2632,7 @@ object_stone_large	2629	object\boulderlarge.wav	255	0	0	0	0	0	0	0	0	1	1	0	0	100	
 object_taintedsunaltar	2630	object\taintedsunaltar.wav	200	0	0	0	0	0	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	11
 object_teleportpad	2631	object\teleportationpad.wav	160	0	1	4	4	0	0	0	-1	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	11
 object_tome	2632	object\towertome.wav	200	0	0	0	0	0	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	11
-object_townportal	2633	object\portalopen.wav	180	0	0	0	0	0	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	11
+object_townportal	2633	object\portalopen.wav	180	0	0	0	0	0	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	6
 object_trap_trigger	2634	object\traptick.wav	200	0	0	0	0	0	0	0	0	1	1	1	0	100	0	0	1	0	0	-1	-1	-1	11
 object_trap_release	2635	object\traprelease.wav	200	0	0	0	0	0	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	11
 object_urn_break_1	2636	object\jarbreak2.wav	255	5	0	0	0	0	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	11
