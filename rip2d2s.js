@@ -210,7 +210,7 @@ class PropertiesConverter {
             index = skillEntry.Id
           }
           res.push(new ItemProperty({
-            id: stat.ID,
+            id: statEntry.ID,
             // could be random
             value: min,
             param: index
@@ -222,7 +222,7 @@ class PropertiesConverter {
           // chain lightning
           let index = 53
           res.push(new ItemProperty({
-            id: stat.ID,
+            id: statEntry.ID,
             // could be random
             value: min,
             param: (index << 6) | (max & 0x3F)
@@ -232,7 +232,7 @@ class PropertiesConverter {
         // randclassskill2, randelemskill, etc
         case 36: {
           res.push(new ItemProperty({
-            id: stat.ID,
+            id: statEntry.ID,
             value: val,
             // could be random
             param: min
