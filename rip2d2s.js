@@ -1110,6 +1110,35 @@ class Rejuvenator {
       // page 5 = stash
       object.items.list.at(-1).compact.page = 1
     })
+    const staticItems = [
+      {
+        name: 'Horadric Cube',
+        type: 'Normal Horadric Cube',
+        props: []
+      },
+      {
+        name: 'Horadric Navigator',
+        type: 'Normal Horadric Navigator',
+        props: []
+      },
+      {
+        name: 'Horadric Almanac',
+        type: 'Normal Horadric Almanac',
+        props: []
+      }
+    ]
+    staticItems.forEach((item, i) => {
+      const dx = 2
+      const dy = 2
+      object.items.list.push(this.getItem(item))
+      object.items.list.at(-1).compact.location = SaveFileParser.ItemMode.stored
+      object.items.list.at(-1).compact.equipment = 0
+      object.items.list.at(-1).compact.x = ~~((i * dx) % 10)
+      object.items.list.at(-1).compact.y = ~~((i * dx) / 10) * dy + 4
+      // page 1 = inventory
+      // page 5 = stash
+      object.items.list.at(-1).compact.page = 1
+    })
 
     this.name = name
     this.rejuvenatedObject = object
