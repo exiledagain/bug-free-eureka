@@ -2229,8 +2229,8 @@ zombie_unique_neutral_3	2226	monster\zombie\neutral3.wav	112	0	0	0	0	1	0	0	0	1	1
 zombie_raise_1	2227	monster\zombie\raise1.wav	180	3	0	0	0	1	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	5
 zombie_raise_2	2228	monster\zombie\raise4.wav	180	0	0	0	0	1	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	5
 zombie_raise_3	2229	monster\zombie\raise5.wav	180	0	0	0	0	1	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	5
-player_townportal_cast	2230	skill\misc\portalcast.wav	140	0	0	0	0	1	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	6
-player_townportal_enter	2231	skill\misc\portalenter.wav	255	0	0	0	0	1	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	6
+player_townportal_cast	2230	skill\misc\portalcast.wav	140	0	0	0	0	1	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	11
+player_townportal_enter	2231	skill\misc\portalenter.wav	255	0	0	0	0	1	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	11
 amazon_cast_poison	2232	skill\amazon\poisoncast.wav	180	0	0	0	0	0	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	6
 amazon_coldarrow_1	2233	skill\amazon\coldarrow1.wav	255	3	1	0	0	0	0	0	4	1	1	0	0	80	0	0	1	0	0	26302	-1	-1	6
 amazon_coldarrow_2	2234	skill\amazon\coldarrow2.wav	255	0	1	0	6	0	0	0	0	1	1	0	0	100	0	0	1	0	0	22230	-1	-1	6
@@ -2632,7 +2632,7 @@ object_stone_large	2629	object\boulderlarge.wav	255	0	0	0	0	0	0	0	0	1	1	0	0	100	
 object_taintedsunaltar	2630	object\taintedsunaltar.wav	200	0	0	0	0	0	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	11
 object_teleportpad	2631	object\teleportationpad.wav	160	0	1	4	4	0	0	0	-1	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	11
 object_tome	2632	object\towertome.wav	200	0	0	0	0	0	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	11
-object_townportal	2633	object\portalopen.wav	180	0	0	0	0	0	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	6
+object_townportal	2633	object\portalopen.wav	180	0	0	0	0	0	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	11
 object_trap_trigger	2634	object\traptick.wav	200	0	0	0	0	0	0	0	0	1	1	1	0	100	0	0	1	0	0	-1	-1	-1	11
 object_trap_release	2635	object\traprelease.wav	200	0	0	0	0	0	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	11
 object_urn_break_1	2636	object\jarbreak2.wav	255	5	0	0	0	0	0	0	0	1	1	0	0	100	0	0	1	0	0	-1	-1	-1	11

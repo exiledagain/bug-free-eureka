@@ -3,6 +3,7 @@
 *.jar
 node_modules
 /*.txt
+*.log
 
 /dump
 
