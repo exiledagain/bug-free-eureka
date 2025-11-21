@@ -1017,6 +1017,10 @@ class Rejuvenator {
       if (entry.name.endsWith(' Stack')) {
         return map
       }
+      if (entry.name === '2H Phase Blade') {
+        map['2H Phase Blade'] = entry
+        return map
+      }
       const readable = this.resolver.readable(entry.namestr)
       map[readable] = entry
       return map
@@ -1186,6 +1190,9 @@ class Rejuvenator {
   }
 
   getItemEncoded (rejuv, isSocketed) {
+    if (rejuv.base === 'Phase Blade' && rejuv.rarity.toLowerCase() === 'unique' && rejuv.raw.props.includes('75% Chance to Cast Level 50 Firestorm on Striking')) {
+      rejuv.base = '2H Phase Blade'
+    }
     const entry = this.nameToItemEntry[rejuv.base]
     const code = SaveFileParser.stringToCode(entry.code)
     const quality = Object.keys(SaveFileParser.ItemQuality).indexOf(rejuv.rarity.toLowerCase())
