@@ -633,6 +633,19 @@ class PropertyParser {
         }
       },
       {
+        regex: /Hit Causes Monster to Flee (.+)/i,
+        reviver: match => {
+          const stat = this.d2data.itemStatCost().first('Stat', 'item_howl')
+          const value = ~~(Number(match[1]) * 128 / 100)
+          if (value <= 0) {
+            throw new Error('item_howl should be positive')
+          }
+          return [
+            new ItemProperty({ id: stat.ID, value })
+          ]
+        }
+      },
+      {
         // seen in items that must be eth
         regex: /undefined$/i,
         reviver: _ => {
