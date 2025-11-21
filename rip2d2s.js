@@ -1339,8 +1339,10 @@ class Rejuvenator {
         return
       }
       const name = this.resolver.readable(desc['str name'])
+      const nameTs = this.resolver.readable(e.skill)
       name2skillMap[name] = e
       name2skillMap[e.skill] = e
+      name2skillMap[nameTs] = e
     })
     const classes = {}
     for (const [skill] of skills) {
