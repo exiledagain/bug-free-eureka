@@ -818,7 +818,7 @@ class ItemRejuvenated {
     this.propertyParser = propertyParser
     this.typeList = typeList
     const isGem = !!nameToItemEntry[raw.name] && nameToItemEntry[raw.name].type.startsWith('gem')
-    const isJewel = raw.name.includes(' Jewel ') || raw.name === 'Jewel' || raw.name === 'Rainbow Facet'
+    const isJewel = raw.name.includes('Jewel ') || raw.name.includes(' Jewel') || raw.name === 'Jewel' || raw.name === 'Rainbow Facet'
     const isRune = raw.name.endsWith(' Rune')
     this.rarity = raw.type.startsWith('Low') ? 'Low Quality' : raw.type.split(' ', 1)[0].toLowerCase()
     const socketsIndex = raw.type.endsWith(')') ? raw.type.length - 4 : raw.type.length
