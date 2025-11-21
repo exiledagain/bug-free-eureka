@@ -438,3 +438,4 @@ map-glob-boss-droppuzzlebox	1			1	map_glob_boss_droppuzzlebox																			
 crush-efficiency	1			1	item_crushingblow_efficiency																													435	0
 extra-cold-arrows	1			1	extra_cold_arrows																													436	0
 shiny-appearance	1			1	item_shiny_appearance																													437	0
+es-efficiency-and-es-when-equip	1			1	es_efficiency			22	item_skillonequip																					Extra efficiency as base points to ES	(16ths)			418	0

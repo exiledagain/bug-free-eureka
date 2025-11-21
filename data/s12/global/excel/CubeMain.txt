@@ -2015,6 +2015,7 @@ Puzzlepiece 1h weapon	1			100					2	"weap,nos"	"lpp,qty=1"						useitem			100	so
 Puzzlepiece helm	1			100					2	"helm,nos"	"lpp,qty=1"						useitem			100	sock			1	2																																																																															0
 Puzzlepiece chest	1			100					2	"tors,nos"	"lpp,qty=1"						useitem			100	sock			1	2																																																																															0
 Puzzlepiece shield	1			100					2	"shld,nos"	"lpp,qty=1"						useitem			100	sock			1	2																																																																															0
+Puzzlepiece quiver	1			100					2	"misl,nos"	"lpp,qty=1"						useitem			100	sock			1	2																																																																															0
 r15 + rathma tp book + any socketed item -> unsocket (destroy gems)	1			100					3	"any,sock"	"r15g,qty=1"	rtp					"useitem,uns"																													rtp																																																										0
 test map area level -- map + isc	0			100					2	"map"	"isc"						useitem			100	map-glob-arealevel	100		5	5																																																																															0
 fortify T1 map-- map + fort	1			2	30				2	"t1me,nor"	"fort,qty=1"						useitem			100																																																																																				0
@@ -2246,7 +2247,8 @@ luca difficulty 2 -> 0	0			100	18	185	2		1	luca							useitem				uber-difficulty
 fortify T1 map-- map + fort (unique)	1			100					2	"t5me"	"fort,qty=1"						useitem			100	map-glob-skirmish-mode	100		50	50																																																																															0
 demonic cube + unique staff (reroll stats)	1			100	31				2	"staf,uni"	imrn,qty=1																																							cast2	100		20	20																									cast2	100		20	20																					0
 demonic cube + unique spiked shield (reroll stats)	1			100	31				2	"sshi,uni"	imrn,qty=1																																							thorns	100		14	16																									thorns	100		64	84																					0
-demonic cube + unique bone shield (reroll stats)	1			100	31				2	"bshi,uni"	imrn,qty=1																																							red-mag	100		2	2																									red-mag	100		2	2																					
+demonic cube + unique bone shield (reroll stats)	1			100	31				2	"bshi,uni"	imrn,qty=1																																							red-mag	100		2	2																									red-mag	100		2	2																					0
+demonic cube + unique quiver (reroll stats)	0			100	31				2	"misl,uni"	imrn,qty=1																																																																																													0
 demonic cube + unique weapon (reroll stats)	1			100	31				2	weap,uni	imrn,qty=1																																																																																													0
 demonic cube + unique armor (reroll stats)	1			100	31				2	armo,uni	imrn,qty=1																																																																																													0
 demonic cube + unique amulet (reroll stats)	1			100	31				2	amul,uni	imrn,qty=1																																																																																													0

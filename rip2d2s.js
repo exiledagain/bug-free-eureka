@@ -405,11 +405,11 @@ class PropertyParser {
       {
         regex: /(.+?)%? Deadly Strike \(Based on Character Level\)$/i,
         reviver: match => {
-          const value = ~~(Number(match[1]) * 8)
+          const deadlyPerLevel = this.d2data.itemStatCost().first('Stat', 'item_deadlystrike_perlevel')
+          const value = ~~(Number(match[1]) * (1 << Number(deadlyPerLevel['op param'])))
           if (value <= 0) {
             throw new Error('deadly/lvl should be positive')
           }
-          const deadlyPerLevel = this.d2data.itemStatCost().first('Stat', 'item_deadlystrike_perlevel')
           return [
             new ItemProperty({ id: deadlyPerLevel.ID, value })
           ]
@@ -506,7 +506,7 @@ class PropertyParser {
         regex: /\+(.+?) to (Vitality|Strength|Dexterity|Energy) \(Based on Character Level\)$/i,
         reviver: match => {
           const stat = this.d2data.itemStatCost().first('Stat', `item_${match[2].toLowerCase()}_perlevel`)
-          const value = ~~(Number(match[1]) * 8)
+          const value = ~~(Number(match[1]) * (1 << Number(stat['op param'])))
           return [
             new ItemProperty({ id: stat.ID, value })
           ]
@@ -527,11 +527,11 @@ class PropertyParser {
       {
         regex: /(.+?)% Extra Gold from Monsters \(Based on Character Level\)$/i,
         reviver: match => {
-          const value = ~~(Number(match[1]) * 8)
+          const stat = this.d2data.itemStatCost().first('Stat', 'item_find_gold_perlevel')
+          const value = ~~(Number(match[1]) * (1 << Number(stat['op param'])))
           if (value <= 0) {
             throw new Error('gf/lvl should be positive')
           }
-          const stat = this.d2data.itemStatCost().first('Stat', 'item_find_gold_perlevel')
           return [
             new ItemProperty({ id: stat.ID, value })
           ]
@@ -540,11 +540,11 @@ class PropertyParser {
       {
         regex: /(.+?)% Better Chance of Getting Magic Items \(Based on Character Level\)$/i,
         reviver: match => {
-          const value = ~~(Number(match[1]) * 8)
+          const stat = this.d2data.itemStatCost().first('Stat', 'item_find_magic_perlevel')
+          const value = ~~(Number(match[1]) * (1 << Number(stat['op param'])))
           if (value <= 0) {
             throw new Error('mf/lvl should be positive')
           }
-          const stat = this.d2data.itemStatCost().first('Stat', 'item_find_magic_perlevel')
           return [
             new ItemProperty({ id: stat.ID, value })
           ]
@@ -553,11 +553,11 @@ class PropertyParser {
       {
         regex: /Attacker Takes Damage of (.+?) \(Based on Character Level\)/i,
         reviver: match => {
-          const value = ~~(Number(match[1]) * 8)
+          const stat = this.d2data.itemStatCost().first('Stat', 'item_thorns_perlevel')
+          const value = ~~(Number(match[1]) * (1 << Number(stat['op param'])))
           if (value <= 0) {
             throw new Error('thorns/lvl should be positive')
           }
-          const stat = this.d2data.itemStatCost().first('Stat', 'item_thorns_perlevel')
           return [
             new ItemProperty({ id: stat.ID, value })
           ]
@@ -596,11 +596,37 @@ class PropertyParser {
       {
         regex: /\+(.+)% Damage to Undead \(Based on Character Level\)/i,
         reviver: match => {
-          const value = ~~(Number(match[1]) * 8)
+          const stat = this.d2data.itemStatCost().first('Stat', 'item_damage_undead_perlevel')
+          const value = ~~(Number(match[1]) * (1 << Number(stat['op param'])))
           if (value <= 0) {
             throw new Error('undead%/lvl should be positive')
           }
-          const stat = this.d2data.itemStatCost().first('Stat', 'item_damage_undead_perlevel')
+          return [
+            new ItemProperty({ id: stat.ID, value })
+          ]
+        }
+      },
+      {
+        regex: /\+(.+) to Attack Rating \(Based on Character Level\)/i,
+        reviver: match => {
+          const stat = this.d2data.itemStatCost().first('Stat', 'item_tohit_perlevel')
+          const value = ~~(Number(match[1]) * (1 << Number(stat['op param'])))
+          if (value <= 0) {
+            throw new Error('att/lvl should be positive')
+          }
+          return [
+            new ItemProperty({ id: stat.ID, value })
+          ]
+        }
+      },
+      {
+        regex: /\+(.+)% to Attack Rating \(Based on Character Level\)/i,
+        reviver: match => {
+          const stat = this.d2data.itemStatCost().first('Stat', 'item_tohitpercent_perlevel')
+          const value = ~~(Number(match[1]) * (1 << Number(stat['op param'])))
+          if (value <= 0) {
+            throw new Error('att%/lvl should be positive')
+          }
           return [
             new ItemProperty({ id: stat.ID, value })
           ]
@@ -1076,13 +1102,13 @@ class Rejuvenator {
     }
 
     this.mercenary(level, object)
+    this.fillItems(object)
 
-    // const toItem = e => this.getItem(e)
-    // this.rip.equipment.map(toItem)
-    // this.rip.inventory.map(toItem)
-    // this.rip.swap.map(toItem)
-    // this.rip.mercenary.equipment.map(toItem)
+    this.name = name
+    this.rejuvenatedObject = object
+  }
 
+  fillItems (object) {
     object.items = {
       header: 0x4d4an,
       list: []
@@ -1139,9 +1165,6 @@ class Rejuvenator {
       // page 5 = stash
       object.items.list.at(-1).compact.page = 1
     })
-
-    this.name = name
-    this.rejuvenatedObject = object
   }
 
   getItem (json, isSocketed = false) {
