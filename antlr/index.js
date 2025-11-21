@@ -70,7 +70,8 @@ export default function ExportTree (input) {
   const parser = new ProjectDiablo2PropGrammarParser(tokens)
   parser.removeErrorListeners()
   parser.addErrorListener(listener)
-  parser.buildParseTrees = true
+  // grammar always passes?
+  parser._interp.predictionMode = antlr4.atn.PredictionMode.SLL
   const tree = parser.property()
   if (error) {
     return undefined
