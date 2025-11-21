@@ -183,8 +183,8 @@ class GrammarConstructor {
           if (e['class'].length === 'Expansion') {
             return undefined
           }
-          return this.toAntlr(this.resolver.readable(e['StrAllSkills']), 1)
-        }).filter(i => i).join(' | ')
+          return this.toAntlr(this.resolver.readable(e['StrAllSkills']), 1)                  
+        }).filter(i => i)[0] // class names are replaced with a class token so only 1 is needed
         return `${name}: ${GrammarConstructor.Tokens.Integer} (${classAllSkills})`
       }
       case 14: {
@@ -296,7 +296,7 @@ class GrammarConstructor {
 
   anySkill () {
     const skillDesc = this.d2data.skillDesc()
-    const allSkillNames = this.d2data.skills().map(skill => {
+    const allSkillNames = Array.from(this.d2data.skills().map(skill => {
       if (skill.skilldesc.length === 0) {
         return undefined
       }
@@ -308,14 +308,14 @@ class GrammarConstructor {
       if (!desc) {
         return undefined
       }
-      return [this.toAntlr(this.resolver.readable(desc['str name'])), this.toAntlr(skill.skill)]
-    }).flat().filter(i => i).join(' | ')
+      return [this.resolver.readable(desc['str name']), skill.skill]
+    }).flat().filter(i => i).reduce((s, e) => { s.add(e); return s }, new Set()).values()).map(e => this.toAntlr(e)).join(' | ')
     return `${GrammarConstructor.Tokens.AnySkill}: (${allSkillNames})`
   }
 
   classOnlySkill () {
     const skillDesc = this.d2data.skillDesc()
-    const allClassySkillNames = this.d2data.skills().map(skill => {
+    const allClassySkillNames = Array.from(this.d2data.skills().map(skill => {
       if (skill.skilldesc.length === 0) {
         return undefined
       }
@@ -333,8 +333,8 @@ class GrammarConstructor {
       if (!desc) {
         return undefined
       }
-      return [this.toAntlr(`${this.resolver.readable(desc['str name'])} ${clazzy}`), this.toAntlr(`${skill.skill} ${clazzy}`)]
-    }).flat().filter(i => i).join(' | ')
+      return [`${this.resolver.readable(desc['str name'])} ${clazzy}`, `${skill.skill} ${clazzy}`]
+    }).flat().filter(i => i).reduce((s, e) => { s.add(e); return s }, new Set()).values()).map(e => this.toAntlr(e)).join(' | ')
     return `${GrammarConstructor.Tokens.ClassOnlySkill}: (${allClassySkillNames})`
   }
 }
