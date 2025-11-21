@@ -19,10 +19,11 @@
       <div class="fixed-io">
         <textarea id="json" class="io" placeholder="Exported json from pd2 armory" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
       </div>
+      <div id="error" style="color: red"></div>
     </div>
     <script>
       class ExportView {
-        constructor ({ inputEl, downloadEl, resolver }) {
+        constructor ({ inputEl, downloadEl, errorEl, resolver }) {
           this.resolver = resolver
           this.inputEl = inputEl
           this.downloadEl = downloadEl
@@ -58,8 +59,10 @@
             a.click()
             a.remove()
             URL.revokeObjectURL(url)
+            this.errorEl.textContent = ''
           } catch (e) {
             URL.revokeObjectURL(url)
+            this.errorEl.textContent = e
             throw e
           }
         }
@@ -68,7 +71,8 @@
         Diablo2Data.defaultVersion = 's11'
         await new ExportView({
           downloadEl: document.querySelector('#download'),
-          inputEl: document.querySelector('#json')
+          inputEl: document.querySelector('#json'),
+          errorEl: document.querySelector('#error')
         }).load()
       }
       requestAnimationFrame(Load)
