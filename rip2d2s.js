@@ -1031,7 +1031,7 @@ class Rejuvenator {
         return map
       }
       entry._index = i
-      const readable = this.resolver.readable(entry['Rune Name'])
+      const readable = this.resolver.readable(entry['Name'])
       map[readable] = map[readable] || []
       map[readable].push(entry)
       return map
@@ -1338,8 +1338,7 @@ class Rejuvenator {
       res.sockets = rejuv.sockets.map(s => this.getItemEncoded(s, true))
     }
     if (rw) {
-      res.extra.property = []
-      res.extra.property.push(rejuv.props)
+      res.extra.property = [rejuv.props]
     }
     return res
   }
