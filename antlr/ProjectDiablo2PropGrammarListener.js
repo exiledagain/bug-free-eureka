@@ -1634,6 +1634,24 @@ export default class ProjectDiablo2PropGrammarListener extends antlr4.tree.Parse
 	}
 
 
+	// Enter a parse tree produced by ProjectDiablo2PropGrammarParser#joustreduction_leorics.
+	enterJoustreduction_leorics(ctx) {
+	}
+
+	// Exit a parse tree produced by ProjectDiablo2PropGrammarParser#joustreduction_leorics.
+	exitJoustreduction_leorics(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ProjectDiablo2PropGrammarParser#map_glob_dropsocketed.
+	enterMap_glob_dropsocketed(ctx) {
+	}
+
+	// Exit a parse tree produced by ProjectDiablo2PropGrammarParser#map_glob_dropsocketed.
+	exitMap_glob_dropsocketed(ctx) {
+	}
+
+
 	// Enter a parse tree produced by ProjectDiablo2PropGrammarParser#item_pierce_cold.
 	enterItem_pierce_cold(ctx) {
 	}
