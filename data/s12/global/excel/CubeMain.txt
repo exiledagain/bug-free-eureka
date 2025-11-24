@@ -2158,12 +2158,12 @@ t3 map rare upgrade tier 3 to dungeon	1	4		0					2	"t3me,rar"	"scrb,qty=1"						
 1 ring + 1 perfect emerald + 1 l gas tpotions -> jade ring	1			0					3	"rin,mag"	"gg4e,qty=1"	tpgl					"rin,mag,pre=412"	30																																																																																						0
 2 arrows -> bolts	1			0					1	"aqv,nor,qty=2"							"cqv,nor"																																																																																							0
 2 bolts -> arrows	1			0					1	"cqv,nor,qty=2"							"aqv,nor"																																																																																							0
-dcma difficulty 0 -> 1	0			0	18	185	0		1	dcma							useitem				uber-difficulty	100		1	1																																																																															0
-dcma difficulty 1 -> 2	0			0	18	185	1		1	dcma							useitem				uber-difficulty	100		1	1																																																																															0
-dcma difficulty 2 -> 0	0			0	18	185	2		1	dcma							useitem				uber-difficulty	100		-2	-2																																																																															0
-rtma difficulty 0 -> 1	0			0	18	185	0		1	rtma							useitem				uber-difficulty	100		1	1																																																																															0
-rtma difficulty 1 -> 2	0			0	18	185	1		1	rtma							useitem				uber-difficulty	100		1	1																																																																															0
-rtma difficulty 2 -> 0	0			0	18	185	2		1	rtma							useitem				uber-difficulty	100		-2	-2																																																																															0
+dcma difficulty 0 -> 1	1			0	18	185	0		1	dcma							useitem				uber-difficulty	100		1	1																																																																															0
+dcma difficulty 1 -> 2	1			0	18	185	1		1	dcma							useitem				uber-difficulty	100		1	1																																																																															0
+dcma difficulty 2 -> 0	1			0	18	185	2		1	dcma							useitem				uber-difficulty	100		-2	-2																																																																															0
+rtma difficulty 0 -> 1	1			0	18	185	0		1	rtma							useitem				uber-difficulty	100		1	1																																																																															0
+rtma difficulty 1 -> 2	1			0	18	185	1		1	rtma							useitem				uber-difficulty	100		1	1																																																																															0
+rtma difficulty 2 -> 0	1			0	18	185	2		1	rtma							useitem				uber-difficulty	100		-2	-2																																																																															0
 magic full helm + jewel + rune 02 + perfect diamond -> brilliant helm	1			200					4	"helm,mag,noe"	"jewg,qty=1"	"r02g,qty=1"	"gg4d,qty=1"				"usetype,crf"		50	50	half-freeze			1	1	swing2			5	10	ac%			25	50																																																																					0
 magic full helm + jewel + rune 02 + perfect diamond -> brilliant helm	1			200					4	"helm,mag,eth"	"jewg,qty=1"	"r02g,qty=1"	"gg4d,qty=1"				"usetype,crf"		50	50	half-freeze			1	1	swing2			5	10	ac%			25	50	ethereal	100		1	1																																																																0
 magic chain boots + jewel + rune 18 + perfect diamond -> brilliant boots	1			100					4	"boot,mag,noe"	"jewg,qty=1"	"r18g,qty=1"	"gg4d,qty=1"				"usetype,crf"		50	50	half-freeze			1	1	move2			5	10	ac-miss			100	150																																																																					0
@@ -2249,9 +2249,9 @@ rare blunt + brilliant craft ingredient -> brilliant weapon	1			100					2	"weap,
 3 t3 magic -> new t3 magic	1	4		0					3	"t3me,mag"	"t3me,mag"	"t3me,mag"					"t3me,mag"			100																																																																																				0
 3 t3 rare -> new t3 rare	1	4		0					3	"t3me,rar"	"t3me,rar"	"t3me,rar"					"t3me,rar"			100																																																																																				0
 lucion ingredients	1			100					3	"lucb,qty=1"	"lucc,qty=1"	"lucd,qty=1"					luca																																																																																							0
-luca difficulty 0 -> 1	0			100	18	185	0		1	luca							useitem				uber-difficulty	100		1	1																																																																															0
-luca difficulty 1 -> 2	0			100	18	185	1		1	luca							useitem				uber-difficulty	100		1	1																																																																															0
-luca difficulty 2 -> 0	0			100	18	185	2		1	luca							useitem				uber-difficulty	100		-2	-2																																																																															0
+luca difficulty 0 -> 1	1			100	18	185	0		1	luca							useitem				uber-difficulty	100		1	1																																																																															0
+luca difficulty 1 -> 2	1			100	18	185	1		1	luca							useitem				uber-difficulty	100		1	1																																																																															0
+luca difficulty 2 -> 0	1			100	18	185	2		1	luca							useitem				uber-difficulty	100		-2	-2																																																																															0
 fortify T1 map-- map + fort (unique)	1			100					2	"t5me"	"fort,qty=1"						useitem			100	map-glob-skirmish-mode	100		50	50																																																																															0
 demonic cube + unique staff (reroll stats)	1			100	31				2	"staf,uni"	imrn,qty=1																																							cast2	100		20	20																									cast2	100		20	20																					0
 demonic cube + unique spiked shield (reroll stats)	1			100	31				2	"sshi,uni"	imrn,qty=1																																							thorns	100		14	16																									thorns	100		64	84																					0
