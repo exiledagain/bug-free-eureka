@@ -473,6 +473,27 @@ class PropertyParser {
         }
       },
       {
+        regex: /(\d+)-(\d+) poison damage over (\d+) seconds/i,
+        reviver: match => {
+          const min = this.d2data.itemStatCost().first('Stat', `poisonmindam`)
+          const max = this.d2data.itemStatCost().first('Stat', `poisonmaxdam`)
+          const len = this.d2data.itemStatCost().first('Stat', `poisonlength`)
+          const minValue = Number(match[1])
+          const maxValue = Number(match[2])
+          const lengthValue = Number(match[2]) * 25
+          // text = (min * len + 128) / 256
+          // Math.ceil((256 * text - 128) / len) = min
+          const encodedMinValue = Math.ceil((256 * minValue - 128) / lengthValue)
+          const encodedMaxValue = Math.ceil((256 * maxValue - 128) / lengthValue)
+          const res = [
+            new ItemProperty({ id: min.ID, value: encodedMinValue }),
+            new ItemProperty({ id: max.ID, value: encodedMaxValue }),
+            new ItemProperty({ id: len.ID, value: lengthValue })
+          ]
+          return res
+        }
+      },
+      {
         regex: /\+(.+?) to Life \(Based on Character Level\)$/i,
         reviver: match => {
           const stat = this.d2data.itemStatCost().first('Stat', 'item_hp_perlevel')
