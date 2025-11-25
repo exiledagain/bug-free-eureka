@@ -747,7 +747,7 @@ Frigid	744	100	1	1	28		28				3	201	extra-cold		2	3											mcha														0
 Wildfire	745	100	1	1	28		28				3	201	extra-fire		2	3											mcha														0
 Malicious	746	100	1	1	28		28				3	201	extra-pois		2	3											mcha														0
 Effervescent	747	100	1	1	28		28				3	201	extra-magi		2	3											mcha														0
-Conduit	748	100	1	1	42		42				88	201	extra-ltng		3	3											mcha														0
+Conduit	748	100	1	1	42		42				3	201	extra-ltng		3	3											mcha														0
 Numbing	749	100	1	1	42		42				2	201	extra-cold		3	3											mcha														0
 Inferno	750	100	1	1	42		42				2	201	extra-fire		3	3											mcha														0
 Infectious	751	100	1	1	42		42				2	201	extra-pois		3	3											mcha														0

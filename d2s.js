@@ -1,5 +1,9 @@
 'use strict'
 
+BigInt.prototype.toJSON = function () {
+  return `0x${this.toString(16)}`
+}
+
 class BitReader {
   constructor (bytes) {
     this.bytes = bytes
@@ -549,9 +553,6 @@ class SaveFileParser {
       const item = this.item()
       item.id = i
       res.list.push(item)
-      BigInt.prototype.toJSON = function () {
-        return `0x${this.toString(16)}`
-      }
     }
     return res
   }
@@ -605,12 +606,7 @@ class SaveFileParser {
 
   json () {
     this.read()
-    const prev = BigInt.prototype.toJSON
-    BigInt.prototype.toJSON = function () {
-      return `0x${this.toString(16)}`
-    }
     const res = JSON.stringify(this.data, null, 2)
-    BigInt.prototype.toJSON = prev
     return res
   }
 }
@@ -695,13 +691,7 @@ class SaveFileWriter {
     }
   }
 
-  constructor ({ typeList, costs, addSaveAdd = false }) {
-    this.typeList = typeList
-    this.costs = costs
-    this.addSaveAdd = addSaveAdd
-  }
-
-  checksum (bytes) {
+  static checksum (bytes) {
     let res = 0
     for (let i = 0; i < bytes.length; ++i) {
       let data = i >= 12 && i <= 15 ? 0 : bytes[i]
@@ -711,6 +701,12 @@ class SaveFileWriter {
       res = (res << 1) + data
     }
     return BigInt(res)
+  }
+
+  constructor ({ typeList, costs, addSaveAdd = false }) {
+    this.typeList = typeList
+    this.costs = costs
+    this.addSaveAdd = addSaveAdd
   }
 
   write (object) {
@@ -757,7 +753,7 @@ class SaveFileWriter {
     this.writeMercenaryItems(object.mercenaryItems, object.mercenary.id)
     writer.seek(8)
     writer.write(writer.bytes.length, 32)
-    writer.write(this.checksum(writer.bytes), 32)
+    writer.write(SaveFileWriter.checksum(writer.bytes), 32)
     delete this.writer
     return writer.bytes
   }

@@ -4,6 +4,7 @@
 node_modules
 /*.txt
 *.log
+*.stash
 
 /dump
 
