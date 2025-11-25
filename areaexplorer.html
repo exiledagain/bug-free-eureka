@@ -91,8 +91,8 @@
             }))
             const hps = Object.fromEntries(AreaView.health[difficulty].map((hp, idx) => {
               const key = `${hp}${AreaView.difficulty[difficulty]}`
-              const ratio = entry.noRatio === '1' ? 1 : (monLvl[`L-HP${AreaView.difficulty[difficulty]}`] / 100)
-              const health = entry[key] * ratio * (1 + (players - 1) * 0.7)
+              const ratio = entry.noRatio === '1' ? 1 : (monLvl[`L-HP${AreaView.difficulty[difficulty]}`])
+              const health = (entry[key] * ratio * (1 + (players - 1) * 0.7)) / 100
               return [hp.substring(0, 1).toUpperCase() + hp.substring(1), ~~health]
             }))
             const xps = Object.fromEntries(['Exp'].map((xp, idx) => {
