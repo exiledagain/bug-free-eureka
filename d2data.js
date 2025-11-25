@@ -710,6 +710,8 @@ class MonsterSourcer {
     'LucionSpawnRanged': { area: 'Lucion Arena' },
     'LucionSpawnTank': { area: 'Lucion Arena' },
     'Lucion': { area: 'Lucion Arena' },
+    'CityofUrehBoss': { area: 'Nemyr Monastery Map' },
+    'CityofUrehMiniBoss': { area: 'Ureh City Map' }
   }
   static staticSuperMonsters = {
     'Bishibosh': { area: 'Act 1 - Wilderness 2' },
