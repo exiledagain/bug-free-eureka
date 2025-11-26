@@ -2491,6 +2491,7 @@ class PropertiesConverter {
         }
       }
     }
+    res.sort((a, b) => a.id - b.id)
     return res
   }
 }
