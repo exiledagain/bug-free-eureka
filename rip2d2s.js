@@ -171,6 +171,19 @@ class PropertyParser {
         }
       },
       {
+        regex: /Heal Stamina Plus (.+)% \(Based on Character Level\)/i,
+        reviver: match => {
+          const deadlyPerLevel = this.d2data.itemStatCost().first('Stat', 'item_regenstamina_perlevel')
+          const value = ~~(Number(match[1]) * (1 << Number(deadlyPerLevel['op param'])))
+          if (value <= 0) {
+            throw new Error('deadly/lvl should be positive')
+          }
+          return [
+            new ItemProperty({ id: deadlyPerLevel.ID, value })
+          ]
+        }
+      },
+      {
         regex: /Reanimate as: (.+?)$/i,
         reviver: match => {
           const reanimate = this.d2data.itemStatCost().first('Stat', 'item_reanimate')
