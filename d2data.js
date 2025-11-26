@@ -2250,6 +2250,251 @@ class GambleInventory {
   }
 }
 
+class ItemProperty {
+  constructor ({ id, value, param }) {
+    this.id = Number(id)
+    if (!Number.isFinite(this.id)) {
+      throw new Error(`bad item prop id=${id}`)
+    }
+    this.value = Number(value)
+    if (!Number.isFinite(this.value)) {
+      throw new Error(`bad item value id=${id} value=${value}`)
+    }
+    this.param = Number(param)
+    if (!Number.isFinite(this.param)) {
+      this.param = null
+    }
+  }
+}
+
+class PropertiesConverter {
+  constructor ({ d2data }) {
+    this.d2data = d2data
+    this.properties = this.d2data.properties()
+    this.itemStatCost = this.d2data.itemStatCost()
+    this.skills = this.d2data.skills()
+  }
+
+  convert ({ propCode, min, max, param }) {
+    const entry = this.properties.first('code', propCode)
+    const res = []
+    for (let i = 1; i <= 7; ++i) {
+      const stat = entry[`stat${i}`]
+      const func = Number(entry[`func${i}`])
+      const val = entry[`val${i}`]
+
+      const statEntry = this.itemStatCost.first('Stat', stat)
+
+      switch (func) {
+        case 1:
+        case 2:
+        // for rates, doesn't appear to be adjust
+        case 8:
+        // sockets but we don't care about checking
+        case 14: {
+          const paramBits = Number(statEntry['Save Param Bits'])
+          let param = undefined
+          if (paramBits > 0) {
+            param = 0
+          }
+          res.push(new ItemProperty({
+            id: statEntry.ID,
+            // could be random
+            value: min,
+            param
+          }))
+          break
+        }
+        // min damage only
+        case 5: {
+          const list = [
+            'mindamage',
+            'secondary_mindamage',
+            'item_throw_mindamage'
+          ]
+          res.push(...list.map(statCode => {
+            const stat = this.itemStatCost.first('Stat', statCode)
+            return new ItemProperty({
+              id: stat.ID,
+              // could be random
+              value: min
+            })
+          }))
+          break
+        }
+        // max damage only
+        case 6: {
+          const list = [
+            'maxdamage',
+            'secondary_maxdamage',
+            'item_throw_maxdamage'
+          ]
+          res.push(...list.map(statCode => {
+            const stat = this.itemStatCost.first('Stat', statCode)
+            return new ItemProperty({
+              id: stat.ID,
+              // could be random
+              value: min
+            })
+          }))
+          break
+        }
+        // enhanced damage only
+        case 7: {
+          const list = [
+            'item_mindamage_percent',
+            'item_maxdamage_percent'
+          ]
+          res.push(...list.map(statCode => {
+            const stat = this.itemStatCost.first('Stat', statCode)
+            return new ItemProperty({
+              id: stat.ID,
+              // could be random
+              value: min
+            })
+          }))
+          break
+        }
+        // skilltab only
+        case 10: {
+          res.push(new ItemProperty({
+            id: stat.ID,
+            // could be random
+            value: min,
+            param
+          }))
+          break
+        }
+        // skill on { kill, death, ... }, splash
+        case 11: {
+          let index = Number(param)
+          if (!Number.isFinite(index)) {
+            const skillEntry = this.skills.first('skill', param)
+            index = skillEntry.Id
+          }
+          res.push(new ItemProperty({
+            id: stat.ID,
+            // could be random
+            value: max,
+            param: (index << 6) | (min & 0x3F)
+          }))
+          break
+        }
+        // skill-rand only
+        case 12: {
+          res.push(new ItemProperty({
+            id: stat.ID,
+            value: param,
+            // could be random
+            param: min
+          }))
+          break
+        }
+        case 15: {
+          res.push(new ItemProperty({
+            id: statEntry.ID,
+            // could be random
+            value: min
+          }))
+          break
+        }
+        case 16: {
+          res.push(new ItemProperty({
+            id: statEntry.ID,
+            // could be random
+            value: min
+          }))
+          break
+        }
+        case 17: {
+          res.push(new ItemProperty({
+            id: statEntry.ID,
+            // could be random
+            value: min
+          }))
+          break
+        }
+        case 19: {
+          let index = Number(param)
+          if (!Number.isFinite(index)) {
+            const skillEntry = this.skills.first('skill', param)
+            index = skillEntry.Id
+          }
+          res.push(new ItemProperty({
+            id: stat.ID,
+            // could be random
+            value: min | (min << 8),
+            param: (index << 6) | (max & 0x3F)
+          }))
+          break
+        }
+        // probably checks for eth/set?
+        case 20: {
+          const list = [
+            'item_indesctructible'
+          ]
+          res.push(...list.map(statCode => {
+            const stat = this.itemStatCost.first('Stat', statCode)
+            return new ItemProperty({
+              id: stat.ID,
+              // could be random
+              value: 1
+            })
+          }))
+          break
+        }
+        case 21: {
+          res.push(new ItemProperty({
+            id: statEntry.ID,
+            // could be random
+            value: min,
+            param: val
+          }))
+          break
+        }
+        // oskill etc
+        case 22: {
+          let index = Number(param)
+          if (!Number.isFinite(index)) {
+            const skillEntry = this.skills.first('skill', param)
+            index = skillEntry.Id
+          }
+          res.push(new ItemProperty({
+            id: statEntry.ID,
+            // could be random
+            value: min,
+            param: index
+          }))
+          break
+        }
+        // sorc-skill-rand-ctc
+        case 25: {
+          // chain lightning
+          let index = 53
+          res.push(new ItemProperty({
+            id: statEntry.ID,
+            // could be random
+            value: min,
+            param: (index << 6) | (max & 0x3F)
+          }))
+          break
+        }
+        // randclassskill2, randelemskill, etc
+        case 36: {
+          res.push(new ItemProperty({
+            id: statEntry.ID,
+            value: val,
+            // could be random
+            param: min
+          }))
+          break
+        }
+      }
+    }
+    return res
+  }
+}
+
 if (typeof window === 'undefined' && typeof self === 'undefined') {
   module.exports = {
     AffixList,
@@ -2261,5 +2506,7 @@ if (typeof window === 'undefined' && typeof self === 'undefined') {
     StringResolver,
     TreasureTree,
     TypeList,
+    PropertiesConverter,
+    ItemProperty
   }
 }

@@ -2,10 +2,12 @@
 
 const fs = require('fs')
 const { SaveFileWriter, SaveFileParser } = require('./d2s.js')
-const { Diablo2Data } = require('./d2data.js')
+const { Diablo2Data, PropertiesConverter, ItemProperty } = require('./d2data.js')
 const Parser = require('./antlr')
 
 global.SaveFileParser = SaveFileParser
+global.PropertiesConverter = PropertiesConverter
+global.ItemProperty = ItemProperty
 
 const { Rejuvenator } = require('./rip2d2s.js')
 
