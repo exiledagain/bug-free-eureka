@@ -62,9 +62,9 @@
           ['MinHP', 'MaxHP']
         ]
         static rarityHpMod = [
-          [1, 1, 4, 1, 1, 2],
-          [1, 1, 3, 1, 1, 1.75]
-          [1, 1, 2, 1, 1, 1.5]
+          [1, 3, 4, 1, 1, 2],
+          [1, 2.5, 3, 1, 1, 1.75],
+          [1, 2, 2, 1, 1, 1.5]
         ]
 
         constructor ({ strings, sourcer, values, monsterLevel, extended }) {
@@ -97,7 +97,7 @@
             const hps = Object.fromEntries(AreaView.health[difficulty].map((hp, idx) => {
               const key = `${hp}${AreaView.difficulty[difficulty]}`
               const ratio = entry.noRatio === '1' ? 1 : (monLvl[`L-HP${AreaView.difficulty[difficulty]}`])
-              const typeMod = 1
+              const typeMod = entry.boss === '1' ? 1 : AreaView.rarityHpMod[this.values.difficulty][monster.rarity]
               const health = (entry[key] * ratio * (1 + (players - 1) * 0.7) * typeMod) / 100
               return [hp.substring(0, 1).toUpperCase() + hp.substring(1), ~~health]
             }))
