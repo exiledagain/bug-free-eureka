@@ -97,7 +97,7 @@
             const hps = Object.fromEntries(AreaView.health[difficulty].map((hp, idx) => {
               const key = `${hp}${AreaView.difficulty[difficulty]}`
               const ratio = entry.noRatio === '1' ? 1 : (monLvl[`L-HP${AreaView.difficulty[difficulty]}`])
-              const typeMod = monster.rarity === 2 ? 2 : monster.rarity === 5 ? 1.5 : 1
+              const typeMod = 1
               const health = (entry[key] * ratio * (1 + (players - 1) * 0.7) * typeMod) / 100
               return [hp.substring(0, 1).toUpperCase() + hp.substring(1), ~~health]
             }))
