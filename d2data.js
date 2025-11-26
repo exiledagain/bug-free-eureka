@@ -833,7 +833,7 @@ class MonsterSourcer {
       }
       for (let difficulty = 0; difficulty < 3; ++difficulty) {
         const from = MonsterSourcer.staticSuperMonsters[superUnique.Superunique] ? MonsterSourcer.staticSuperMonsters[superUnique.Superunique].area : 'superunique (beta)'
-        res.push(this.fromSuper(from, difficulty, superUnique))
+        res.push(...this.fromSuper(from, difficulty, superUnique))
       }
     })
     return res.flat(Infinity)
@@ -845,7 +845,8 @@ class MonsterSourcer {
     }
     const monster = this.inverseMonsterMap.get(superUnique.Class)
     const level = 3 + Number(monster.boss === '1' ? monster[MonsterSourcer.monBossLevelKeys[difficulty]] : this.inferLevel(superUnique.Superunique, difficulty))
-    return {
+    const res = []
+    res.push({
       id: monster.Id,
       rarity: 2,
       difficulty,
@@ -855,7 +856,21 @@ class MonsterSourcer {
       from,
       string: superUnique['Name'],
       special: true,
+    })
+    if (superUnique.MinGrp > 0 && superUnique.MaxGrp <= superUnique.MinGrp) {
+      res.push({
+        id: monster.Id,
+        rarity: 5,
+        difficulty,
+        level,
+        treasure: monster[MonsterSourcer.monTreasureKeys[difficulty]],
+        xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
+        from,
+        string: monster['NameStr'],
+        special: true,
+      })
     }
+    return res
   }
 
   inferLevel (id, difficulty) {
@@ -930,8 +945,7 @@ class MonsterSourcer {
     if (MonsterSourcer.staticSuperMonsterMap.has(level.Name)) {
       MonsterSourcer.staticSuperMonsterMap.get(level.Name).forEach(monster => {
         for (let difficulty = 0; difficulty < 3; ++difficulty) {
-          res.push(this.fromSuper(level.Name, difficulty, this.superData.first('Superunique', monster)))
-          res.at(-1).special = true
+          res.push(...this.fromSuper(level.Name, difficulty, this.superData.first('Superunique', monster)))
         }
       })
     }
