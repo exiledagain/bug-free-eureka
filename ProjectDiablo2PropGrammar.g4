@@ -268,7 +268,7 @@ item_skillonpierce: percentage 'chance' 'to' 'cast' 'level' percentage any_skill
 // desecrated 3 0 StrDesecrated StrDesecrated 
 desecrated: 'desecrated';
 // joustreduction_zeraes 3 0 JoustreductionZeraes JoustreductionZeraes 
-joustreduction_zeraes: 'joust\'s' 'cooldown' 'is' 'reduced' 'by' '1.5' 'seconds';
+joustreduction_zeraes: 'joust' 'cooldown' 'reduced' 'by' '1.5' 'seconds';
 // item_maxdeadlystrike 4 2 StrMaxDeadlyStrike StrMaxDeadlyStrike 
 item_maxdeadlystrike: 'maximum' 'deadly' 'strike' percentage;
 // map_glob_boss_dropubermats 3 0 MapBossUberMats MapBossUberMats 
@@ -362,7 +362,7 @@ extra_cold_arrows: 'cold' 'arrow' 'fires' percentage 'additional' 'arrows';
 // item_shiny_appearance 19  StrAnniversaryEdition StrAnniversaryEdition 
 item_shiny_appearance: percentage 'th' 'anniversary' 'edition';
 // joustreduction_leorics 3 0 joustreductionleorics joustreductionleorics 
-joustreduction_leorics: 'joust\'s' 'cooldown' 'is' 'reduced' 'by' '0.75' 'seconds';
+joustreduction_leorics: 'joust' 'cooldown' 'reduced' 'by' '0.75' 'seconds';
 // map_glob_dropsocketed 19 0 MapGlobDropSockets MapGlobDropSockets 
 map_glob_dropsocketed: 'monsters' 'have' percentage '%%' 'chance' 'to' 'drop' 'socketed' 'itemsmap' 'boss' 'drops' 'a' 'socketed' 'unique';
 // item_pierce_cold 20 1 Moditemenrescoldsk Moditemenrescoldsk 
@@ -590,7 +590,7 @@ heroic: 'heroic';
 // extra_spirits 9 2 StrExtraRevives StrExtraRevives StrExtraSpirits
 extra_spirits: 'you' 'may' 'summon' percentage 'additional' 'spirit';
 // gustreduction 3 0 GustReduction GustReduction 
-gustreduction: 'gust\'s' 'cooldown' 'is' 'reduced' 'by' exact_integer 'seconds';
+gustreduction: 'gust' 'cooldown' 'reduced' 'by' exact_integer 'seconds';
 // extra_skele_war 9 2 YouMaySummon YouMaySummon ExtraSkeleWar
 extra_skele_war: 'you' 'may' 'summon' percentage 'additional' 'skeleton' 'warriors';
 // extra_skele_mage 9 2 YouMaySummon YouMaySummon ExtraSkeleMage
@@ -600,7 +600,7 @@ extra_hydra: 'you' 'may' 'summon' percentage 'additional' 'hydra';
 // extra_valk 9 2 YouMaySummon YouMaySummon ExtraValk
 extra_valk: 'you' 'may' 'summon' percentage 'additional' 'valkyrie';
 // joustreduction 3 0 joustreduction joustreduction 
-joustreduction: 'joust\'s' 'cooldown' 'is' 'reduced' 'by' '0.5' 'seconds';
+joustreduction: 'joust' 'cooldown' 'reduced' 'by' '0.5' 'seconds';
 // grims_extra_skele_mage 3 0 ExtraSkeleMageGrim ExtraSkeleMageGrim 
 grims_extra_skele_mage: 'you' 'may' 'summon' exact_integer 'additional' 'skeleton' 'mages';
 // map_play_lightradius 9 2 MapPlayHave MapPlayHave StrMapLightRadius
@@ -628,7 +628,7 @@ item_numsockets_textonly: 'socketed' '[1]';
 // rathma_clout 3 0 RathmaClout RathmaClout 
 rathma_clout: 'top' 'three' 'rathma' 'killer' '(' 'class' 'specific' ')';
 // dragonflightreduction 3 0 dragonflightreduction dragonflightreduction 
-dragonflightreduction: 'dragon' 'flight\'s' 'cooldown' 'is' 'reduced' 'by' '0.5' 'seconds';
+dragonflightreduction: 'dragon' 'flight' 'cooldown' 'reduced' 'by' '0.5' 'seconds';
 // item_dmgpercent_pereth 8 1 ModStrEnhancedDamage ModStrEnhancedDamage increaseswithequippedeth
 item_dmgpercent_pereth: percentage 'enhanced' 'damage' '(' 'based' 'on' 'equipped' 'ethereals' ')' 'gains' exact_integer 'enhanced' 'damage' 'per' 'equipped' 'ethereal' 'item';
 // corpseexplosionradius 3 0 corpseexplosionradius corpseexplosionradius 
