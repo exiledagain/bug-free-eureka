@@ -2372,7 +2372,7 @@ class PropertiesConverter {
         // skilltab only
         case 10: {
           res.push(new ItemProperty({
-            id: stat.ID,
+            id: statEntry.ID,
             // could be random
             value: min,
             param
@@ -2387,7 +2387,7 @@ class PropertiesConverter {
             index = skillEntry.Id
           }
           res.push(new ItemProperty({
-            id: stat.ID,
+            id: statEntry.ID,
             // could be random
             value: max,
             param: (index << 6) | (min & 0x3F)
@@ -2397,7 +2397,7 @@ class PropertiesConverter {
         // skill-rand only
         case 12: {
           res.push(new ItemProperty({
-            id: stat.ID,
+            id: statEntry.ID,
             value: param,
             // could be random
             param: min
@@ -2435,7 +2435,7 @@ class PropertiesConverter {
             index = skillEntry.Id
           }
           res.push(new ItemProperty({
-            id: stat.ID,
+            id: statEntry.ID,
             // could be random
             value: min | (min << 8),
             param: (index << 6) | (max & 0x3F)
