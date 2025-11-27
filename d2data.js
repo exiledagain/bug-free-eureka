@@ -1992,7 +1992,8 @@ class Diablo2Data {
     'CharStats.txt',
     'Hireling.txt',
     'Runes.txt',
-    'Properties.txt'
+    'Properties.txt',
+    'MonUMod.txt'
   ]
 
   static defaultVersion = 's12'
@@ -2120,6 +2121,10 @@ class Diablo2Data {
 
   objGroup () {
     return this.loader.get(this.version, 'ObjGroup.txt')
+  }
+
+  monUMod () {
+    return this.loader.get(this.version, 'MonUMod.txt')
   }
 
   async StringResolver () {
