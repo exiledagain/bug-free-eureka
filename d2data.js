@@ -851,11 +851,13 @@ class MonsterSourcer {
       rarity: 2,
       difficulty,
       level,
+      baseLevel: level - 3,
       treasure: superUnique[MonsterSourcer.superTreasureKeys[difficulty]],
       xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
       from,
       string: superUnique['Name'],
-      special: true,
+      superUnique: superUnique.Superunique,
+      special: true
     })
     if (superUnique.MinGrp > 0 && superUnique.MaxGrp <= superUnique.MinGrp) {
       res.push({
@@ -863,11 +865,12 @@ class MonsterSourcer {
         rarity: 5,
         difficulty,
         level,
+        baseLevel: level - 3,
         treasure: monster[MonsterSourcer.monTreasureKeys[difficulty]],
         xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
         from,
         string: monster['NameStr'],
-        special: true,
+        special: true
       })
     }
     return res
@@ -1008,6 +1011,7 @@ class MonsterSourcer {
         rarity: 2,
         difficulty,
         level: monLevel + (this.super(monsterId) ? 3 : 0),
+        baseLevel: monLevel,
         treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][2]],
         xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
         from: level.Name,
@@ -1021,6 +1025,7 @@ class MonsterSourcer {
           rarity: 2,
           difficulty,
           level: monLevel + (this.super(monsterId) ? 3 : 0),
+          baseLevel: monLevel,
           treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][3]],
           xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
           from: level.Name,
@@ -1037,6 +1042,7 @@ class MonsterSourcer {
             rarity: j,
             difficulty,
             level: monLevel + levelTable[j < 3 ? j : 2],
+            baseLevel: monLevel,
             treasure,
             xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
             from: level.Name,
@@ -1049,6 +1055,7 @@ class MonsterSourcer {
               rarity: 5,
               difficulty,
               level: monLevel + 3,
+              baseLevel: monLevel,
               treasure: monster[MonsterSourcer.monTreasureKeys[difficulty][0]],
               xp: Number(monster[MonsterSourcer.monExpKeys[difficulty]]),
               from: level.Name,

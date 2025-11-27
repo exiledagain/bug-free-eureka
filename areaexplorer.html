@@ -87,7 +87,7 @@
               return list
             }
             const entry = this.monsters.first('Id', monster.id)
-            const monLvl = this.monsterLevel.first('Level', Math.min(110, monster.level).toString())
+            const monLvl = this.monsterLevel.first('Level', Math.min(110, monster.baseLevel).toString())
             const Name = this.strings.readable(monster.string)
             const Level = monster.level
             const reses = Object.fromEntries(AreaView.resistanceNames.map((res, idx) => {
