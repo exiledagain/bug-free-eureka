@@ -43,6 +43,7 @@
         }
 
         download () {
+          let url = undefined
           try {
             const typeList = this.typeList
             const costs = this.costs
@@ -53,7 +54,7 @@
             const data = new SaveFileWriter({ typeList, costs, addSaveAdd: true }).write(rejuv.object())
             const saveFileName = `${rejuv.name}.d2s`
             const blob = new Blob([new Uint8Array(data)], { type: 'application/octet-stream' })
-            const url = URL.createObjectURL(blob)
+            url = URL.createObjectURL(blob)
             const a = document.createElement('a')
             a.href = url
             a.download = saveFileName
@@ -63,7 +64,9 @@
             URL.revokeObjectURL(url)
             this.errorEl.textContent = ''
           } catch (e) {
-            URL.revokeObjectURL(url)
+            if (url) {
+              URL.revokeObjectURL(url)
+            }
             this.errorEl.textContent = e
             throw e
           }
