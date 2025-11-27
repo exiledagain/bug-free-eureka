@@ -1072,10 +1072,6 @@ class MonsterSourcer {
   deduplicate (monsters) {
     const cmp = (a, b) => {
       let c
-      c = a.difficulty - b.difficulty
-      if (c) {
-        return c
-      }
       c = a.id.localeCompare(b.id)
       if (c) {
         return c
@@ -1088,12 +1084,17 @@ class MonsterSourcer {
       if (c) {
         return c
       }
+      c = a.difficulty - b.difficulty
+      if (c) {
+        return c
+      }
+      c = a.from.localeCompare(b.from)
+      if (c) {
+        return c
+      }
       c = a.special !== b.special
       if (c) {
         return a.special ? 1 : -1
-      }
-      if (a.special) {
-        return -1
       }
       c = a.treasure.localeCompare(b.treasure)
       if (c) {
@@ -1101,12 +1102,20 @@ class MonsterSourcer {
       }
       return 0
     }
+    const eq = (a, b) => {
+      for (const k in a) {
+        if (a[k] !== b[k]) {
+          return false
+        }
+      }
+      return true
+    }
     monsters.sort(cmp)
     const res = []
     for (const monster of monsters) {
       if (res.length === 0) {
         res.push(monster)
-      } else if (cmp(monster, res.at(-1))) {
+      } else if (!eq(monster, res.at(-1))) {
         res.push(monster)
       }
     }
