@@ -838,16 +838,16 @@ of the Lamprey	835	100	1		55		43				7	27	lifesteal		6	9									1	cred	misl					
 of the Vampire	836	100	1		56		48				7	28	manasteal		6	9									1	cred	misl														0
 of the Jeweler	837				1		1				5	318	map-mon-dropjewelry		1	2											t1m	t2m													0
 of the Jeweler	838				1		1				5	318	map-mon-dropjewelry		2	3											t2m	t3m													0
-of the Jeweler	839				1		1				5	318	map-mon-dropjewelry		4	5											t3m														0
-of the Smith	840	1	1	1	1		1				9	318	map-mon-dropweapons		2	3											t1m	t2m													0
+of the Jeweler	839				1		1				5	318	map-mon-dropjewelry		3	4											t3m														0
+of the Smith	840	1	1	1	1		1				9	318	map-mon-dropweapons		3	4											t1m	t2m													0
 of the Smith	841	1	1	1	1		1				9	318	map-mon-dropweapons		4	5											t2m	t3m													0
-of the Smith	842	1	1	1	1		1				9	318	map-mon-dropweapons		6	7											t3m														0
+of the Smith	842	1	1	1	1		1				9	318	map-mon-dropweapons		5	6											t3m														0
 of the Armorer	843	1	1	1	1		1				9	318	map-mon-droparmor		2	3											t1m	t2m													0
 of the Armorer	844	1	1	1	1		1				9	318	map-mon-droparmor		4	5											t2m	t3m													0
 of the Armorer	845	1	1	1	1		1				9	318	map-mon-droparmor		6	7											t3m														0
 of the Crafter	846	1	1	1	1		1				5	318	map-mon-dropcrafting		2	3											t1m	t2m													0
-of the Crafter	847	1	1	1	1		1				5	318	map-mon-dropcrafting		4	5											t2m	t3m													0
-of the Crafter	848	1	1	1	1		1				5	318	map-mon-dropcrafting		6	7											t3m														0
+of the Crafter	847	1	1	1	1		1				5	318	map-mon-dropcrafting		3	4											t2m	t3m													0
+of the Crafter	848	1	1	1	1		1				5	318	map-mon-dropcrafting		4	5											t3m														0
 of the Adventurer	849			1	1		1					320	map-glob-arealevel		1	1											t1m	t2m	t3m	t4m											0
 of Radiance	850	1	1	1	15	55	11				1	25	light		3	3	att		30	60							rod	miss	helm	tors	misl			wand	staf						0
 of the Fox	851	1	1	1	17		13				3	26	hp		6	10											ring														0
@@ -968,15 +968,15 @@ of Disintegration	965	1	1		1		1				18	165	map-play-ac%		-75	-60	map-glob-density
 of Fumbling	966	1	1		1		1				18	314	map-play-block		-30	-15	map-glob-density		26	36	map-play-mag-gold%		30	40			t1m	t2m													0
 of Bumbling	967	1	1		1		1				18	314	map-play-block		-45	-30	map-glob-density		36	46	map-play-mag-gold%		60	70			t2m	t3m													0
 of Blundering	968	1	1		1		1				18	314	map-play-block		-60	-45	map-glob-density		46	50	map-play-mag-gold%		80	100			t3m	t4m													0
-of the Smith	969	1			1		1					318	map-mon-dropweapons		2	2											t1m	t2m													0
-of the Smith	970	1			1		1					318	map-mon-dropweapons		4	4											t2m	t3m													0
-of the Smith	971	1			1		1					318	map-mon-dropweapons		6	6											t3m														0
-of the Armorer	972	1			1		1					318	map-mon-droparmor		2	2											t1m	t2m													0
-of the Armorer	973	1			1		1					318	map-mon-droparmor		4	4											t2m	t3m													0
-of the Armorer	974	1			1		1					318	map-mon-droparmor		6	6											t3m														0
-of the Crafter	975	1			1		1					318	map-mon-dropcrafting		2	2											t1m	t2m													0
-of the Crafter	976	1			1		1					318	map-mon-dropcrafting		4	4											t2m	t3m													0
-of the Crafter	977	1			1		1					318	map-mon-dropcrafting		6	6											t3m														0
+of the Smith	969	1	1		1		1				18	318	map-mon-dropweapons		4	5											t1m	t2m													0
+of the Smith	970	1	1		1		1				18	318	map-mon-dropweapons		6	7											t2m	t3m													0
+of the Smith	971	1	1		1		1				18	318	map-mon-dropweapons		8	10											t3m														0
+of the Armorer	972	1	1		1		1				18	318	map-mon-droparmor		4	5											t1m	t2m													0
+of the Armorer	973	1	1		1		1				18	318	map-mon-droparmor		6	7											t2m	t3m													0
+of the Armorer	974	1	1		1		1				18	318	map-mon-droparmor		8	10											t3m														0
+of the Crafter	975	1	1		1		1				18	318	map-mon-dropcrafting		3	4											t1m	t2m													0
+of the Crafter	976	1	1		1		1				18	318	map-mon-dropcrafting		4	5											t2m	t3m													0
+of the Crafter	977	1	1		1		1				18	318	map-mon-dropcrafting		6	7											t3m														0
 of the Archmage	978	1	1	1	49		41				2	9	cast3		30	30											rod	orb	club					staf							0
 of Life Everlasting	979	100	1	1	45		37				4	1	red-dmg		10	25											shld	tors													0
 of Fortification	980	100	1		61		53				3	2	red-mag		12	16											tors	shld													0
@@ -1017,3 +1017,6 @@ of the Apprentice	1014	1	1	1	5	36	3				6	9	cast1		10	10											rod	orb	circ	c
 of Pacing	1015	1	1	1	12		8				3	35	move1		10	10											circ														0
 of Haste	1016	1	1	1	22		16				4	35	move2		20	20											circ														0
 of Speed	1017	1	1	1	37		29				4	35	move3		30	30											circ														0
+of the Jeweler	1018				1		1				5	318	map-mon-dropjewelry		2	3											t1m	t2m													0
+of the Jeweler	1019				1		1				5	318	map-mon-dropjewelry		4	5											t2m	t3m													0
+of the Jeweler	1020				1		1				5	318	map-mon-dropjewelry		6	7											t3m														0
