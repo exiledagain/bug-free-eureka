@@ -975,7 +975,8 @@ class Rejuvenator {
 
   getItem (json, isSocketed = false) {
     const rejuv = new ItemRejuvenated({ raw: json, propertyParser: this.propertyParser, typeList: this.typeList, nameToItemEntry: this.nameToItemEntry })
-    return this.getItemEncoded(rejuv, isSocketed)
+    const res = this.getItemEncoded(rejuv, isSocketed)
+    return res
   }
 
   getItemEncoded (rejuv, isSocketed) {
