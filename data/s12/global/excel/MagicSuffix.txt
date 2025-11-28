@@ -240,9 +240,9 @@ of Anthrax	237	100	1	1	33		25				2	16	dmg-pois	150	171	171									1	dgrn	weap	m
 of Blight	238	100	1	1	45	85	33				2	16	dmg-pois	75	171	171											ring	amul													0
 of Envy	239	100	1	1	1		1				2	16	dmg-pois	50	103	103									1	dgrn	jewl														0
 of Dexterity	240	1	1	1	1	41	1				4	17	dex		1	2											amul	miss	circ	helm											0
-of Skill	241	1	1	1	11	51	8				3	17	dex		3	5											amul	miss	circ	misl	helm										0
-of Accuracy	242	1	1	1	27		20				3	17	dex		6	9											amul	miss	circ	misl	helm										0
-of Precision	243	1	1	1	43		35				3	17	dex		10	15											amul	miss	circ	misl	helm										0
+of Skill	241	1	1	1	11	51	8				3	17	dex		3	5											amul	miss	circ	misl	helm	orb	wand								0
+of Accuracy	242	1	1	1	27		20				3	17	dex		6	9											amul	miss	circ	misl	helm	orb	wand								0
+of Precision	243	1	1	1	43		35				3	17	dex		10	15											amul	miss	circ	misl	helm	orb	wand								0
 of Perfection	244	1	1	1	59		51				3	17	dex		16	20									1	dgld	amul	miss	circ	tors	shld	helm									0
 of Nirvana	245	100	1	1	72		64				3	17	dex		21	30									1	dgld	amul	miss	circ	helm	shld	tors									0
 of Dexterity	246	1	1	1	6	46	4				4	17	dex		1	2											ring	glov													0
@@ -377,9 +377,9 @@ of the Ox	374	1	1	1	26		19				3	31	str		6	9											amul	belt	club	hamm	circ	m
 of the Giant	375	1	1	1	42		34				3	31	str		10	15											amul	belt	club	hamm	circ	misl	helm								0
 of the Titan	376	1	1	1	58		50				3	31	str		16	20									1	dgld	amul	belt	club	hamm	circ	helm									0
 of Atlus	377	100	1	1	71		63				3	31	str		21	30									1	dgld	amul	belt	club	hamm	circ	helm	shld								0
-of Strength	378	1	1	1	5	45	3				4	31	str		1	2											ring	scep	mace												0
-of Might	379	1	1	1	21	61	15				3	31	str		3	5											tors	scep	mace												0
-of the Ox	380	1	1	1	38		30				3	31	str		6	9											ring	scep	mace	tors											0
+of Strength	378	1	1	1	5	45	3				4	31	str		1	2											ring	scep	mace	staf	wand	orb									0
+of Might	379	1	1	1	21	61	15				3	31	str		3	5											tors	scep	mace	staf	wand	orb									0
+of the Ox	380	1	1	1	38		30				3	31	str		6	9											ring	scep	mace	tors	staf	wand	orb								0
 of the Giant	381	1	1	1	55		47				3	31	str		10	15											ring	scep	mace	tors	shld										0
 of the Titan	382	100	1	1	74		66				3	31	str		16	20									1	dgld	ring	scep	mace	tors	shld										0
 of Strength	383	1	1	1	12	52	8				3	31	str		1	2											mele	glov	shld	tors				blun							0
@@ -796,10 +796,10 @@ of Disintegration	793	1	1	1	1		1				4	165	map-play-ac%		-50	-40	map-glob-density
 of Fumbling	794	1	1	1	1		1				4	314	map-play-block		-20	-10	map-glob-density		13	18	map-play-mag-gold%		15	20			t1m	t2m													0
 of Bumbling	795	1	1	1	1		1				4	314	map-play-block		-30	-20	map-glob-density		18	23	map-play-mag-gold%		30	35			t2m	t3m													0
 of Blundering	796	1	1	1	1		1				4	314	map-play-block		-40	-30	map-glob-density		23	25	map-play-mag-gold%		40	50			t3m	t4m													0
-of Defending	797	100	1	1	45		20				3	251	red-dmg%		5	10											tors	shld													20000
-of Defending	798	100	1	1	65		40				2	251	red-dmg%		5	10											belt														20000
-of Protecting	799	100	1	1	65		40				2	251	red-dmg%		10	15											tors	shld													35000
-of Guardianship	800	100	1	1	85		60				1	251	red-dmg%		15	20											tors	shld													65000
+of Defending	797	100	1	1	45		20				3	251	red-dmg%		5	10											tors	shld													5000
+of Defending	798	100	1	1	65		40				2	251	red-dmg%		5	10											belt														10000
+of Protecting	799	100	1	1	65		40				2	251	red-dmg%		10	15											tors	shld													15000
+of Guardianship	800	100	1	1	85		60				1	251	red-dmg%		15	20											tors	shld													20000
 of Savagery	801	100	1	1	18	58	15				2	252	deadly		5	10											weap	misl						staf	wand	orb					0
 of Devastation	802	100	1	1	28	68	25				2	252	deadly		10	15											weap	misl						staf	wand	orb					0
 of Havoc	803	100	1	1	38		35				2	252	deadly		15	20											weap	misl						staf	wand	orb					0
@@ -815,9 +815,9 @@ of Crumbling	812	100	1	1	28	68	25				2	252	crush		10	15											weap	misl					
 of Breaking	813	100	1	1	38		35				2	252	crush		15	20											weap	misl						staf	wand	orb					0
 of Crushing	814	100	1	1	48		45				2	252	crush		20	25											weap	misl						staf	wand	orb					0
 of Pulverizing	815	100	1	1	58		55				2	252	crush		25	30											weap	misl						staf	wand	orb					0
-of the Apprentice	816	1	1	1	17		20				4	9	cast1		10	10											tors	shld	ashd												10000
-of the Apprentice	817	1	1	1	25		29				4	9	cast1		10	10											glov	belt													35000
-of the Magus	818	1	1	1	25		29				2	9	cast3		20	20											tors	shld	ashd												65000
+of the Apprentice	816	1	1	1	17		20				4	9	cast1		10	10											tors	shld	ashd	circ											5000
+of the Apprentice	817	1	1	1	25		29				4	9	cast1		10	10											glov	belt													10000
+of the Magus	818	1	1	1	25		29				2	9	cast3		20	20											tors	shld	ashd												20000
 of the Squid	819	100	1	1	40		30				3	26	hp		61	80									1	cred	tors	belt	phlm	circ	shld										0
 of the Whale	820	100	1	1	50		37				3	26	hp		81	100									1	cred	tors	belt	phlm	circ	shld										0
 of the Kraken	821	100	1	1	20		1				1	41	hp/lvl	6											1	cred	tors	pelt	phlm	shld											0
@@ -989,34 +989,46 @@ of Sorcery	986	1	1	1	21		16				3	23	enr		11	15											tors	shld													0
 of Wizardry	987	1	1	1	31		23				3	23	enr		16	20									1	dgld	shld														0
 of Enlightenment	988	100	1	1	41		33				3	23	enr		21	30									1	dgld	shld														0
 of Balance	989	1	1	1	5		3				4	18	balance1		10	10											boot														0
-of Overcharge	990	100	1	1	14		14				6	319	extra-ltng		2	6											orb														0
-of Conductivity	991	100	1	1	30		28				6	319	extra-ltng		6	12											orb														0
-of the Maelstrom	992	100	1	1	52		47				6	319	extra-ltng		12	20											orb														0
-of Icewind	993	100	1	1	14		14				6	319	extra-cold		2	6											orb														0
-of Deepfreeze	994	100	1	1	30		28				6	319	extra-cold		6	12											orb														0
-of Hoarfrost	995	100	1	1	52		47				6	319	extra-cold		12	20											orb														0
-of Ashes	996	100	1	1	14		14				6	319	extra-fire		2	6											orb	wand													0
-of Searing	997	100	1	1	30		28				6	319	extra-fire		6	12											orb	wand													0
-of Hellfire	998	100	1	1	52		47				6	319	extra-fire		12	20											orb	wand													0
-of Overcharge	999	100	1	1	14		14				6	319	extra-ltng		6	12											staf														0
-of Conductivity	1000	100	1	1	30		28				6	319	extra-ltng		12	20											staf														0
-of the Maelstrom	1001	100	1	1	52		47				6	319	extra-ltng		20	30											staf														0
-of Icewind	1002	100	1	1	14		14				6	319	extra-cold		6	12											staf														0
-of Deepfreeze	1003	100	1	1	30		28				6	319	extra-cold		12	20											staf														0
-of Hoarfrost	1004	100	1	1	52		47				6	319	extra-cold		20	30											staf														0
-of Ashes	1005	100	1	1	14		14				6	319	extra-fire		6	12											staf														0
-of Searing	1006	100	1	1	30		28				6	319	extra-fire		12	20											staf														0
-of Hellfire	1007	100	1	1	52		47				6	319	extra-fire		20	30											staf														0
-of Disease	1008	100	1	1	14		14				6	319	extra-pois		2	6											wand														0
-of Contagion	1009	100	1	1	30		28				6	319	extra-pois		6	12											wand														0
-of Pox	1010	100	1	1	52		47				6	319	extra-pois		12	20											wand														0
-of the Oracle	1011	100	1	1	14		14				6	319	extra-magi		2	6											wand														0
-of the Warlock	1012	100	1	1	30		28				6	319	extra-magi		6	12											wand														0
-of the Eldritch	1013	100	1	1	52		47				6	319	extra-magi		12	20											wand														0
-of the Apprentice	1014	1	1	1	5	36	3				6	9	cast1		10	10											rod	orb	circ	club											0
+of Overcharge	990	100	1	1	14		14				4	319	extra-ltng		2	6											orb														0
+of Conductivity	991	100	1	1	30		28				4	319	extra-ltng		6	12											orb														0
+of the Maelstrom	992	100	1	1	52		47				2	319	extra-ltng		12	20											orb														0
+of Icewind	993	100	1	1	14		14				4	319	extra-cold		2	6											orb														0
+of Deepfreeze	994	100	1	1	30		28				4	319	extra-cold		6	12											orb														0
+of Hoarfrost	995	100	1	1	52		47				2	319	extra-cold		12	20											orb														0
+of Ashes	996	100	1	1	14		14				4	319	extra-fire		2	6											orb	wand													0
+of Searing	997	100	1	1	30		28				4	319	extra-fire		6	12											orb	wand													0
+of Hellfire	998	100	1	1	52		47				2	319	extra-fire		12	20											orb	wand													0
+of Overcharge	999	100	1	1	14		14				4	319	extra-ltng		6	12											staf														0
+of Conductivity	1000	100	1	1	30		28				4	319	extra-ltng		12	20											staf														0
+of the Maelstrom	1001	100	1	1	52		47				2	319	extra-ltng		20	30											staf														0
+of Icewind	1002	100	1	1	14		14				4	319	extra-cold		6	12											staf														0
+of Deepfreeze	1003	100	1	1	30		28				4	319	extra-cold		12	20											staf														0
+of Hoarfrost	1004	100	1	1	52		47				2	319	extra-cold		20	30											staf														0
+of Ashes	1005	100	1	1	14		14				4	319	extra-fire		6	12											staf														0
+of Searing	1006	100	1	1	30		28				4	319	extra-fire		12	20											staf														0
+of Hellfire	1007	100	1	1	52		47				2	319	extra-fire		20	30											staf														0
+of Disease	1008	100	1	1	14		14				4	319	extra-pois		2	6											wand														0
+of Contagion	1009	100	1	1	30		28				4	319	extra-pois		6	12											wand														0
+of Pox	1010	100	1	1	52		47				2	319	extra-pois		12	20											wand														0
+of the Oracle	1011	100	1	1	14		14				4	319	extra-magi		2	6											wand														0
+of the Warlock	1012	100	1	1	30		28				4	319	extra-magi		6	12											wand														0
+of the Eldritch	1013	100	1	1	52		47				2	319	extra-magi		12	20											wand														0
+of the Apprentice	1014	1	1	1	5	36	3				6	9	cast1		10	10											rod	orb	club												0
 of Pacing	1015	1	1	1	12		8				3	35	move1		10	10											circ														0
 of Haste	1016	1	1	1	22		16				4	35	move2		20	20											circ														0
 of Speed	1017	1	1	1	37		29				4	35	move3		30	30											circ														0
 of the Jeweler	1018				1		1				5	318	map-mon-dropjewelry		2	3											t1m	t2m													0
 of the Jeweler	1019				1		1				5	318	map-mon-dropjewelry		4	5											t2m	t3m													0
 of the Jeweler	1020				1		1				5	318	map-mon-dropjewelry		6	7											t3m														0
+of Insight	1021	100	1	1	14		14				4	320	regen-mana		5	10											orb	wand													0
+of Focus	1022	100	1	1	30		28				4	320	regen-mana		10	20											orb	wand													0
+of Tranquility	1023	100	1	1	52		47				2	320	regen-mana		20	30											orb	wand													0
+of Insight	1024	100	1	1	14		14				4	320	regen-mana		10	20											staf														0
+of Focus	1025	100	1	1	30		28				4	320	regen-mana		20	30											staf														0
+of Tranquility	1026	100	1	1	52		47				2	320	regen-mana		30	40											staf														0
+of Regeneration	1021	100	1	1	14		14				4	320	regen		5	10											orb	wand													0
+of Regeneration	1022	100	1	1	30		28				4	320	regen		10	20											orb	wand													0
+of Regeneration	1023	100	1	1	52		47				2	320	regen		20	30											orb	wand													0
+of Regeneration	1024	100	1	1	14		14				4	320	regen		10	20											staf														0
+of Regeneration	1025	100	1	1	30		28				4	320	regen		20	30											staf														0
+of Regeneration	1026	100	1	1	52		47				2	320	regen		30	40											staf														0

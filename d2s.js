@@ -558,6 +558,7 @@ class SaveFileParser {
   }
 
   corpses () {
+    // todo: figure out pd2 changes
     const res = {}
     res.header = this.reader.read(16)
     res.count = this.reader.read(16)
