@@ -435,6 +435,25 @@ class PropertyParser {
         }
       },
       {
+        regex: /(.+) Absorbs (Cold|Fire|Lightning|Poison) Damage \(Based on Character Level\)/i,
+        reviver: match => {
+          const type2code = {
+            cold: 'cold',
+            fire: 'fire',
+            lightning: 'ltng',
+            poison: 'pois'
+          }
+          const stat = this.d2data.itemStatCost().first('Stat', `item_absorb_${type2code[match[2].toLowerCase()]}_perlevel`)
+          const value = ~~(Number(match[1]) * (1 << Number(stat['op param'])))
+          if (value <= 0) {
+            throw new Error('item_howl should be positive')
+          }
+          return [
+            new ItemProperty({ id: stat.ID, value })
+          ]
+        }
+      },
+      {
         // seen in items that must be eth
         regex: /undefined$/i,
         reviver: _ => {

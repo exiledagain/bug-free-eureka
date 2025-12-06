@@ -41,16 +41,16 @@ async function Main () {
   await dropper.setup()
 
   const treasureClasses = ['Act 5 (H) Chest C']
-  const levels = [87,88,89]
+  const levels = [85]
 
   const queries = []
 
   for (const treasureClass of treasureClasses) {
     const chestDropLevel = treasureClass.at(-1).charCodeAt(0) - 'A'.charCodeAt(0)
     for (const itemLevel of levels) {
-      for (let locked = 1; locked <= 1; ++locked) {
+      for (let locked = 0; locked <= 1; ++locked) {
         for (let dc = 1; dc <= 1; ++dc) {
-          for (let mf = 0; mf <= 500; ++mf) {
+          for (let mf = 0; mf <= 200; ++mf) {
             queries.push({ treasureClass, itemLevel, chestDropLevel, locked, magicFind: mf, dropClass: dc })
           }
         }
@@ -153,7 +153,7 @@ async function Child () {
     r33s: 1,
     // r29s: 1
   }
-  const values = valuesSpecific
+  const values = valuesChart
   const filter1 = res => {
     return res.some(el => el.id === 'rin' && el.rarity === 'unique')
   }
