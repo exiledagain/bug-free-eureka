@@ -240,6 +240,13 @@
             metaMap['High Rune'].push(id)
             metaMap['High Rune'].push(id2)
           }
+          metaMap['Vex+ Rune'] = []
+          for (let i = 26; i <= 33; ++i) {
+            const id = `r${i.toFixed(0).padStart(2, '0')}s`
+            const id2 = `r${i.toFixed(0).padStart(2, '0')}`
+            metaMap['Vex+ Rune'].push(id)
+            metaMap['Vex+ Rune'].push(id2)
+          }
           const metaLookup = {}
           for (const k in metaMap) {
             for (const id of metaMap[k]) {
