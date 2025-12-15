@@ -72,13 +72,14 @@
       position: toPosition(ancestor.parentElement.getAttribute('style'))
     }
   }
-  const tabs = [...document.querySelectorAll('.tab')]
+  let tabs = [...document.querySelectorAll('.tab')]
   if (tabs[0].textContent !== 'Character' || tabs[1].textContent !== 'Mercenary' || tabs.at(-2).textContent !== 'I' || tabs.at(-1).textContent !== 'II') {
     console.error('missing tabs')
     return
   }
   tabs[0].click()
   await waitFrames(2)
+  tabs = [...document.querySelectorAll('.tab')]
   tabs.at(-2).click()
   await waitFrames(2)
   const character = {}

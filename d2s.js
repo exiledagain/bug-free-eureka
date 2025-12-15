@@ -201,14 +201,14 @@ class SaveFileParser {
     'NONE',
     'HEAD',
     'NECK',
-    'TORSO',
+    'TORS',
     'RARM',
     'LARM',
     'RRIN',
     'LRIN',
     'BELT',
     'FEET',
-    'GLOVES',
+    'GLOV',
     'SWRARM',
     'SWLARM'
   ]

@@ -1,5 +1,110 @@
 'use strict'
 
+class SkillMapper {
+  constructor ({ d2data, resolver }) {
+    this.d2data = d2data
+    this.resolver = resolver
+    this.skills = this.d2data.skills()
+    this.skillDesc = this.d2data.skillDesc()
+    this.classSkillCounts = {}
+    this.classSkillMap = {}
+    this.inverseMap = Object.fromEntries(this.skills.map(e => {
+      if (e.charclass === '') {
+        return null
+      }
+      this.classSkillCounts[e.charclass] = this.classSkillCounts[e.charclass] || 0
+      const skillIndex = this.classSkillCounts[e.charclass]
+      this.classSkillCounts[e.charclass] += 1
+      const desc = this.skillDesc.first('skilldesc', e.skilldesc)
+      if (!desc) {
+        return null
+      }
+      if (desc.SkillPage <= 0 || desc.SkillRow <= 0 || desc.SkillColumn <= 0) {
+        return null
+      }
+      this.classSkillMap[e.charclass] = this.classSkillMap[e.charclass] || []
+      this.classSkillMap[e.charclass].push({
+        skill: e,
+        desc
+      })
+      e.$skillIndex = skillIndex
+      return [
+        [e.skill.toLowerCase(), [e, desc]],
+        [this.resolver.readable(desc['str name']).toLowerCase(), [e, desc]]
+      ]
+    }).flat().filter(i => i))
+  }
+
+  getSkillData (name) {
+    return this.inverseMap[name.toLowerCase()]
+  }
+}
+
+class InventorySlotProvider {
+  constructor ({ d2data, resolver, fallbackProvider }) {
+    this.d2data = d2data
+    this.resolver = resolver
+    this.fallbackProvider = fallbackProvider
+    this.typeList = this.d2data.TypeList()
+    const slots = SaveFileParser.ItemEquipmentSlot
+    this.itemTypes = this.d2data.itemTypes()
+    this.bodyLocations = this.itemTypes.reduce((set, e) => {
+      if (e.BodyLoc1.length === 0 || e.BodyLoc2.length === 0) {
+        return set
+      }
+      const location1 = slots.indexOf(e.BodyLoc1.toUpperCase())
+      const location2 = slots.indexOf(e.BodyLoc2.toUpperCase())
+      set[e.Code] = set[e.Code] || new Set()
+      set[e.Code].add(location1)
+      set[e.Code].add(location2)
+      return set
+    }, {})
+    this.usedLocations = {}
+    if (!this.fallbackProvider) {
+      this.fallbackProvider = (function* () {
+        const dx = 2
+        const dy = 4
+        for (let i = 0; i < 20; ++i) {
+          const location = SaveFileParser.ItemMode.stored
+          const equipment = 0
+          const x = ~~((i * dx) % 10)
+          const y = ~~((i * dx) / 10) * dy
+          const page = 5
+          yield {
+            location,
+            equipment,
+            x,
+            y,
+            page
+          }
+        }
+        throw new Error('far too many items')
+      })()
+    }
+  }
+
+  getSlot (code) {
+    for (const k in this.bodyLocations) {
+      if (this.typeList.itemIs(code, k)) {
+        for (const slot of this.bodyLocations[k]) {
+          if (this.usedLocations[slot]) {
+            continue
+          }
+          this.usedLocations[slot] = true
+          return {
+            location: SaveFileParser.ItemMode.equip,
+            equipment: slot,
+            page: 0,
+            x: slot,
+            y: 0
+          }
+        }
+      }
+    }
+    return this.fallbackProvider.next().value
+  }
+}
+
 class PropertyParser {
   /**
    * 
@@ -454,6 +559,24 @@ class PropertyParser {
         }
       },
       {
+        regex: /Joust's Cooldown Is Reduced By (.+) Seconds/i,
+        reviver: match => {
+          const type2stat = {
+            '1.5': 'joustreduction_zeraes',
+            '0.75': 'joustreduction_leorics',
+            '0.5': 'joustreduction'
+          }
+          const stat = this.d2data.itemStatCost().first('Stat', type2stat[match[1]])
+          if (!stat) {
+            throw new Error(`unknown joust cooldown reduction time ${match[1]}`)
+          }
+          const value = Math.ceil(25 * Number(match[1]))
+          return [
+            new ItemProperty({ id: stat.ID, value })
+          ]
+        }
+      },
+      {
         // seen in items that must be eth
         regex: /undefined$/i,
         reviver: _ => {
@@ -535,6 +658,10 @@ class PropertyParser {
             new ItemProperty({ id: pairEntry.ID, value, param: lut[entry.Stat] }),
             res
           ]
+        }
+        if (entry.Stat === 'item_replenish_charges') {
+          // some items aren't 33 but the text is always 'replenish 1 charge in 3 seconds'
+          res.value = 33
         }
         return res
       }
@@ -890,6 +1017,8 @@ class Rejuvenator {
     object.classId = Object.keys(Rejuvenator.classCode2nameMap).indexOf(clazz)
     object.mapId = 666
 
+    const allocatedPoints = this.pickSkills(object)
+
     const attributes = {
       level,
       strength,
@@ -905,6 +1034,7 @@ class Rejuvenator {
       gold: 5e6,
       goldbank: 5e6
     }
+    attributes.newskills -= allocatedPoints
     const pairedAttributes = {
       'maxhp': 'hitpoints',
       'maxmana': 'mana',
@@ -933,40 +1063,58 @@ class Rejuvenator {
     this.rejuvenatedObject = object
   }
 
+  pickSkills (object) {
+    let sum = 0
+    const mapper = new SkillMapper({ d2data: this.d2data, resolver: this.resolver })
+    this.rip.stats.slice(7).forEach(([name, points]) => {
+      points = Number(points)
+      if (!Number.isInteger(points)) {
+        throw new Error(`unknown skill points for ${name}`)
+      }
+      const data = mapper.getSkillData(name)
+      const idx = data[0].$skillIndex
+      object.skills.list[idx] = points
+      sum += points
+    })
+    return sum
+  }
+
   fillItems (object) {
     object.items = {
       header: 0x4d4an,
       list: []
     }
-    const items = [...this.rip.equipment, ...this.rip.swap, ...this.rip.mercenary.equipment]
-    items.forEach((item, i) => {
-      const dx = 2
-      const dy = 4
+    let isp = new InventorySlotProvider({ d2data: this.d2data, resolver: this.resolver })
+    this.rip.equipment.forEach(item => {
       object.items.list.push(this.getItem(item))
-      object.items.list.at(-1).compact.location = SaveFileParser.ItemMode.stored
-      object.items.list.at(-1).compact.equipment = 0
-      object.items.list.at(-1).compact.x = ~~((i * dx) % 10)
-      object.items.list.at(-1).compact.y = ~~((i * dx) / 10) * dy
-      // page 1 = inventory
-      // page 5 = stash
-      object.items.list.at(-1).compact.page = 5
+      const { location, equipment, page, x, y } = isp.getSlot(object.items.list.at(-1).code)
+      object.items.list.at(-1).compact.location = location
+      object.items.list.at(-1).compact.equipment = equipment
+      object.items.list.at(-1).compact.x = x
+      object.items.list.at(-1).compact.y = y
+      object.items.list.at(-1).compact.page = page
+    })
+    const swapLocations = ['SWRARM', 'SWLARM']
+    this.rip.swap.forEach(item => {
+      const slot = SaveFileParser.ItemEquipmentSlot.indexOf(swapLocations.pop())
+      object.items.list.push(this.getItem(item))
+      object.items.list.at(-1).compact.location = SaveFileParser.ItemMode.equip
+      object.items.list.at(-1).compact.equipment = slot
+      object.items.list.at(-1).compact.x = slot
+      object.items.list.at(-1).compact.y = 0
+      object.items.list.at(-1).compact.page = 0
     })
     this.rip.inventory.filter(i => i.type.includes(' Charm') && i.position.y >= 4).forEach((item, i) => {
       object.items.list.push(this.getItem(item))
       object.items.list.at(-1).compact.location = SaveFileParser.ItemMode.stored
       object.items.list.at(-1).compact.equipment = 0
       object.items.list.at(-1).compact.x = item.position.x
-      object.items.list.at(-1).compact.y = item.position.y - 4
+      object.items.list.at(-1).compact.y = item.position.y
       // page 1 = inventory
       // page 5 = stash
       object.items.list.at(-1).compact.page = 1
     })
     const staticItems = [
-      {
-        name: 'Horadric Cube',
-        type: 'Normal Horadric Cube',
-        props: []
-      },
       {
         name: 'Horadric Navigator',
         type: 'Normal Horadric Navigator',
@@ -976,20 +1124,56 @@ class Rejuvenator {
         name: 'Horadric Almanac',
         type: 'Normal Horadric Almanac',
         props: []
-      }
+      },
+      {
+        name: 'Horadric Cube',
+        type: 'Normal Horadric Cube',
+        props: []
+      },
     ]
     staticItems.forEach((item, i) => {
-      const dx = 2
-      const dy = 2
+      const dx = 1
+      const dy = 0
       object.items.list.push(this.getItem(item))
       object.items.list.at(-1).compact.location = SaveFileParser.ItemMode.stored
       object.items.list.at(-1).compact.equipment = 0
       object.items.list.at(-1).compact.x = ~~((i * dx) % 10)
-      object.items.list.at(-1).compact.y = ~~((i * dx) / 10) * dy + 4
+      object.items.list.at(-1).compact.y = ~~((i * dx) / 10) * dy
       // page 1 = inventory
       // page 5 = stash
       object.items.list.at(-1).compact.page = 1
     })
+    if (object.mercenary.id > 0) {
+      if (this.rip.equipment.length > 0) {
+        object.mercenaryItems = {
+          header: 0x666a,
+          items: {
+            header: 0x4d4a,
+            list: []
+          }
+        }
+      }
+      isp = new InventorySlotProvider({ d2data: this.d2data, resolver: this.resolver, fallbackProvider: isp.fallbackProvider })
+      this.rip.mercenary.equipment.forEach(item => {
+        object.mercenaryItems.items.list.push(this.getItem(item))
+        const { location, equipment, page, x, y } = isp.getSlot(object.mercenaryItems.items.list.at(-1).code)
+        object.mercenaryItems.items.list.at(-1).compact.location = location
+        object.mercenaryItems.items.list.at(-1).compact.equipment = equipment
+        object.mercenaryItems.items.list.at(-1).compact.x = x
+        object.mercenaryItems.items.list.at(-1).compact.y = y
+        object.mercenaryItems.items.list.at(-1).compact.page = page
+      })
+    } else {
+      this.rip.mercenary.equipment.forEach(item => {
+        object.items.list.push(this.getItem(item))
+        const { location, equipment, page, x, y } = isp.getSlot('')
+        object.items.list.at(-1).compact.location = location
+        object.items.list.at(-1).compact.equipment = equipment
+        object.items.list.at(-1).compact.x = x
+        object.items.list.at(-1).compact.y = y
+        object.items.list.at(-1).compact.page = page
+      })
+    }
   }
 
   getItem (json, isSocketed = false) {
