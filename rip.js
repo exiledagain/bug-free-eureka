@@ -95,5 +95,5 @@
   character.mercenary = {}
   character.mercenary.stats = [...document.querySelectorAll('.stat-box > div > div')].map(el => el.textContent)
   character.mercenary.equipment = [...document.querySelectorAll('.popper .item .details')].map(getItem)
-  console.log(JSON.stringify(character))
+  console.log(JSON.stringify(character, null, 2))
 })()
