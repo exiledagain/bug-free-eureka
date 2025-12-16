@@ -357,9 +357,10 @@ map-play-res-all-max	1	1		100	16	361	900		2	t1me	"wss,qty=1"						useitem			100	
 map-mon-dropjewelry	1	1		100	16	361	990		2	t1me	"wss,qty=1"						useitem			100	corrupt	100		88	88	corruptnum	100		1001	1001	map-mon-dropjewelry	100		1	1																																																																					0
 t1 > zhars sanctum	1	1		100	16	361	992		2	t1me	"wss,qty=1"						"t51,uni"			100																																																																																				0
 t1 > fallen gardens	1	1		100	16	361	994		2	t1me	"wss,qty=1"						"t53,uni"			100																																																																																				0
-t1 > imperial palace	1	1		100	16	361	996		2	t1me	"wss,qty=1"						"t54,uni"			100																																																																																				0
+t1 > void map	1	1		100	16	361	996		2	t1me	"wss,qty=1"						"t55,uni"			100																																																																																				0
 t1 > warlord of blood	1	1		100	16	361	998		2	t1me	"wss,qty=1"						"t52,uni"			100																																																																																				0
-t1 > void map	1	1		100	16	361	1000		2	t1me	"wss,qty=1"						"t55,uni"			100																																																																																				0
+t1 > imperial palace	1	1		100	16	361	999		2	t1me	"wss,qty=1"						"t54,uni"			100																																																																																				0
+t1 > city of ureh	1	1		100	16	361	1000		2	t1me	"wss,qty=1"						"t56,uni"			100																																																																																				0
 T2																																																																																																								0
 Random rare				100	16	361	100		2	t2me	"wss,qty=1"						"usetype,rar"			100																																																																																				0
 Random down tier				100	16	361	200		2	t2me	"wss,qty=1"						"t1me,rar"			100	corrupt	100		1	1	corruptnum	100		1001	1001																																																																										0
@@ -376,11 +377,12 @@ map-glob-arealevel	1	1		100	16	361	720		2	t2me	"wss,qty=1"						useitem			100	co
 map-glob-monsterrarity	1	1		100	16	361	810		2	t2me	"wss,qty=1"						useitem			100	corrupt	100		86	86	corruptnum	100		1001	1001	map-glob-monsterrarity	100		40	50																																																																					0
 map-play-res-all-max	1	1		100	16	361	900		2	t2me	"wss,qty=1"						useitem			100	corrupt	100		87	87	corruptnum	100		1001	1001	map-play-res-all-max	100		-4	-3	map-glob-density	100		40	50	map-glob-monsterrarity	100		15	20																																																											0
 map-mon-dropjewelry	1	1		100	16	361	990		2	t2me	"wss,qty=1"						useitem			100	corrupt	100		88	88	corruptnum	100		1001	1001	map-mon-dropjewelry	100		1	1																																																																					0
-t2 > zhars sanctum	1	1		100	16	361	992		2	t1me	"wss,qty=1"						"t51,uni"			100																																																																																				0
-t2 > fallen gardens	1	1		100	16	361	994		2	t1me	"wss,qty=1"						"t53,uni"			100																																																																																				0
-t2 > imperial palace	1	1		100	16	361	996		2	t1me	"wss,qty=1"						"t54,uni"			100																																																																																				0
-t2 > warlord of blood	1	1		100	16	361	998		2	t1me	"wss,qty=1"						"t52,uni"			100																																																																																				0
-t2 > void map	1	1		100	16	361	1000		2	t1me	"wss,qty=1"						"t55,uni"			100																																																																																				0
+t2 > zhars sanctum	1	1		100	16	361	992		2	t2me	"wss,qty=1"						"t51,uni"			100																																																																																				0
+t2 > fallen gardens	1	1		100	16	361	994		2	t2me	"wss,qty=1"						"t53,uni"			100																																																																																				0
+t2 > void map	1	1		100	16	361	996		2	t2me	"wss,qty=1"						"t55,uni"			100																																																																																				0
+t2 > warlord of blood	1	1		100	16	361	998		2	t2me	"wss,qty=1"						"t52,uni"			100																																																																																				0
+t2 > imperial palace	1	1		100	16	361	999		2	t2me	"wss,qty=1"						"t54,uni"			100																																																																																				0
+t2 > city of ureh	1	1		100	16	361	1000		2	t2me	"wss,qty=1"						"t56,uni"			100																																																																																				0
 T3																																																																																																								0
 Random rare				100	16	361	100		2	t3me	"wss,qty=1"						"usetype,rar"			100																																																																																				0
 Random down tier				100	16	361	200		2	t3me	"wss,qty=1"						"t2me,rar"			100	corrupt	100		1	1	corruptnum	100		1001	1001																																																																										0
@@ -397,11 +399,12 @@ map-glob-arealevel	1	1		100	16	361	720		2	t3me	"wss,qty=1"						useitem			100	co
 map-glob-monsterrarity	1	1		100	16	361	810		2	t3me	"wss,qty=1"						useitem			100	corrupt	100		86	86	corruptnum	100		1001	1001	map-glob-monsterrarity	100		50	60																																																																					0
 map-play-res-all-max	1	1		100	16	361	900		2	t3me	"wss,qty=1"						useitem			100	corrupt	100		87	87	corruptnum	100		1001	1001	map-play-res-all-max	100		-5	-4	map-glob-density	100		50	60	map-glob-monsterrarity	100		20	25																																																											0
 map-mon-dropjewelry	1	1		100	16	361	990		2	t3me	"wss,qty=1"						useitem			100	corrupt	100		88	88	corruptnum	100		1001	1001	map-mon-dropjewelry	100		1	1																																																																					0
-t3 > zhars sanctum	1	1		100	16	361	992		2	t1me	"wss,qty=1"						"t51,uni"			100																																																																																				0
-t3 > fallen gardens	1	1		100	16	361	994		2	t1me	"wss,qty=1"						"t53,uni"			100																																																																																				0
-t3 > imperial palace	1	1		100	16	361	996		2	t1me	"wss,qty=1"						"t54,uni"			100																																																																																				0
-t3 > warlord of blood	1	1		100	16	361	998		2	t1me	"wss,qty=1"						"t52,uni"			100																																																																																				0
-t3 > void map	1	1		100	16	361	1000		2	t1me	"wss,qty=1"						"t55,uni"			100																																																																																				0
+t3 > zhars sanctum	1	1		100	16	361	992		2	t3me	"wss,qty=1"						"t51,uni"			100																																																																																				0
+t3 > fallen gardens	1	1		100	16	361	994		2	t3me	"wss,qty=1"						"t53,uni"			100																																																																																				0
+t3 > void map	1	1		100	16	361	996		2	t3me	"wss,qty=1"						"t55,uni"			100																																																																																				0
+t3 > warlord of blood	1	1		100	16	361	998		2	t3me	"wss,qty=1"						"t52,uni"			100																																																																																				0
+t3 > imperial palace	1	1		100	16	361	999		2	t3me	"wss,qty=1"						"t54,uni"			100																																																																																				0
+t2 > city of ureh	1	1		100	16	361	1000		2	t3me	"wss,qty=1"						"t56,uni"			100																																																																																				0
 	0																																																																																																							0
 CORRUPT ORB ITEM ROLLING	0																																																																																																							0
 	0																																																																																																							0
@@ -413,6 +416,7 @@ add corrupt factor to amulet	1	2		100	18	361	0		2	"amul"	"wss,qty=1"						useite
 add corrupt factor to ring	1	2		100	18	361	0		2	"ring"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
 add corrupt factor to arrow	1	2		100	18	361	0		2	"misl"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
 add corrupt factor to anni	1	2		100	18	361	0		2	"Annihilus"	"cwss,qty=1"						useitem			100	corruptnum	100		1	1000																					"cwss,qty=1"																																																										0
+add corrupt factor to quiver	1	2		100	18	361	0		2	"misl,nos"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
 	0																																																																																																							0
 PHASE 1 (normal)	0																																																																																																							0
 weapon -> destroyed (rare) (25%)	1	3		100	16	361	500		2	"weap,nos,nor"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
@@ -420,6 +424,9 @@ weapon -> + sockets  (25%)	1	1		100	16	361	1000		2	"weap,nos,nor"	"wss,qty=1"			
 	0																																																																																																							0
 armour -> destroyed (rare) (25%)	1	3		100	16	361	500		2	"armo,nos,nor"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
 armour -> + sockets  (25%)	1	1		100	16	361	1000		2	"armo,nos,nor"	"wss,qty=1"						useitem			100	corrupt	100		32	32	sock	100		1	6	corruptnum	100		1001	1001																																																																					0
+quiver -> destroyed (rare) (25%)	1	3		100	16	361	500		2	"misl,nos,nor"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
+quiver -> + sockets  (25%)	1	1		100	16	361	1000		2	"misl,nos,nor"	"wss,qty=1"						useitem			100	corrupt	100		32	32	sock	100		1	6	corruptnum	100		1001	1001																																																																					0
+																																																																																																								
 PHASE 1 (superior)	0																																																																																																							0
 weapon -> destroyed (rare) (25%)	1	3		100	16	361	500		2	"weap,nos,hiq"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
 weapon -> + sockets  (25%)	1	1		100	16	361	1000		2	"weap,nos,hiq"	"wss,qty=1"						useitem			100	corrupt	100		32	32	sock	100		1	6	corruptnum	100		1001	1001																																																																					0
@@ -507,15 +514,15 @@ armour -> + 1 sockets  (12%)	1	1		100	16	361	370		2	"shld,nos"	"wss,qty=1"						
 armour -> + 2 sockets  (7%)	1	1		100	16	361	440		2	"shld,nos"	"wss,qty=1"						useitem			100	corrupt	100		32	32	sock	100		2	2	corruptnum	100		1001	1001																																																																					0
 armour -> + 3 sockets  (6%)	1	1		100	16	361	500		2	"shld,nos"	"wss,qty=1"						useitem			100	corrupt	100		32	32	sock	100		3	3	corruptnum	100		1001	1001																																																																					0
 																																																																																																								
-armour -> + 1 sockets  (18%)	1	1		100	16	361	430		2	"misl,nos"	"wss,qty=1"						useitem			100	corrupt	100		32	32	sock	100		1	1	corruptnum	100		1001	1001																																																																					0
-armour -> + 2 sockets  (7%)	1	1		100	16	361	500		2	"misl,nos"	"wss,qty=1"						useitem			100	corrupt	100		32	32	sock	100		2	2	corruptnum	100		1001	1001																																																																					0
+quiver -> destroyed (rare) (25%)	1	3		100	16	361	250		2	"misl"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
+																																																																																																								
+quiver -> + 1 sockets  (18%)	1	1		100	16	361	430		2	"misl,nos"	"wss,qty=1"						useitem			100	corrupt	100		32	32	sock	100		1	1	corruptnum	100		1001	1001																																																																					0
+quiver -> + 2 sockets  (7%)	1	1		100	16	361	500		2	"misl,nos"	"wss,qty=1"						useitem			100	corrupt	100		32	32	sock	100		2	2	corruptnum	100		1001	1001																																																																					0
 	0																																																																																																							0
 ring -> destroyed (rare) (25%)	1	3		100	16	361	250		2	"ring"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
 	0																																																																																																							0
 amulet -> destroyed (rare) (25%)	1	3		100	16	361	250		2	"amul"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
 	0																																																																																																							0
-quiver -> destroyed (rare) (25%)	1	3		100	16	361	250		2	"misl"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
-																																																																																																								0
 anni-> destroyed (rare) (20%)	1	1		100	16	361	200		2	"Annihilus"	"cwss,qty=1"						"cm1,mag"			100	corrupt	100		1	1	corruptnum	100		1001	1001	dye	100		10	10																																																																					0
 																																																																																																								0
 ANNIHILUS	0																																																																																																							0
@@ -815,14 +822,19 @@ item -> added mod 8	1	1		100	16	361	1000		2	"amul"	"wss,qty=1"						useitem			10
 PHASE 1 (Socketed)	0																																																																																																							0
 add corrupt factor to weapon	1	2		100	18	361	0		2	"weap,sock,mag"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
 add corrupt factor to armour	1	2		100	18	361	0		2	"armo,sock,mag"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
+add corrupt factor to quiver	1	2		100	18	361	0		2	"misl,sock,mag"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
 add corrupt factor to weapon	1	2		100	18	361	0		2	"weap,sock,rar"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
 add corrupt factor to armour	1	2		100	18	361	0		2	"armo,sock,rar"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
+add corrupt factor to quiver	1	2		100	18	361	0		2	"misl,sock,rar"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
 add corrupt factor to weapon	1	2		100	18	361	0		2	"weap,sock,set"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
 add corrupt factor to armour	1	2		100	18	361	0		2	"armo,sock,set"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
+add corrupt factor to quiver	1	2		100	18	361	0		2	"misl,sock,set"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
 add corrupt factor to weapon	1	2		100	18	361	0		2	"weap,sock,uni"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
 add corrupt factor to armour	1	2		100	18	361	0		2	"armo,sock,uni"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
+add corrupt factor to quiver	1	2		100	18	361	0		2	"misl,sock,uni"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
 add corrupt factor to weapon	1	2		100	18	361	0		2	"weap,sock,crf"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
 add corrupt factor to armour	1	2		100	18	361	0		2	"armo,sock,crf"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
+add corrupt factor to quiver	1	2		100	18	361	0		2	"misl,sock,crf"	"wss,qty=1"						useitem			100	corruptnum	100		1	1000																					"wss,qty=1"																																																										0
 	0																																																																																																							0
 PHASE 2 (Socketed)	0																																																																																																							0
 weapon -> destroyed (rare) (25%)	1	3		100	16	361	250		2	"weap,sock,mag"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
@@ -836,6 +848,12 @@ armour -> destroyed (rare) (25%)	1	3		100	16	361	250		2	"armo,sock,rar"	"wss,qty
 armour -> destroyed (rare) (25%)	1	3		100	16	361	250		2	"armo,sock,set"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
 armour -> destroyed (rare) (25%)	1	3		100	16	361	250		2	"armo,sock,uni"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
 armour -> destroyed (rare) (25%)	1	3		100	16	361	250		2	"armo,sock,crf"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
+																																																																																																								
+quiver -> destroyed (rare) (25%)	1	3		100	16	361	250		2	"misl,sock,mag"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
+quiver -> destroyed (rare) (25%)	1	3		100	16	361	250		2	"misl,sock,rar"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
+quiver -> destroyed (rare) (25%)	1	3		100	16	361	250		2	"misl,sock,set"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
+quiver -> destroyed (rare) (25%)	1	3		100	16	361	250		2	"misl,sock,uni"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
+quiver -> destroyed (rare) (25%)	1	3		100	16	361	250		2	"misl,sock,crf"	"wss,qty=1"						"usetype,rar"			100																																																																																				0
 	0																																																																																																							0
 WEAPONS (socketed) -----------------------	0																																																																																																							0
 Tier 1 - magic weap	0																																																																																																							0
