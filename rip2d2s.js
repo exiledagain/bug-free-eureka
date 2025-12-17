@@ -699,6 +699,16 @@ class PropertyParser {
         const skill = this.skillNameToSkillEntryMap[parsed.strings[0]]
         const param = skill.Id
         const value = parsed.percentages[0].value
+        // es on equip has es efficiency at the same level or hard cap (20)
+        if (skill.skill === 'Energy Shield SelfAura') {
+          const efficiency = this.itemStatCost.first('Stat', 'es_efficiency')
+          if (efficiency) {
+            return [
+              new ItemProperty({ id, value, param }),
+              new ItemProperty({ id: efficiency.ID, value: Math.min(value, 20) })
+            ]
+          }
+        }
         return new ItemProperty({ id, value, param })
       }
       case 20: {
