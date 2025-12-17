@@ -30,6 +30,7 @@ class SkillMapper {
       e.$skillIndex = skillIndex
       return [
         [e.skill.toLowerCase(), [e, desc]],
+        [this.resolver.readable(e.skill).toLowerCase(), [e, desc]],
         [this.resolver.readable(desc['str name']).toLowerCase(), [e, desc]]
       ]
     }).flat().filter(i => i))
@@ -1072,6 +1073,9 @@ class Rejuvenator {
         throw new Error(`unknown skill points for ${name}`)
       }
       const data = mapper.getSkillData(name)
+      if (!data) {
+        throw new Error(`unable to map skill: ${name}`)
+      }
       const idx = data[0].$skillIndex
       object.skills.list[idx] = points
       sum += points
