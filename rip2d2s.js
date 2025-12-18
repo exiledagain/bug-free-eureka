@@ -801,6 +801,18 @@ class ItemRejuvenated {
       this.adjustForSockets()
     }
     this.merge()
+    this.purge()
+  }
+
+  purge () {
+    const props = []
+    for (let i = 0; i < this.props.length; ++i) {
+      if (this.props[i][0].value !== 0) {
+        props.push(this.props[i])
+        continue
+      }
+    }
+    this.props = props
   }
 
   merge () {
