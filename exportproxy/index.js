@@ -44,7 +44,7 @@ app.use(express.json({ limit: '1mb' }))
 https.createServer({
   key: fs.readFileSync(process.env.ep_cs_key),
   cert: fs.readFileSync(process.env.ep_cs_cert)
-}, app).listen(4443)
+}, app).listen(8443)
 
 const AllowCors = (_, res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
