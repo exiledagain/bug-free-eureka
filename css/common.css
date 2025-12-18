@@ -97,3 +97,7 @@ a, a:visited {
   font-family: inherit;
   font-size: xx-large;
 }
+
+.hidden {
+  display: none;
+}

@@ -688,6 +688,13 @@ class PropertyParser {
         throw new Error(`unknown description 14 for "${parsed.original}"`)
       }
       case 15: {
+        if (parsed.strings.length === 0 && 'Melee Attacks Deal Splash Damage'.toLowerCase() === parsed.original.toLowerCase()) {
+          return new ItemProperty({
+            id: 0x167,
+            value: 0x46,
+            param: 0x5981
+          })
+        }
         const skill = this.skillNameToSkillEntryMap[parsed.strings[0]]
         const skillId = Number(skill.Id)
         const skillLevel = parsed.percentages[1].value

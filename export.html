@@ -15,6 +15,10 @@
     <div class="self-center centered-items" style="max-width: 1024px;">
       <a href="https://github.com/exiledagain/bug-free-eureka" target="_blank" rel="noopener noreferrer">source</a>
       <p>Some might gear be in your personal stash. Plugy doesn't allow you to access your personal stash.</p>
+      <p>
+        <button id="import">Import</button>
+        <input id="character" type="text" placeholder="Character name">
+      </p>
       <p><a href="https://github.com/xkanzeon/PD2-PlugY/raw/refs/heads/main/pd2_shared.stash">Download a filled material stash, boss entries, and other goods</a></p>
       <p><button id="download">Download</button></p>
       <p>Exported json using <a href="https://raw.githubusercontent.com/exiledagain/bug-free-eureka/refs/heads/main/rip.js">rip.js</a></p>
@@ -24,12 +28,85 @@
       <div id="error" style="color: red"></div>
     </div>
     <script>
+      function ConvertExportToRip (json) {
+        function ConvertExportItemToRipItem (json) {
+          const res = {
+            name: json.name,
+          }
+          if (json.is_ethereal) {
+            res.name = `(Ethereal) ` + res.name
+          }
+          if (json.location.zone !== 'Socketed') {
+            res.type = `${json.quality.name} ${json.base.name}`
+            if (json.socket_count > 0) {
+              res.type += ` (${json.socket_count})`
+            }
+          }
+          if (json.location.storage_id === 1) {
+            res.position = {
+              x: json.position.column,
+              y: json.position.row
+            }
+          }
+          res.props = json.modifiers.map(e => e.label)
+          if (json.socket_count > 0) {
+            res.sockets = []
+          }
+          if (json.socketed_count > 0) {
+            res.sockets = json.socketed.map(ConvertExportItemToRipItem)
+          }
+          return res
+        }
+        const res = {
+          name: json.character.name,
+          stats: [
+            [
+              'Level', json.character.level
+            ],
+            [
+              'Life',
+              'ignored'
+            ],
+            [
+              'Mana',
+              'ignored'
+            ],
+            ...Object.entries(json.character.attributes),
+            ...Object.values(json.character.skills.filter(e => e.level > 0).map(e => {
+              return [
+                e.name,
+                e.level
+              ]
+            }))
+          ],
+          equipment: [
+            ...json.items.filter(e => e.location.storage_id === 0 && e.location.equipment_id < 11).map(ConvertExportItemToRipItem)
+          ],
+          swap: [
+            ...json.items.filter(e => e.location.storage_id === 0 && e.location.equipment_id >= 11).map(ConvertExportItemToRipItem)
+          ],
+          inventory: [
+            ...json.items.filter(e => e.location.storage_id === 1).map(ConvertExportItemToRipItem)
+          ],
+          mercenary: {
+            stats: [
+              '', ''
+            ],
+            equipment: [
+              ...json.mercenary.items.filter(e => e.location.storage_id === 0).map(ConvertExportItemToRipItem)
+            ]
+          }
+        }
+        return res
+      }
       class ExportView {
-        constructor ({ inputEl, downloadEl, errorEl, resolver }) {
+        constructor ({ inputEl, downloadEl, errorEl, importEl, characterEl, resolver }) {
           this.resolver = resolver
           this.inputEl = inputEl
           this.downloadEl = downloadEl
           this.errorEl = errorEl
+          this.importEl = importEl
+          this.characterEl = characterEl
         }
 
         async load () {
@@ -41,6 +118,36 @@
           this.resolver = await this.d2data.StringResolver()
           this.typeList = this.d2data.TypeList()
           this.costs = this.d2data.itemStatCost()
+          if (this.importEl) {
+            this.importEl.onclick = async _ => {
+              if (this.importing) {
+                return
+              }
+              this.importing = true
+              this.importEl.classList.add('hidden')
+              this.characterEl.setAttribute('readonly', 1)
+              try {
+                const name = this.characterEl.value.trim()
+                const res = await fetch('https://export.exiledagain.org:8443/export', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    name
+                  }),
+                  headers: {
+                    'Content-Type': 'application/json'
+                  }
+                })
+                const json = await res.json()
+                this.inputEl.value = JSON.stringify(ConvertExportToRip(json), null, 2)
+              } catch (e) {
+                throw e
+              } finally {
+                this.importing = false
+                this.importEl.classList.remove('hidden')
+                this.characterEl.removeAttribute('readonly')
+              }
+            }
+          }
         }
 
         download () {
@@ -77,7 +184,9 @@
         await new ExportView({
           downloadEl: document.querySelector('#download'),
           inputEl: document.querySelector('#json'),
-          errorEl: document.querySelector('#error')
+          errorEl: document.querySelector('#error'),
+          importEl: document.querySelector('#import'),
+          characterEl: document.querySelector('#character')
         }).load()
       }
       requestAnimationFrame(Load)
