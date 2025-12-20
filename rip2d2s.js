@@ -1177,7 +1177,7 @@ class Rejuvenator {
       object.items.list.at(-1).compact.page = 1
     })
     if (object.mercenary.id > 0) {
-      if (this.rip.equipment.length > 0) {
+      if (this.rip.mercenary.equipment.length > 0) {
         object.mercenaryItems = {
           header: 0x666a,
           items: {
