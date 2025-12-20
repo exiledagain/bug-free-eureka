@@ -66,7 +66,7 @@ app.post('/export', async (req, res) => {
   let data
   try {
     data = payload.name
-    if (typeof data !== 'string' || data.length === 0 || data.length > 16 || !data.match(/^[\da-z_]+$/i)) {
+    if (typeof data !== 'string' || data.length === 0 || data.length > 16 || !data.match(/^[\da-z_\-]+$/i)) {
       throw new Error('bad req name')
     }
   } catch (e) {
