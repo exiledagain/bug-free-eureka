@@ -66,7 +66,13 @@ app.post('/export', async (req, res) => {
   let data
   try {
     data = payload.name
-    if (typeof data !== 'string' || data.length === 0 || data.length > 16 || !data.match(/^[\da-z_\-]+$/i)) {
+    if (typeof data !== 'string' || data.length === 0) {
+      throw new Error('bad req name')
+    }
+    data = data.trim()
+    const isCharNameish = !(data.length > 16 || !data.match(/^[\da-z_\-]+$/i))
+    const isSnapshotish = !(data.length !== 24 || !data.match(/^[\da-z]{24}]$/i))
+    if (!isCharNameish && !isSnapshotish) {
       throw new Error('bad req name')
     }
   } catch (e) {
