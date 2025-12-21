@@ -71,7 +71,7 @@ app.post('/export', async (req, res) => {
     }
     data = data.trim()
     const isCharNameish = !(data.length > 16 || !data.match(/^[\da-z_\-]+$/i))
-    const isSnapshotish = !(data.length !== 24 || !data.match(/^[\da-z]{24}]$/i))
+    const isSnapshotish = false
     if (!isCharNameish && !isSnapshotish) {
       throw new Error('bad req name')
     }
