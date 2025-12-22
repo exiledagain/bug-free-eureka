@@ -794,7 +794,7 @@ Pure	791	100	1		25		18				3	142	att-undead		76	175	dmg-undead		76	125						lgld	
 Duplicated	792	1	1	1	1		1				1	169	map-glob-extra-boss		1	1											t1m	t2m													0
 Champion's	793	1	1	1	1		1				2	150	map-glob-monsterrarity		40	50											t2m	t3m													0
 Champion's	794	1	1	1	1		1				2	150	map-glob-monsterrarity		50	60											t3m	t4m													0
-Rampant	795	1	1	1	1		1				2	169	map-glob-add-mon-shriek		1169	1169	map-glob-density		25	30	map-play-mag-gold%		20	30			t1m	t2m	t3m					t4m							0
+Rampant	795	1	1	1	1		1				1	169	map-glob-add-mon-shriek		1169	1169	map-glob-density		25	30	map-play-mag-gold%		20	30			t1m	t2m	t3m					t4m							0
 Crimson	796	100	1	1	38		30				4	103	dmg-min		5	8									1	dred	misl														0
 Serpent's	797	1	1	1	14		10				3	115	mana		11	20											ring	amul	belt												0
 Serpent's	798	1	1	1	37		27				2	115	mana		11	20											boot	glov													0
