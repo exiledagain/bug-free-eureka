@@ -552,7 +552,7 @@ class PropertyParser {
           const stat = this.d2data.itemStatCost().first('Stat', `item_absorb_${type2code[match[2].toLowerCase()]}_perlevel`)
           const value = ~~(Number(match[1]) * (1 << Number(stat['op param'])))
           if (value <= 0) {
-            throw new Error('item_howl should be positive')
+            throw new Error('absorb should be positive')
           }
           return [
             new ItemProperty({ id: stat.ID, value })
