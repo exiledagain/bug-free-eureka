@@ -578,6 +578,19 @@ class PropertyParser {
         }
       },
       {
+        regex: /Dragon Flight's Cooldown Is Reduced By (.+) Seconds/i,
+        reviver: match => {
+          const stat = this.d2data.itemStatCost().first('Stat', 'dragonflightreduction')
+          const value = Math.ceil(25 * Number(match[1]))
+          if (!Number.isFinite(value)) {
+            throw new Error(`unknown dragon flight cooldown reduction time ${match[1]}`)
+          }
+          return [
+            new ItemProperty({ id: stat.ID, value })
+          ]
+        }
+      },
+      {
         // seen in items that must be eth
         regex: /undefined$/i,
         reviver: _ => {
