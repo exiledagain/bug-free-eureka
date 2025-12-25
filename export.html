@@ -58,6 +58,11 @@
           }
           return res
         }
+        if (!json.mercenary) {
+          json.mercenary = {
+            items: []
+          }
+        }
         const res = {
           name: json.character.name,
           stats: [
