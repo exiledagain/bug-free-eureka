@@ -406,6 +406,30 @@ class IgSetup {
           ]
         }
       }
+      case 'Crafted - Safety': {
+        if (types.has('tors')) {
+          return [
+            {
+              aff: this.codeLookup('ac-hth'),
+              par: 0,
+              min: 100,
+              max: 151
+            },
+            {
+              aff: this.codeLookup('ac%'),
+              par: 0,
+              min: 20,
+              max: 61
+            },
+            {
+              aff: this.codeLookup('red-dmg%'),
+              par: 0,
+              min: 5,
+              max: 11
+            }
+          ]
+        }
+      }
       default:
         return []
     }
@@ -677,7 +701,7 @@ class IgMetaForm {
     const rarity = ['Magic', 'Rare']
     const crafts = {
       'weap': ['Blood', 'Diamond'],
-      'tors': ['Caster']
+      'tors': ['Caster', 'Safety']
     }
     for (const type in crafts) {
       if (this.typeList.itemIs(item, type)) {
