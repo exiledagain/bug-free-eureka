@@ -731,6 +731,10 @@ class PropertyParser {
         }
         return new ItemProperty({ id, value, param })
       }
+      case 19: {
+        const value = parsed.percentages[0].value
+        return new ItemProperty({ id, value })
+      }
       case 20: {
         let shiftedId = id
         if (id === 305) {
@@ -772,7 +776,7 @@ class PropertyParser {
       }
       default: {
         console.error(parsed)
-        throw new Error(`unknown stat: ${entry.Stat}`)
+        throw new Error(`unknown stat func: ${entry.Stat}`)
       }
     }
   }
