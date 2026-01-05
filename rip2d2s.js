@@ -135,7 +135,7 @@ class PropertyParser {
       if (!desc) {
         return undefined
       }
-      return [[skill.skill.toLowerCase(), skill], [this.resolver.readable(desc['str name']).toLowerCase(), skill]]
+      return [[skill.skill.toLowerCase(), skill], [this.resolver.readable(desc['str name']).toLowerCase(), skill], [this.resolver.readable(skill.skill).toLowerCase(), skill]]
     }).flat().filter(i => i).reverse())
     this.classNameToClassEntry = Object.fromEntries(this.d2data.charStats().map(e => {
       if (e['class'] === 'Expansion') {
@@ -459,10 +459,10 @@ class PropertyParser {
         }
       },
       {
-        regex: /\+(\d+) to (Claw Mastery|Blade Dance|Enchant) \((Assassin|Sorceress) Only\)/i,
+        regex: /\+(\d+) to (Claw Mastery|Blade Dance|Enchant|Berserker) \((Assassin|Sorceress|Barbarian) Only\)/i,
         reviver: match => {
           const skillName = match[2]
-          const param = this.d2data.skills().first('skill', skillName).Id
+          const param = this.skillNameToSkillEntryMap[skillName.toLowerCase()].Id
           const value = Number(match[1])
           if (value <= 0) {
             throw new Error('skill level should be positive')
@@ -489,9 +489,10 @@ class PropertyParser {
         }
       },
       {
-        regex: /\+(.+)% Damage to Undead \(Based on Character Level\)/i,
+        regex: /\+(.+)% Damage to (Undead|Demons) \(Based on Character Level\)/i,
         reviver: match => {
-          const stat = this.d2data.itemStatCost().first('Stat', 'item_damage_undead_perlevel')
+          const statId = match[2].toLowerCase() === 'undead' ? 'item_damage_undead_perlevel' : 'item_damage_demon_perlevel'
+          const stat = this.d2data.itemStatCost().first('Stat', statId)
           const value = ~~(Number(match[1]) * (1 << Number(stat['op param'])))
           if (value <= 0) {
             throw new Error('undead%/lvl should be positive')
@@ -591,6 +592,19 @@ class PropertyParser {
         }
       },
       {
+        regex: /Gust(?:'s)? Cooldown Is Reduced By (.+) Seconds/i,
+        reviver: match => {
+          const stat = this.d2data.itemStatCost().first('Stat', 'gustreduction')
+          const value = Math.ceil(25 * Number(match[1]))
+          if (!Number.isFinite(value)) {
+            throw new Error(`unknown gust cooldown reduction time ${match[1]}`)
+          }
+          return [
+            new ItemProperty({ id: stat.ID, value })
+          ]
+        }
+      },
+      {
         // seen in items that must be eth
         regex: /undefined$/i,
         reviver: _ => {
@@ -615,6 +629,7 @@ class PropertyParser {
    * @returns {ItemProperty}
    */
   fromRegularParse (parsed) {
+    parsed.name = parsed.name.replace('percentage', '%')
     const entry = this.itemStatCost.first('Stat', parsed.name)
     const id = Number(entry.ID)
     switch (Number(entry.descfunc)) {
@@ -637,6 +652,9 @@ class PropertyParser {
         if (entry.descfunc === '3' && entry.descval === '0') {
           value = 1
         } else if (entry.descfunc === '12') {
+          value = 1
+        }
+        if (entry.Stat === 'map_mon_cannotbefrozen' || entry.Stat === 'map_mon_splash') {
           value = 1
         }
         // maxdamage, secondary_maxdamage, item_throw_maxdamage
@@ -951,9 +969,10 @@ class ItemRejuvenated {
           if (!(p.id in lut)) {
             return
           }
-          lut[p.id][0].value -= p.value
-          if (lut[p.id][0].param !== p.param) {
-            throw new Error(`expected item prop (id=${p.id}) param to match socket param a=${lut[p.id].param} b=${p.param}`)
+          for (const prop of lut[p.id]) {
+            if (prop.param === p.param) {
+              prop.value -= p.value
+            }
           }
         })
       })
