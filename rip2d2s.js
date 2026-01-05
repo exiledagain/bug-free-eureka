@@ -133,7 +133,7 @@ class PropertyParser {
       }
       const desc = skillDesc.first('skilldesc', skill.skilldesc)
       if (!desc) {
-        return undefined
+        return [[skill.skill.toLowerCase(), skill], [this.resolver.readable(skill.skill).toLowerCase(), skill]]
       }
       return [[skill.skill.toLowerCase(), skill], [this.resolver.readable(desc['str name']).toLowerCase(), skill], [this.resolver.readable(skill.skill).toLowerCase(), skill]]
     }).flat().filter(i => i).reverse())
