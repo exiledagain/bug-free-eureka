@@ -129,7 +129,7 @@ class PropertyParser {
       }
       // block temps
       if (skill.Id !== '0' && skill.Id !== '5' && skill.srvstfunc === '1' && skill.srvdofunc === '1') {
-        return undefined
+        return [[skill.skill.toLowerCase(), skill], [this.resolver.readable(skill.skill).toLowerCase(), skill]]
       }
       const desc = skillDesc.first('skilldesc', skill.skilldesc)
       if (!desc) {
