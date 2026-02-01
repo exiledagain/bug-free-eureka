@@ -236,12 +236,10 @@ class PropertyParser {
       {
         regex: /Repairs (.+?) Durability in (.+?) Seconds$/i,
         reviver: _ => {
-          const corrupted = this.d2data.itemStatCost().first('Stat', 'corrupted')
           const rep = this.d2data.itemStatCost().first('Stat', 'item_replenish_durability')
           // accurate enough for the trade site as rep is always good enough to repair gear
           return [
-            new ItemProperty({ id: rep.ID, value: 25 }),            
-            new ItemProperty({ id: corrupted.ID, value: 1 })
+            new ItemProperty({ id: rep.ID, value: 25 }),
           ]
         }
       },

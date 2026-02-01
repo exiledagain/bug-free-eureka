@@ -41,7 +41,7 @@ async function Main () {
   await dropper.setup()
 
   const treasureClasses = ['Act 5 (H) Chest C']
-  const levels = [85]
+  const levels = [89]
 
   const queries = []
 
@@ -50,7 +50,7 @@ async function Main () {
     for (const itemLevel of levels) {
       for (let locked = 0; locked <= 1; ++locked) {
         for (let dc = 1; dc <= 1; ++dc) {
-          for (let mf = 0; mf <= 200; ++mf) {
+          for (let mf = 0; mf <= 500; ++mf) {
             queries.push({ treasureClass, itemLevel, chestDropLevel, locked, magicFind: mf, dropClass: dc })
           }
         }
@@ -58,7 +58,7 @@ async function Main () {
     }
   }
 
-  const n = 16
+  const n = 2
   const step = ~~(queries.length / n)
 
   const childData = []
@@ -102,7 +102,7 @@ async function Main () {
       if (rem === 0) {
         console.log(']')
         console.log(histogram)
-        printBestRouteFromZero(histogram, 0.15)
+        printBestRouteFromZero(histogram, 0.11)
       }
     })
   }
@@ -149,11 +149,13 @@ async function Child () {
     // 'r28s': 1,
     // 'r27s': 1,
     // 'r33s': 1,
-    // uar: { rarity: 'unique', value: 1 }
-    r33s: 1,
+    uul: { rarity: 'unique', value: 1 },
+    uar: { rarity: 'unique', value: 1 },
+    ci3: { rarity: 'unique', value: 1 }
+    // r33s: 1,
     // r29s: 1
   }
-  const values = valuesChart
+  const values = valuesSpecific
   const filter1 = res => {
     return res.some(el => el.id === 'rin' && el.rarity === 'unique')
   }
