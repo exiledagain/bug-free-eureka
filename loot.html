@@ -94,57 +94,98 @@
           </form>
           </td>
           <td style="vertical-align: baseline;">
-          <form autocomplete="off">
-            <fieldset>
-              <legend>Search</legend>
-              <table>
-                <tr>
-                  <td>
-                    <label for="rarity">Rarity</label>
-                  </td>
-                  <td>
-                    <select id="rarity" name="rarity">
-                      <option value="normal">Normal</option>
-                      <option value="magic">Magic</option>
-                      <option value="rare">Rare</option>
-                      <option value="set">Set</option>
-                      <option value="unique" selected>Unique</option>
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <label for="item">Item</label>
-                  </td>
-                  <td>
-                    <select id="item" name="item">
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <label for="explain">Explain</label>
-                  </td>
-                  <td>
-                    <input id="explain" name="explain" type="checkbox">
-                  </td>
-                </tr>
-                <tr title="Include the chance for Set/Normal items to be blocked by higher rarity">
-                  <td>
-                    <label for="reduce">Reduce</label>
-                  </td>
-                  <td>
-                    <input id="reduce" name="reduce" type="checkbox" checked> (Set/Normal Only)
-                  </td>
-                </tr>
-              </table>
-            </fieldset>
-          </form>
+            <form autocomplete="off">
+              <fieldset>
+                <legend>Search</legend>
+                <table>
+                  <tr>
+                    <td>
+                      <label for="rarity">Rarity</label>
+                    </td>
+                    <td>
+                      <select id="rarity" name="rarity">
+                        <option value="normal">Normal</option>
+                        <option value="magic">Magic</option>
+                        <option value="rare">Rare</option>
+                        <option value="set">Set</option>
+                        <option value="unique" selected>Unique</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <label for="item">Item</label>
+                    </td>
+                    <td>
+                      <select id="item" name="item">
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <label for="explain">Explain</label>
+                    </td>
+                    <td>
+                      <input id="explain" name="explain" type="checkbox">
+                    </td>
+                  </tr>
+                  <tr title="Include the chance for Set/Normal items to be blocked by higher rarity">
+                    <td>
+                      <label for="reduce">Reduce</label>
+                    </td>
+                    <td>
+                      <input id="reduce" name="reduce" type="checkbox" checked> (Set/Normal Only)
+                    </td>
+                  </tr>
+                </table>
+              </fieldset>
+            </form>
+          </td>
+          <td style="vertical-align: baseline;">
+            <form autocomplete="off">
+              <fieldset>
+                <legend>Filter</legend>
+                <table>
+                  <tr>
+                    <td>
+                      <label for="uniques">Uniques</label>
+                    </td>
+                    <td>
+                      <input id="uniques" name="uniques" type="checkbox" checked>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <label for="champions">Champions</label>
+                    </td>
+                    <td>
+                      <input id="champions" name="champions" type="checkbox" checked>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <label for="minions">Minions</label>
+                    </td>
+                    <td>
+                      <input id="minions" name="minions" type="checkbox" checked>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <label for="normals">Normals</label>
+                    </td>
+                    <td>
+                      <input id="normals" name="normals" type="checkbox" checked>
+                    </td>
+                  </tr>
+                </table>
+              </fieldset>
+            </form>
+          </td>
         </td>
       </tr>
     </table>
     <table id="sources">
-
     </table>
     <script>
       'use strict'
@@ -748,7 +789,11 @@
             item: document.querySelector('#item').value,
             explain: document.querySelector('#explain').checked,
             difficulty: Number(document.getElementById('difficulty').value),
-            reduce: document.querySelector('#reduce').checked
+            reduce: document.querySelector('#reduce').checked,
+            uniques: document.querySelector('#uniques').checked,
+            champions: document.querySelector('#champions').checked,
+            minions: document.querySelector('#minions').checked,
+            normals: document.querySelector('#normals').checked,
           }
         }
 
@@ -808,6 +853,18 @@
           document.querySelector('#explain').onchange = () => {
             this.generate()
           }
+          document.querySelector('#uniques').onchange = () => {
+            this.generate()
+          }
+          document.querySelector('#champions').onchange = () => {
+            this.generate()
+          }
+          document.querySelector('#minions').onchange = () => {
+            this.generate()
+          }
+          document.querySelector('#normals').onchange = () => {
+            this.generate()
+          }
           document.getElementById('difficulty').onchange = () => {
             this.generate()
           }
@@ -822,7 +879,7 @@
             return
           }
           this.previous = current
-          const { players, magicFind, rarity, item, top, difficulty, reduce } = this.values()
+          const { players, magicFind, rarity, item, top, difficulty, reduce, uniques, minions, champions, normals } = this.values()
           if (!item) {
             document.querySelector('#sources').textContent = 'pick an item'
             return
@@ -844,6 +901,12 @@
               break
             }
           }
+          const allowed = {
+            2: uniques,
+            5: minions,
+            1: champions,
+            0: normals,
+          }
           sources = sources.filter(({ source }) => {
             if (source.difficulty < 2) {
               // block enemies from after world stone keep in normal/nightmare
@@ -851,7 +914,7 @@
                 return false
               }
             }
-            return difficulty < 0 || source.difficulty === difficulty
+            return allowed[source.rarity] && (difficulty < 0 || source.difficulty === difficulty)
           })
           this.populateDrops(document.querySelector('#sources'), sources, top)
         }
