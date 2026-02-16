@@ -696,9 +696,12 @@ class PropertyParser {
         if (entry.Stat === 'mindamage' || entry.Stat === 'maxdamage') {
           const pairId = 'secondary_' + entry.Stat
           const pairEntry = this.itemStatCost.first('Stat', pairId)
+          const tripleId = 'item_throw_' + entry.Stat
+          const tripleEntry = this.itemStatCost.first('Stat', tripleId)
           return [
             res,
             new ItemProperty({ id: pairEntry.ID, value }),
+            new ItemProperty({ id: tripleEntry.ID, value }),
           ]
         }
         return res
