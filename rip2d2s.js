@@ -693,6 +693,14 @@ class PropertyParser {
           // some items aren't 33 but the text is always 'replenish 1 charge in 3 seconds'
           res.value = 33
         }
+        if (entry.Stat === 'mindamage' || entry.Stat === 'maxdamage') {
+          const pairId = 'secondary_' + entry.Stat
+          const pairEntry = this.itemStatCost.first('Stat', pairId)
+          return [
+            res,
+            new ItemProperty({ id: pairEntry.ID, value }),
+          ]
+        }
         return res
       }
       case 11: {
