@@ -835,6 +835,10 @@ class ItemRejuvenated {
     this.socketCount = 0
     this.ethereal = raw.name.startsWith('(')
     this.name = raw.name.substring(this.ethereal ? raw.name.indexOf(')') + 2 : 0)
+    if (this.name === 'Large Shield' && this.rarity === 'set') {
+      // civerb's is wrong on the tradesite
+      this.name = 'Civerb\'s Ward'
+    }
     if (raw.type.endsWith(')')) {
       this.socketCount = Number(raw.type.at(-2))
       this.sockets = raw.sockets.map(jew => {
@@ -1342,10 +1346,12 @@ class Rejuvenator {
           const a = getProp(setEntry, i, 'a')
           const b = getProp(setEntry, i, 'b')
           if (a.propCode.length > 0) {
-            properties.at(-1).push(this.propertiesConverter.convert(a))
+            properties.pop()
+            properties.push(this.propertiesConverter.convert(a))
           }
           if (b.propCode.length > 0) {
-            properties.at(-1).push(this.propertiesConverter.convert(b))
+            properties.pop()
+            properties.push(this.propertiesConverter.convert(b))
           }
           if (properties.at(-1).length === 0) {
             properties.pop()

@@ -2349,11 +2349,11 @@ class PropertiesConverter {
           ]
           res.push(...list.map(statCode => {
             const stat = this.itemStatCost.first('Stat', statCode)
-            return new ItemProperty({
+            return [new ItemProperty({
               id: stat.ID,
               // could be random
               value: min
-            })
+            })]
           }))
           break
         }
@@ -2366,11 +2366,11 @@ class PropertiesConverter {
           ]
           res.push(...list.map(statCode => {
             const stat = this.itemStatCost.first('Stat', statCode)
-            return new ItemProperty({
+            return [new ItemProperty({
               id: stat.ID,
               // could be random
               value: min
-            })
+            })]
           }))
           break
         }
@@ -2527,7 +2527,12 @@ class PropertiesConverter {
       }
     }
     res.sort((a, b) => a.id - b.id)
-    return res
+    return res.map(e => {
+      if (e instanceof Array) {
+        return e
+      }
+      return [e]
+    })
   }
 }
 
