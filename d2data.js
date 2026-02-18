@@ -2377,10 +2377,10 @@ class PropertiesConverter {
         // enhanced damage only
         case 7: {
           const list = [
-            'item_mindamage_percent',
-            'item_maxdamage_percent'
+            'item_maxdamage_percent',
+            'item_mindamage_percent'
           ]
-          res.push(...list.map(statCode => {
+          res.push(list.map(statCode => {
             const stat = this.itemStatCost.first('Stat', statCode)
             return new ItemProperty({
               id: stat.ID,
