@@ -2376,6 +2376,7 @@ class PropertiesConverter {
         }
         // enhanced damage only
         case 7: {
+          // sorted by id
           const list = [
             'item_maxdamage_percent',
             'item_mindamage_percent'
