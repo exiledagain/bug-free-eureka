@@ -2527,7 +2527,6 @@ class PropertiesConverter {
         }
       }
     }
-    res.sort((a, b) => a.id - b.id)
     return res.map(e => {
       if (e instanceof Array) {
         return e
