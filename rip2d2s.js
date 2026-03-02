@@ -630,6 +630,9 @@ class PropertyParser {
     parsed.name = parsed.name.replace('percentage', '%')
     const entry = this.itemStatCost.first('Stat', parsed.name)
     const id = Number(entry.ID)
+    if (parsed.name === 'item_numsockets_textonly') {
+      return []
+    }
     switch (Number(entry.descfunc)) {
       case 0:
       case 1:
