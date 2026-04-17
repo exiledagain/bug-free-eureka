@@ -1272,6 +1272,9 @@ class Rejuvenator {
       rejuv.base = '2H Phase Blade'
     }
     const entry = this.nameToItemEntry[rejuv.base]
+    if (!entry) {
+      throw new Error(`unknown item: ${rejuv.base}`)
+    }
     const code = SaveFileParser.stringToCode(entry.code)
     const quality = Object.keys(SaveFileParser.ItemQuality).indexOf(rejuv.rarity.toLowerCase())
     const res = {
@@ -1462,14 +1465,15 @@ class Rejuvenator {
       }
       const name = this.resolver.readable(desc['str name'])
       const nameTs = this.resolver.readable(e.skill)
-      name2skillMap[name] = e
-      name2skillMap[e.skill] = e
-      name2skillMap[nameTs] = e
+      name2skillMap[name.toLowerCase()] = e
+      name2skillMap[e.skill.toLowerCase()] = e
+      name2skillMap[nameTs.toLowerCase()] = e
     })
     const classes = {}
-    for (const [skill] of skills) {
+    for (let [skill] of skills) {
+      skill = skill.toLowerCase()
       if (!name2skillMap[skill]) {
-        throw new Error(`unknown skill: ${skill}`)
+        throw new Error(`unknown skill: '${skill}'`)
       }
       classes[name2skillMap[skill].charclass] = true
     }
