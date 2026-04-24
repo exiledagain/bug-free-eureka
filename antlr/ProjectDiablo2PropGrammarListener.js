@@ -1607,6 +1607,33 @@ export default class ProjectDiablo2PropGrammarListener extends antlr4.tree.Parse
 	}
 
 
+	// Enter a parse tree produced by ProjectDiablo2PropGrammarParser#item_crit_multiplier.
+	enterItem_crit_multiplier(ctx) {
+	}
+
+	// Exit a parse tree produced by ProjectDiablo2PropGrammarParser#item_crit_multiplier.
+	exitItem_crit_multiplier(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ProjectDiablo2PropGrammarParser#item_ds_multiplier.
+	enterItem_ds_multiplier(ctx) {
+	}
+
+	// Exit a parse tree produced by ProjectDiablo2PropGrammarParser#item_ds_multiplier.
+	exitItem_ds_multiplier(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ProjectDiablo2PropGrammarParser#item_crit_chance.
+	enterItem_crit_chance(ctx) {
+	}
+
+	// Exit a parse tree produced by ProjectDiablo2PropGrammarParser#item_crit_chance.
+	exitItem_crit_chance(ctx) {
+	}
+
+
 	// Enter a parse tree produced by ProjectDiablo2PropGrammarParser#item_crushingblow_efficiency.
 	enterItem_crushingblow_efficiency(ctx) {
 	}
@@ -1649,6 +1676,51 @@ export default class ProjectDiablo2PropGrammarListener extends antlr4.tree.Parse
 
 	// Exit a parse tree produced by ProjectDiablo2PropGrammarParser#map_glob_dropsocketed.
 	exitMap_glob_dropsocketed(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ProjectDiablo2PropGrammarParser#map_glob_dropbonus.
+	enterMap_glob_dropbonus(ctx) {
+	}
+
+	// Exit a parse tree produced by ProjectDiablo2PropGrammarParser#map_glob_dropbonus.
+	exitMap_glob_dropbonus(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ProjectDiablo2PropGrammarParser#map_glob_dropethereal.
+	enterMap_glob_dropethereal(ctx) {
+	}
+
+	// Exit a parse tree produced by ProjectDiablo2PropGrammarParser#map_glob_dropethereal.
+	exitMap_glob_dropethereal(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ProjectDiablo2PropGrammarParser#map_glob_bossdropstreasure.
+	enterMap_glob_bossdropstreasure(ctx) {
+	}
+
+	// Exit a parse tree produced by ProjectDiablo2PropGrammarParser#map_glob_bossdropstreasure.
+	exitMap_glob_bossdropstreasure(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ProjectDiablo2PropGrammarParser#treacherous.
+	enterTreacherous(ctx) {
+	}
+
+	// Exit a parse tree produced by ProjectDiablo2PropGrammarParser#treacherous.
+	exitTreacherous(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ProjectDiablo2PropGrammarParser#map_mon_att.
+	enterMap_mon_att(ctx) {
+	}
+
+	// Exit a parse tree produced by ProjectDiablo2PropGrammarParser#map_mon_att.
+	exitMap_mon_att(ctx) {
 	}
 
 

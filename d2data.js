@@ -2005,7 +2005,7 @@ class Diablo2Data {
     'MonUMod.txt'
   ]
 
-  static defaultVersion = 's12'
+  static defaultVersion = 's13'
 
   constructor (version = Diablo2Data.defaultVersion) {
     this.version = version
