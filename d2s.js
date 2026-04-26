@@ -153,6 +153,8 @@ class BitWriter {
 }
 
 class SaveFileParser {
+  static IdSize = 10
+
   // https://github.com/ThePhrozenKeep/D2MOO/blob/8322494ed1f715ad51552f169df76cf600fabc71/source/D2Common/include/D2Items.h#L146
   static ItemFlags = {
     identified: 0x10,
@@ -522,11 +524,11 @@ class SaveFileParser {
     return res
   }
 
-  itemStatList () {
+  itemStatList (idsize = SaveFileParser.IdSize) {
     const res = []
     for (;;) {
-      const id = this.reader.read(9)
-      if (id === BigInt(0x1FF)) {
+      const id = this.reader.read(idsize)
+      if (id === BigInt((1 << idsize) - 1)) {
         break
       }
       const first = this.itemStat(id)
@@ -795,15 +797,15 @@ class SaveFileWriter {
     this.writer.write(BigInt(value) + (this.addSaveAdd ? BigInt(entry['Save Add']) : 0n), Number(entry['Save Bits']))
   }
 
-  writeItemStatList (list) {
+  writeItemStatList (list, idsize = SaveFileParser.IdSize) {
     for (let i = 0; i < list.length; ++i) {
       // for stat pairs e.g. ed% -> min ed%, max ed%
-      this.writer.write(list[i][0].id, 9)
+      this.writer.write(list[i][0].id, idsize)
       for (let j = 0; j < list[i].length; ++j) {
         this.writeItemStat(list[i][j])
       }
     }
-    this.writer.write(BigInt(0x1FF), 9)
+    this.writer.write(BigInt(BigInt((1 << idsize) - 1)), idsize)
   }
 
   writeString (string) {

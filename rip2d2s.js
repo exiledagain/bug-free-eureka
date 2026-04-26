@@ -177,6 +177,10 @@ class PropertyParser {
    */
   parse (string) {
     try {
+      // broken props in s13
+      if (string === 'Enhanced Minimum Damage') {
+        return null
+      }
       const res = this.parseProp(string)
       if (res instanceof Array) {
         res.forEach(e => {
@@ -953,7 +957,7 @@ class ItemRejuvenated {
   }
 
   parseProps (props) {
-    return this.adjustProps(props.map(prop => this.propertyParser.parse(prop)).flat())
+    return this.adjustProps(props.map(prop => this.propertyParser.parse(prop)).filter(i => i).flat())
   }
 
   adjustProps (props) {
@@ -1282,7 +1286,7 @@ class Rejuvenator {
       header: 19786n,
       compact: {
         flags: SaveFileParser.ItemFlags.identified | SaveFileParser.ItemFlags.item,
-        version: 101n,
+        version: 103n,
         code,
         socketed: rejuv.socketCount
       },
@@ -1361,8 +1365,22 @@ class Rejuvenator {
           }
           if (properties.at(-1).length === 0) {
             properties.pop()
-          } else {
-            bitset |= 1 << (i - 1)
+            continue
+          }
+          bitset |= 1 << (i - 1)
+          if (properties.at(-1)[0][0].id === 17 || properties.at(-1)[0][0].id === 48 || properties.at(-1)[0][0].id === 50 || properties.at(-1)[0][0].id === 52) {
+            const prev = properties.pop()
+            properties.push([[
+              prev[0][0],
+              prev[1][0]
+            ]])
+          } else if (properties.at(-1)[0][0].id === 54 || properties.at(-1)[0][0].id === 57) {
+            const prev = properties.pop()
+            properties.push([[
+              prev[0][0],
+              prev[1][0],
+              prev[2][0]
+            ]])
           }
         }
         res.extra.file = setEntry._index
