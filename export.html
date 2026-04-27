@@ -49,7 +49,7 @@
               y: json.position.row
             }
           }
-          res.props = json.modifiers.map(e => e.label)
+          res.props = json.modifiers.map(e => e.label).filter(e => e)
           if (json.socket_count > 0) {
             res.sockets = []
           }

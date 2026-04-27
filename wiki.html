@@ -54,7 +54,10 @@
             { boss: 'TortureHallsBoss', areas: ['The Halls of Torture']},
             { boss: 'CityofUrehBoss', areas: ['The City of Ureh', 'Nemyr Monastery'], extra: ['CityofUrehMiniBoss']},
             { boss: 'ImperialPalaceBoss', areas: ['The Imperial Palace', 'The Imperial Cellar'], extra: ['ImperialPalaceMiniBoss', 'ImperialPalaceBossMinion']},
-            { boss: '', areas: ['The Outer Void'], extra: []}
+            { boss: '', areas: ['The Outer Void'], extra: []},
+            { boss: 'KyovoshadBoss', areas: ['Kyovashad'], extra: ['KyovoshadBossMinion']},
+            { boss: 'NaKrulBoss', areas: ['Na-Krul\'s Abyss'], unique: true },
+            { boss: 'DjinnLightBoss', areas: ['Djinn\'s Mirage', 'The Djinn\'s Domain', 'The Wishing Well'], unique: true, extra: ['FlyingScimitarDjinnBoss', 'DjinnDarkBoss'] }
         ]
 
         constructor () {
@@ -130,7 +133,7 @@
           })
           maps.forEach(map => {
             const levels = map.areas.map(el => inverseMap[el])
-            if (map.areas.length === 1 && (map.areas[0] !== 'The Imperial Palace' && map.areas[0] !== 'The Outer Void')) {
+            if (map.areas.length === 1 && !map.unique && (map.areas[0] !== 'The Imperial Palace' && map.areas[0] !== 'The Outer Void')) {
               map.type = `T${levels[0].MonLvl3Ex - '86'}`
             } else if (levels[0].MonLvl3Ex < '92') {
               map.type = 'Unique Maps'

@@ -711,7 +711,13 @@ class MonsterSourcer {
     'LucionSpawnTank': { area: 'Lucion Arena' },
     'Lucion': { area: 'Lucion Arena' },
     'CityofUrehBoss': { area: 'Nemyr Monastery Map' },
-    'CityofUrehMiniBoss': { area: 'Ureh City Map' }
+    'CityofUrehMiniBoss': { area: 'Ureh City Map' },
+    'KyovoshadBoss': { area: 'Kyovoshad Map' },
+    'KyovoshadBossMinion': { area: 'Kyovoshad Map' },
+    'NaKrulBoss': { area: 'Na-Krul\'s Abyss Map' },
+    'DjinnLightBoss': { area: 'Djinns Domain Boss Map' },
+    'DjinnDarkBoss': { area: 'Djinns Domain Red Map' },
+    'FlyingScimitarDjinnBoss': { area: 'Djinns Domain Boss Map' }
   }
   static staticSuperMonsters = {
     'Bishibosh': { area: 'Act 1 - Wilderness 2' },
