@@ -266,7 +266,7 @@ class PropertyParser {
         }
       },
       {
-        regex: /(.+?)%? Deadly Strike \(Based on Character Level\)$/i,
+        regex: /(.+?)% Chance of Deadly Strike \(Based on Character Level\)$/i,
         reviver: match => {
           const deadlyPerLevel = this.d2data.itemStatCost().first('Stat', 'item_deadlystrike_perlevel')
           const value = ~~(Number(match[1]) * (1 << Number(deadlyPerLevel['op param'])))
@@ -313,6 +313,28 @@ class PropertyParser {
           const max = this.d2data.itemStatCost().first('Stat', `${type}maxdam`)
           const minValue = Number(match[1])
           const maxValue = Number(match[2])
+          const res = [
+            new ItemProperty({ id: min.ID, value: minValue }),
+            new ItemProperty({ id: max.ID, value: maxValue })
+          ]
+          if (type === 'cold') {
+            const coldlength = this.d2data.itemStatCost().first('Stat', 'coldlength')
+            res.push(new ItemProperty({
+              // small but present value
+              id: coldlength.ID, value: 50
+            }))
+          }
+          return res
+        }
+      },
+      {
+        regex: /Adds (\d+) (Fire) Damage$/i,
+        reviver: match => {
+          const type = match[2].toLowerCase()
+          const min = this.d2data.itemStatCost().first('Stat', `${type}mindam`)
+          const max = this.d2data.itemStatCost().first('Stat', `${type}maxdam`)
+          const minValue = Number(match[1])
+          const maxValue = Number(match[1])
           const res = [
             new ItemProperty({ id: min.ID, value: minValue }),
             new ItemProperty({ id: max.ID, value: maxValue })
@@ -957,7 +979,7 @@ class ItemRejuvenated {
   }
 
   parseProps (props) {
-    return this.adjustProps(props.map(prop => this.propertyParser.parse(prop)).filter(i => i).flat())
+    return this.adjustProps(Array.from(new Set(props)).map(prop => this.propertyParser.parse(prop)).filter(i => i).flat())
   }
 
   adjustProps (props) {
