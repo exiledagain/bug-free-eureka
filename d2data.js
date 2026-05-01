@@ -2444,7 +2444,7 @@ class PropertiesConverter {
           res.push(new ItemProperty({
             id: statEntry.ID,
             // could be random
-            value: min
+            value: max
           }))
           break
         }

@@ -154,6 +154,9 @@ class BitWriter {
 
 class SaveFileParser {
   static IdSize = 10
+  static SaveBitsCol = 'Save Bits'
+  static SaveParamCol = 'Save Param Bits'
+  static SaveAddCol = 'Save Add'
 
   // https://github.com/ThePhrozenKeep/D2MOO/blob/8322494ed1f715ad51552f169df76cf600fabc71/source/D2Common/include/D2Items.h#L146
   static ItemFlags = {
@@ -449,7 +452,7 @@ class SaveFileParser {
         }
         if (this.typeList.isArmor(code) || this.typeList.isWeapon(code)) {
           extra.durability = {}
-          const bits = Number(this.costs.first('Stat', 'maxdurability')['Save Bits'])
+          const bits = Number(this.costs.first('Stat', 'maxdurability')[SaveFileParser.SaveBitsCol])
           extra.durability.max = this.reader.read(bits)
           if (extra.durability.max > 0) {
             extra.durability.current = this.reader.read(bits)
@@ -490,7 +493,7 @@ class SaveFileParser {
     res.real = {}
     res.real.name = this.costs.first('ID', id.toString())['Stat']
     const entry = this.costs.first('ID', id.toString())
-    const bits = Number(entry['Save Param Bits'])
+    const bits = Number(entry[SaveFileParser.SaveParamCol])
     if (bits !== 0) {
       res.param = this.reader.read(bits)
       if (entry['descfunc'] === '14') {
@@ -508,8 +511,8 @@ class SaveFileParser {
         }
       }
     }
-    res.value = this.reader.read(Number(entry['Save Bits']))
-    res.real.raw = res.value - BigInt(entry['Save Add'])
+    res.value = this.reader.read(Number(entry[SaveFileParser.SaveBitsCol]))
+    res.real.raw = res.value - BigInt(entry[SaveFileParser.SaveAddCol])
     if (this.format) {
       res.real.tooltip = this.format.get(res.real.name, { value: Number(res.real.raw), param: Number(res.param) })
     }
@@ -790,11 +793,11 @@ class SaveFileWriter {
 
   writeItemStat ({ id, param,  value }) {
     const entry = this.costs.first('ID', BigInt(id).toString())
-    const bits = Number(entry['Save Param Bits'])
+    const bits = Number(entry[SaveFileParser.SaveParamCol])
     if (bits !== 0) {
       this.writer.write(param, bits)
     }
-    this.writer.write(BigInt(value) + (this.addSaveAdd ? BigInt(entry['Save Add']) : 0n), Number(entry['Save Bits']))
+    this.writer.write(BigInt(value) + (this.addSaveAdd ? BigInt(entry[SaveFileParser.SaveAddCol]) : 0n), Number(entry[SaveFileParser.SaveBitsCol]))
   }
 
   writeItemStatList (list, idsize = SaveFileParser.IdSize) {
@@ -902,7 +905,7 @@ class SaveFileWriter {
           this.writer.write(item.extra.armor, 11)
         }
         if (this.typeList.isArmor(code) || this.typeList.isWeapon(code)) {
-          const bits = Number(this.costs.first('Stat', 'maxdurability')['Save Bits'])
+          const bits = Number(this.costs.first('Stat', 'maxdurability')[SaveFileParser.SaveBitsCol])
           this.writer.write(item.extra.durability.max, bits)
           if (item.extra.durability.max > BigInt(0)) {
             this.writer.write(item.extra.durability.current, bits)

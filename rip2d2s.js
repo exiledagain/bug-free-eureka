@@ -328,7 +328,7 @@ class PropertyParser {
         }
       },
       {
-        regex: /Adds (\d+) (Fire) Damage$/i,
+        regex: /Adds (\d+) (Cold|Fire|Lightning|Magic) Damage$/i,
         reviver: match => {
           const type = match[2].toLowerCase()
           const min = this.d2data.itemStatCost().first('Stat', `${type}mindam`)
