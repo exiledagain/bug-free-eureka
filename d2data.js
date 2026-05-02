@@ -2403,7 +2403,7 @@ class PropertiesConverter {
             id: statEntry.ID,
             // could be random
             value: min,
-            param
+            param: ((~~(param / 3)) << 3) | (param % 3)
           }))
           break
         }
