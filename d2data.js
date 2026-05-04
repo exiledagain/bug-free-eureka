@@ -2411,7 +2411,7 @@ class PropertiesConverter {
         case 11: {
           let index = Number(param)
           if (!Number.isFinite(index)) {
-            const skillEntry = this.skills.first('skill', param)
+            const skillEntry = this.skills.first('skilldesc', param) || this.skills.first('skill', param)
             index = skillEntry.Id
           }
           res.push(new ItemProperty({
