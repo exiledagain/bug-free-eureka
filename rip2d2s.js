@@ -1080,7 +1080,7 @@ class Rejuvenator {
       return map
     }, {})
     this.nameToUniqueEntry = this.d2data.uniqueItems().reduce((map, entry, i) => {
-      if (entry.enabled !== '1') {
+      if (entry.enabled !== '1' && entry.index !== 'Armageddon Blade') {
         return map
       }
       entry._index = i
@@ -1294,7 +1294,7 @@ class Rejuvenator {
   }
 
   getItemEncoded (rejuv, isSocketed) {
-    if (rejuv.base === 'Phase Blade' && rejuv.rarity.toLowerCase() === 'unique' && rejuv.raw.props.includes('75% Chance to Cast Level 50 Firestorm on Striking')) {
+    if (rejuv.base === 'Phase Blade' && rejuv.rarity.toLowerCase() === 'unique' && rejuv.raw.name === 'Armageddon\'s Blade') {
       rejuv.base = '2H Phase Blade'
     }
     const entry = this.nameToItemEntry[rejuv.base]
